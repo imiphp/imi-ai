@@ -28,6 +28,9 @@ jobs:
 
   vue-tsc:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v3
       - name: Set node

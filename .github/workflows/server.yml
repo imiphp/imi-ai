@@ -7,6 +7,9 @@ on:
 jobs:
   php-cs-fixer:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: server
     env:
       SWOOLE_DOCKER_VERSION: 5.0-php8.1
     steps:
@@ -28,6 +31,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       SWOOLE_DOCKER_VERSION: 5.0-php8.1
+    defaults:
+      run:
+        working-directory: server
     steps:
       - name: Checkout
         uses: actions/checkout@v2
