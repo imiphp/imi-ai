@@ -18,6 +18,7 @@ jobs:
           docker build --build-arg SWOOLE_DOCKER_VERSION=$SWOOLE_DOCKER_VERSION -f .github/swoole.dockerfile -t swoole .
           docker run --name swoole --volume=${GITHUB_WORKSPACE}/server:/app:rw --workdir=/app -d swoole
           docker exec swoole php -v
+          docker exec swoole php -m
           docker exec swoole php --ri swoole
           docker exec swoole composer -V
           docker exec swoole composer update --no-interaction --prefer-dist --no-progress
@@ -38,6 +39,7 @@ jobs:
           docker build --build-arg SWOOLE_DOCKER_VERSION=$SWOOLE_DOCKER_VERSION -f .github/swoole.dockerfile -t swoole .
           docker run --name swoole --volume=${GITHUB_WORKSPACE}/server:/app:rw --workdir=/app -d swoole
           docker exec swoole php -v
+          docker exec swoole php -m
           docker exec swoole php --ri swoole
           docker exec swoole composer -V
           docker exec swoole composer update --no-interaction --prefer-dist --no-progress
