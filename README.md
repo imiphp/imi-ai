@@ -1,6 +1,5 @@
 # imi-ai
 
-[![Latest Version](https://img.shields.io/packagist/v/imiphp/imi-ai.svg)](https://packagist.org/packages/imiphp/imi-ai)
 [![Server test](https://github.com/imiphp/imi-ai/actions/workflows/server.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/server.yml)
 [![Web test](https://github.com/imiphp/imi-ai/actions/workflows/web.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/web.yml)
 [![Php Version](https://img.shields.io/badge/php-%3E=8.1-brightgreen.svg)](https://secure.php.net/)
