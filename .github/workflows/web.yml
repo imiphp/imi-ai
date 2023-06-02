@@ -7,15 +7,15 @@ on:
 jobs:
   eslint:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v3
       - name: Set node
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-
-      - name: Prepare
-        run: cd web
 
       - name: Setup
         run: npm i -g @antfu/ni
@@ -34,9 +34,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-
-      - name: Prepare
-        run: cd web
 
       - name: Setup
         run: npm i -g @antfu/ni
