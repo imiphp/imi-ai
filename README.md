@@ -1,10 +1,17 @@
 # imi-ai
 
+[![Latest Version](https://img.shields.io/packagist/v/imiphp/imi-ai.svg)](https://packagist.org/packages/imiphp/imi-ai)
+[![Server test](https://github.com/imiphp/imi-ai/actions/workflows/server.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/server.yml)
+[![Web test](https://github.com/imiphp/imi-ai/actions/workflows/web.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/web.yml)
+[![Php Version](https://img.shields.io/badge/php-%3E=8.1-brightgreen.svg)](https://secure.php.net/)
+[![Swoole Version](https://img.shields.io/badge/swoole-%3E=4.8.13-brightgreen.svg)](https://github.com/swoole/swoole-src)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/imiphp/imi-ai/blob/master/LICENSE)
+
 ## 介绍
 
 imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 ChatGPT 功能。
 
-后端基于 imi（PHP+Swoole），前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web)。
+后端基于 [imi](https://github.com/imiphp/imi)（PHP+Swoole），前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web)。
 
 项目采用 MIT 协议开源，你可以方便地进行二次开发，并且可以用于商业用途。
 

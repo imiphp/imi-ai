@@ -7,8 +7,12 @@ on:
 jobs:
   php-cs-fixer:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        swoole: ["5.0-php8.1", "5.0-php8.2"]
     env:
-      SWOOLE_DOCKER_VERSION: 5.0-php8.1
+      SWOOLE_DOCKER_VERSION: ${{ matrix.swoole }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -28,8 +32,12 @@ jobs:
 
   phpstan:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        swoole: ["5.0-php8.1", "5.0-php8.2"]
     env:
-      SWOOLE_DOCKER_VERSION: 5.0-php8.1
+      SWOOLE_DOCKER_VERSION: ${{ matrix.swoole }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
