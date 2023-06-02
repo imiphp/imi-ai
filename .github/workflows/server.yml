@@ -15,7 +15,7 @@ jobs:
 
       - name: Prepare
         run: |
-          docker build -f ./github/swoole.dockerfile -t swoole .
+          docker build -f .github/swoole.dockerfile -t swoole .
           docker run --name swoole --volume=${GITHUB_WORKSPACE}/server:/app:rw --workdir=/app -d swoole
           docker exec swoole php -v
           docker exec swoole php --ri swoole
@@ -35,7 +35,7 @@ jobs:
 
       - name: Prepare
         run: |
-          docker build -f ./github/swoole.dockerfile -t swoole .
+          docker build -f .github/swoole.dockerfile -t swoole .
           docker run --name swoole --volume=${GITHUB_WORKSPACE}/server:/app:rw --workdir=/app -d swoole
           docker exec swoole php -v
           docker exec swoole php --ri swoole
