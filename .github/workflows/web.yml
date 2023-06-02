@@ -14,6 +14,9 @@ jobs:
         with:
           node-version: 18.x
 
+      - name: Prepare
+        run: cd web
+
       - name: Setup
         run: npm i -g @antfu/ni
 
@@ -31,6 +34,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
+
+      - name: Prepare
+        run: cd web
 
       - name: Setup
         run: npm i -g @antfu/ni

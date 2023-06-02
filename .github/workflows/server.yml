@@ -15,7 +15,7 @@ jobs:
 
       - name: Prepare
         run: |
-          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole
+          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole phpswoole/swoole:$SWOOLE_DOCKER_VERSION
           docker exec php -v
           docker exec php --ri swoole
           docker exec composer -V
@@ -34,7 +34,7 @@ jobs:
 
       - name: Prepare
         run: |
-          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole
+          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole phpswoole/swoole:$SWOOLE_DOCKER_VERSION
           docker exec php -v
           docker exec php --ri swoole
           docker exec composer -V
