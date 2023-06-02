@@ -19,13 +19,13 @@ jobs:
       - name: Prepare
         run: |
           docker run --name swoole --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d phpswoole/swoole:$SWOOLE_DOCKER_VERSION
-          docker exec php -v
-          docker exec php --ri swoole
-          docker exec composer -V
-          docker exec composer update --no-interaction --prefer-dist --no-progress
+          docker exec swoole -v
+          docker exec swoole --ri swoole
+          docker exec swoole composer -V
+          docker exec swoole composer update --no-interaction --prefer-dist --no-progress
 
       - name: Test
-        run: docker exec ${ENV_SERVICE} composer check-format
+        run: docker exec swoole composer check-format
 
   phpstan:
     runs-on: ubuntu-20.04
@@ -41,10 +41,10 @@ jobs:
       - name: Prepare
         run: |
           docker run --name swoole --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d phpswoole/swoole:$SWOOLE_DOCKER_VERSION
-          docker exec php -v
-          docker exec php --ri swoole
-          docker exec composer -V
-          docker exec composer update --no-interaction --prefer-dist --no-progress
+          docker exec swoole -v
+          docker exec swoole --ri swoole
+          docker exec swoole composer -V
+          docker exec swoole composer update --no-interaction --prefer-dist --no-progress
 
       - name: Test
-        run: docker exec composer phpstan
+        run: docker exec swoole composer phpstan
