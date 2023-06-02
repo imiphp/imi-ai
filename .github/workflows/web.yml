@@ -1,0 +1,42 @@
+name: Web test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  eslint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Lint
+        run: nr lint:fix
+
+  vue-tsc:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Typecheck
+        run: nr type-check

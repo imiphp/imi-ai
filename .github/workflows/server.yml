@@ -1,0 +1,44 @@
+name: Server test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php-cs-fixer:
+    runs-on: ubuntu-20.04
+    env:
+      SWOOLE_DOCKER_VERSION: 5.0-php8.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prepare
+        run: |
+          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole
+          docker exec php -v
+          docker exec php --ri swoole
+          docker exec composer -V
+          docker exec composer update --no-interaction --prefer-dist --no-progress
+
+      - name: Test
+        run: docker exec ${ENV_SERVICE} composer check-format
+
+  phpstan:
+    runs-on: ubuntu-20.04
+    env:
+      SWOOLE_DOCKER_VERSION: 5.0-php8.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prepare
+        run: |
+          docker run --volume=${GITHUB_WORKSPACE}:/app:rw --workdir=/app -d swoole
+          docker exec php -v
+          docker exec php --ri swoole
+          docker exec composer -V
+          docker exec composer update --no-interaction --prefer-dist --no-progress
+
+      - name: Test
+        run: docker exec composer phpstan
