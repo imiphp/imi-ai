@@ -1,0 +1,8 @@
+#!/bin/bash
+# 更新模型文件脚本
+
+__DIR__=$(cd `dirname $0`; pwd)/../
+
+"$__DIR__/vendor/bin/imi-swoole" generate/model "app\Model" --override=base --prefix="tb_" --sqlSingleLine=1 --lengthCheck=1 --incrUpdate=true && \
+
+$__DIR__/vendor/bin/php-cs-fixer fix

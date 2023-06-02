@@ -1,0 +1,8 @@
+#!/bin/bash
+# 生成门面类
+
+__DIR__=$(cd `dirname $0`; pwd)/../
+
+$__DIR__/vendor/bin/imi-swoole generate/facade "app\Module\Config\Facade\Config" "ConfigService" && \
+
+$__DIR__/vendor/bin/php-cs-fixer fix

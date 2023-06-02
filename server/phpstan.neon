@@ -1,0 +1,26 @@
+parameters:
+    level: 6
+
+    phpVersion: 80100
+
+    paths:
+        - .
+
+    excludePaths:
+        - */vendor/*
+        - */Grpc/*
+        - */Metadata/*
+
+    bootstrapFiles:
+        - vendor/autoload.php
+
+    treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: false
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: false
+
+    ignoreErrors:
+        - '#expects class-string<\S+>, string given#'
+        - '#Unable to resolve the template type T in call to method#'
+
+    tmpDir: ".runtime/phpstan"

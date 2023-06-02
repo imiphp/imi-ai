@@ -1,0 +1,15 @@
+*.lock
+/.idea
+composer.lock
+/ide-helper
+.runtime
+*.log
+*.pid
+*.cache
+/.vscode
+/release
+/bin/swoole-cli
+/build
+/test.php.test
+/vendor
+/.env

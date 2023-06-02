@@ -1,0 +1,51 @@
+{
+    "name": "imiphp/imi-ai",
+    "type": "project",
+    "description": "基于 imi 框架开发的 AI 服务，支持 ChatGPT。",
+    "require": {
+        "php": ">=8.1",
+        "gioni06/gpt3-tokenizer": "^1.2",
+        "guzzlehttp/guzzle": "^7.5",
+        "hashids/hashids": "^5.0",
+        "imiphp/imi": "2.1.x-dev",
+        "imiphp/imi-jwt": "2.1.x-dev",
+        "imiphp/imi-rate-limit": "2.1.x-dev",
+        "imiphp/imi-swoole": "2.1.x-dev",
+        "nyholm/psr7": "^1.6",
+        "openai-php/client": "^0.4.2",
+        "psr/log": "^1",
+        "symfony/http-client": "^6.2",
+        "yurunsoft/yurun-http": "^4.4"
+    },
+    "require-dev": {
+        "imiphp/imi-phar": "2.1.x-dev",
+        "php-cs-fixer/shim": "~3.15.0",
+        "phpstan/phpstan": "~1.8.0",
+        "swoole/ide-helper": "^4.8"
+    },
+    "replace": {
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        },
+        "files": [
+            "init.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "format": "./vendor/bin/php-cs-fixer fix",
+        "phpstan": "./vendor/bin/phpstan"
+    },
+    "imi": {
+        "namespace": "app"
+    }
+}
