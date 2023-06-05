@@ -82,8 +82,6 @@ function handleEnter(chat: Chat.History, isEdit: boolean, event: KeyboardEvent) 
 function isActive(id: string) {
   return chatStore.active === id
 }
-
-chatStore.loadChatList()
 </script>
 
 <template>

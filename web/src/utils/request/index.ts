@@ -10,6 +10,7 @@ export interface HttpOption {
   signal?: GenericAbortSignal
   beforeRequest?: () => void
   afterRequest?: () => void
+  apiFailHandler?: (res: AxiosResponse<Response<any>>) => void
 }
 
 export interface Response<T = any> {
@@ -21,7 +22,7 @@ export interface Response<T = any> {
 }
 
 function http<T = any>(
-  { url, data, method, headers, onDownloadProgress, signal, beforeRequest, afterRequest }: HttpOption,
+  { url, data, method, headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ) {
   const successHandler = (res: AxiosResponse<Response<T>>) => {
     // const authStore = useAuthStore()
@@ -33,6 +34,11 @@ function http<T = any>(
     //   authStore.removeToken()
     //   window.location.reload()
     // }
+
+    if (apiFailHandler)
+      apiFailHandler(res)
+    else
+      dialogApiFailHandler(res)
 
     return Promise.reject(res.data)
   }
@@ -54,7 +60,7 @@ function http<T = any>(
 }
 
 export function get<T = any>(
-  { url, data, method = 'GET', onDownloadProgress, signal, beforeRequest, afterRequest }: HttpOption,
+  { url, data, method = 'GET', onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response<T>> {
   return http<T>({
     url,
@@ -64,11 +70,12 @@ export function get<T = any>(
     signal,
     beforeRequest,
     afterRequest,
+    apiFailHandler,
   })
 }
 
 export function post<T = any>(
-  { url, data, method = 'POST', headers, onDownloadProgress, signal, beforeRequest, afterRequest }: HttpOption,
+  { url, data, method = 'POST', headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response<T>> {
   return http<T>({
     url,
@@ -79,7 +86,15 @@ export function post<T = any>(
     signal,
     beforeRequest,
     afterRequest,
+    apiFailHandler,
   })
 }
 
 export default post
+
+export function dialogApiFailHandler(res: AxiosResponse<Response<any>>): void {
+  window.$dialog?.error({
+    title: 'Error',
+    content: res.data.message || 'Error',
+  })
+}

@@ -421,6 +421,9 @@ const footerClass = computed(() => {
 })
 
 onMounted(async () => {
+  if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0))
+    await chatStore.loadChatList()
+
   if (id.length > 0) {
     const response = await getSession(id)
     const result: Chat.Chat[] = []
@@ -507,10 +510,10 @@ onUnmounted(() => {
             </span>
           </HoverButton>
           <!-- <HoverButton v-if="!isMobile" @click="toggleUsingContext">
-                                                      <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-                                                        <SvgIcon icon="ri:chat-history-line" />
-                                                      </span>
-                                                    </HoverButton> -->
+                                                                                          <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+                                                                                            <SvgIcon icon="ri:chat-history-line" />
+                                                                                          </span>
+                                                                                        </HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
