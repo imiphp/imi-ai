@@ -83,9 +83,9 @@ class OpenAIService
             throw new \RuntimeException('AI 已回答完毕');
         }
         $searchResult = $this->search($record->projectId, $record->question, 1, Config::get(Configs::CHAT_STREAM_SECTIONS));
-        /** @var ProjectContentSectionSearched[] $list */
         if ($list = $searchResult->getList())
         {
+            /** @var EmbeddingSectionSearched[] $list */
             $data = '';
             foreach ($list as $item)
             {

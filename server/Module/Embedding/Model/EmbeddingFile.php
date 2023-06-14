@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Model;
 
-use Imi\Bean\Annotation\Inherit;
-use Imi\Model\Annotation\Column;
-use Imi\Model\Annotation\Serializables;
 use app\Module\Common\Model\Traits\TRecordId;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\Base\EmbeddingFileBase;
+use Imi\Bean\Annotation\Inherit;
+use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\Serializables;
 
 /**
  * 训练的文件.

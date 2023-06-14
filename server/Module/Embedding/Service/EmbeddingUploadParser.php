@@ -287,7 +287,7 @@ class EmbeddingUploadParser
                 $embedding();
             }
         }
-        if ($sectionRecordCount >= 0)
+        if ($sectionRecordCount > 0)
         {
             $embedding();
         }

@@ -64,11 +64,11 @@ class EmbeddingService
         $record->update();
     }
 
-    public function getFile(string $fileId, int $projectId = 0, int $memberId = 0): EmbeddingFile
+    public function getFile(string $fileId, int $projectId = 0): EmbeddingFile
     {
         $fileIntId = EmbeddingFile::decodeId($fileId);
         $record = EmbeddingFile::find($fileIntId);
-        if (!$record || ($projectId && $record->projectId !== $projectId) || ($memberId && $record->memberId !== $memberId))
+        if (!$record || ($projectId && $record->projectId !== $projectId))
         {
             throw new NotFoundException(sprintf('文件 %s 不存在', $fileId));
         }
@@ -112,6 +112,7 @@ class EmbeddingService
 
             foreach ($dirs as $dir)
             {
+                // @phpstan-ignore-next-line
                 if (!isset($parent[$dir]))
                 {
                     $parent[$dir] = [
@@ -140,7 +141,7 @@ class EmbeddingService
     public function sectionList(string $projectId, string $fileId, int $memberId = 0): array
     {
         $project = $this->getProject($projectId, $memberId);
-        $file = $this->getFile($fileId, $project->id, $memberId);
+        $file = $this->getFile($fileId, $project->id);
         $query = EmbeddingSection::query();
 
         return $query->where('project_id', '=', $project->id)

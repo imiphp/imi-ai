@@ -52,7 +52,7 @@ class OpenAIController extends HttpController
     }
 
     /**
-     * @return null
+     * @return mixed
      */
     #[
         Action(),
@@ -64,7 +64,7 @@ class OpenAIController extends HttpController
     }
 
     /**
-     * @return null
+     * @return mixed
      */
     #[Action]
     public function deleteProject(string $id)
