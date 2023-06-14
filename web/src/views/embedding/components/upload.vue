@@ -16,15 +16,9 @@ const uploadActionUrl = service.getUri({
 
 const fileList = ref<UploadFileInfo[]>([])
 
-const onFinish = ({
-  _file,
-  event,
-}: {
-  _file: UploadFileInfo
-  event?: ProgressEvent
-}) => {
+const onFinish = (options: { event?: ProgressEvent }) => {
   try {
-    const response = (event?.target as XMLHttpRequest)?.response
+    const response = (options.event?.target as XMLHttpRequest)?.response
     if (response) {
       const data = JSON.parse(response)
       if (data.code === 0) {

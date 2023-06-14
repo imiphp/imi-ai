@@ -79,6 +79,12 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Swoole >= v4.8.13 或 Swoole >= v5.0.3
 
+* MySQL
+
+* Redis
+
+* PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用数据训练必选）
+
 > 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
 #### 安装依赖
@@ -93,6 +99,8 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 #### 数据库
 
+#### MySQL
+
 首先创建 `db_imi_ai` 数据库，如果使用其它名称，需要在 `.env` 中修改。
 
 执行生成表结构命令：
@@ -106,6 +114,20 @@ vendor/bin/imi-swoole generate/table
 ```shell
 vendor/bin/imi-swoole swoole/start
 ```
+
+#### PostgreSQL
+
+首先创建 `db_imi_ai` 数据库，如果使用其它名称，需要在 `.env` 中修改。
+
+为 `db_imi_ai` 或你使用的数据库启用 `pgvector` 扩展：
+
+```sql
+CREATE EXTENSION pgvector;
+```
+
+导入 `pgsql.sql` 文件，创建表。
+
+> 不使用数据训练功能，可以不配置 PostgreSQL。
 
 ### 前端
 

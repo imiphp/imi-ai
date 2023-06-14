@@ -55,7 +55,10 @@ function handleUpdateCollapsed() {
   appStore.setSiderCollapsed(!collapsed.value)
 }
 
-function handleSelectKeys(keys: Array<string | number>, option: Array<TreeOption | null>, meta: { node: TreeOption; action: 'select' | 'unselect' }): void {
+function handleSelectKeys(keys: Array<string & number>, option: Array<TreeOption | null>, meta: {
+  node: TreeOption | null
+  action: 'select' | 'unselect'
+}): void {
   if (meta.action === 'unselect')
     return
 
