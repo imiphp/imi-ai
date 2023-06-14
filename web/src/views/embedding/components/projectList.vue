@@ -141,7 +141,7 @@ const columns = createColumns({
     })
   },
   update(row: Embedding.Project) {
-    editData.value = row
+    editData.value = { ...row }
     showEditModal.value = true
   },
   del(row: Embedding.Project) {
