@@ -94,7 +94,8 @@ export default post
 
 export function dialogApiFailHandler(res: AxiosResponse<Response<any>>): void {
   window.$dialog?.error({
-    title: 'Error',
+    title: '错误',
     content: res.data.message || 'Error',
+    positiveText: '确定',
   })
 }

@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { setupPageGuard } from './permission'
 import { ChatLayout } from '@/views/chat/layout'
+import { EmbeddingLayout } from '@/views/embedding/layout'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -15,6 +16,29 @@ const routes: RouteRecordRaw[] = [
         path: '/chat/:id?',
         name: 'Chat',
         component: () => import('@/views/chat/index.vue'),
+      },
+    ],
+  },
+  {
+    path: '/embedding',
+    name: 'Embedding',
+    component: EmbeddingLayout,
+    redirect: '/embedding',
+    children: [
+      {
+        path: '/embedding/',
+        name: 'Embedding',
+        component: () => import('@/views/embedding/index.vue'),
+      },
+      {
+        path: '/embedding/:id',
+        name: 'ViewEmbeddingProject',
+        component: () => import('@/views/embedding/viewProject.vue'),
+      },
+      {
+        path: '/embedding/chat/:id',
+        name: 'EmbeddingChat',
+        component: () => import('@/views/embedding/chat.vue'),
       },
     ],
   },

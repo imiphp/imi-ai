@@ -1,24 +1,21 @@
 <script setup lang='ts'>
 import type { Ref } from 'vue'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
+import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
-import { useUsingContext } from './hooks/useUsingContext'
-import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { QAStatus, useChatStore, usePromptStore } from '@/store'
+import { QAStatus, useChatStore, usePromptStore, useRuntimeStore } from '@/store'
 import { fetchChatAPIProcess, getSession, sendMessage } from '@/api'
 import { t } from '@/locales'
 
 let controller = new AbortController()
-
-const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
 
 const route = useRoute()
 const dialog = useDialog()
@@ -29,12 +26,10 @@ const chatStore = useChatStore()
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
-const { usingContext, toggleUsingContext } = useUsingContext()
 
 let { id } = route.params as { id: string }
 
 const dataSources = computed(() => chatStore.getChatByUuid(id))
-const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
 
 const prompt = ref<string>('')
@@ -44,8 +39,14 @@ const inputRef = ref<Ref | null>(null)
 // 添加PromptStore
 const promptStore = usePromptStore()
 
+const runtimeStore = useRuntimeStore()
+
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
+
+watch(currentChatHistory, () => {
+  runtimeStore.$state.headerTitle = currentChatHistory.value?.title || ''
+})
 
 // 未知原因刷新页面，loading 状态不会重置，手动重置
 dataSources.value.forEach((item, index) => {
@@ -71,14 +72,8 @@ async function onConversation() {
   loading.value = true
   prompt.value = ''
 
-  let options: Chat.ConversationRequest = {}
-  const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
-
-  if (lastContext && usingContext.value)
-    options = { ...lastContext }
-
   const beginTime = parseInt(((new Date()).getTime() / 1000).toString())
-  const newSession = id.length === 0
+  const newSession = !id || id.length === 0
   try {
     // sendMessage
     const sendMessageResponse = await sendMessage(id, message)
@@ -102,7 +97,6 @@ async function onConversation() {
         inversion: true,
         error: false,
         conversationOptions: null,
-        requestOptions: { prompt: message, options: null },
       },
     )
   }
@@ -150,7 +144,6 @@ async function onConversation() {
         error: true,
         loading: false,
         conversationOptions: null,
-        requestOptions: { prompt: message, options: { ...options } },
       },
     )
     scrollToBottomIfAtBottom()
@@ -177,14 +170,11 @@ async function fetchStream() {
         inversion: false,
         error: false,
         conversationOptions: null,
-        requestOptions: {
-          prompt: '',
-          options: undefined,
-        },
       },
     )
     scrollToBottom()
     let lastText = ''
+    let lastIndex = 0
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>(id, {
         // prompt: message,
@@ -192,36 +182,38 @@ async function fetchStream() {
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
-          const { responseText } = xhr
+          const { responseText }: { responseText: string } = xhr
           // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 3)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex).trim()
-          try {
-            const data = JSON.parse(chunk.substring('data:'.length))
-            if (!data.finishReason) {
-              updateChatSome(
-                id,
-                dataSources.value.length - 1,
-                {
-                  message: lastText += (data.content ?? ''),
-                  inversion: false,
-                  error: false,
-                  loading: true,
-                },
-              )
-            }
+          let currentIndex = responseText.indexOf('\n\n', lastIndex)
+          while (currentIndex > -1) {
+            try {
+              const chunk = responseText.substring(lastIndex, currentIndex)
+              const data = JSON.parse(chunk.substring('data:'.length))
+              if (!data.finishReason) {
+                updateChatSome(
+                  id,
+                  dataSources.value.length - 1,
+                  {
+                    message: lastText += (data.content ?? ''),
+                    inversion: false,
+                    error: false,
+                    loading: true,
+                  },
+                )
+              }
 
-            if (openLongReply && data.finishReason === 'length') {
-              lastText = data.content
-              return fetchChatAPIOnce()
-            }
+              if (data.finishReason === 'length') {
+                lastText = data.content
+                return fetchChatAPIOnce()
+              }
 
-            scrollToBottomIfAtBottom()
-          }
-          catch (error) {
+              scrollToBottomIfAtBottom()
+            }
+            catch (error) {
             //
+            }
+            lastIndex = currentIndex + 2
+            currentIndex = responseText.indexOf('\n\n', lastIndex)
           }
         },
       })
@@ -424,7 +416,7 @@ onMounted(async () => {
   if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0))
     await chatStore.loadChatList()
 
-  if (id.length > 0) {
+  if (id && id.length > 0) {
     const response = await getSession(id)
     const result: Chat.Chat[] = []
     for (const item of response.messages) {
@@ -454,9 +446,6 @@ onUnmounted(() => {
   <div class="flex flex-col w-full h-full">
     <HeaderComponent
       v-if="isMobile"
-      :using-context="usingContext"
-      @export="handleExport"
-      @toggle-using-context="toggleUsingContext"
     />
     <main class="flex-1 overflow-hidden">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
@@ -509,11 +498,6 @@ onUnmounted(() => {
               <SvgIcon icon="ri:download-2-line" />
             </span>
           </HoverButton>
-          <!-- <HoverButton v-if="!isMobile" @click="toggleUsingContext">
-                                                                                          <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-                                                                                            <SvgIcon icon="ri:chat-history-line" />
-                                                                                          </span>
-                                                                                        </HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput

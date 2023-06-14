@@ -24,3 +24,11 @@ export function getLocalSetting(): AppState {
 export function setLocalSetting(setting: AppState): void {
   ss.set(LOCAL_NAME, setting)
 }
+
+export interface Runtime {
+  headerTitle: string
+}
+
+export function getLocalRuntime(): Runtime {
+  return { headerTitle: '' }
+}

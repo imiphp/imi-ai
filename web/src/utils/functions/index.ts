@@ -5,3 +5,12 @@ export function getCurrentDate() {
   const year = date.getFullYear()
   return `${year}-${month}-${day}`
 }
+
+export function formatByte(size: number, decimals = 2) {
+  // 符合人类阅读习惯的数字大小单位
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const index = Math.floor(Math.log(size) / Math.log(1024))
+  return `${(size / 1024 ** index).toFixed(decimals)} ${
+    units[index]
+  }`
+}

@@ -111,12 +111,12 @@ class OpenAIService
                 {
                     $yieldData['finishReason'] = $finishReason;
                 }
-                elseif (isset($delta['content']))
+                if (isset($delta['content']))
                 {
                     $content .= $delta['content'];
                     $yieldData['content'] = $delta['content'];
                 }
-                else
+                if (!$yieldData)
                 {
                     Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
                     continue;
@@ -126,7 +126,7 @@ class OpenAIService
         }
         $endTime = time();
         Db::transContext(function () use ($record, $role, $message, $content, $beginTime, $endTime) {
-            $tokens = \count(Gpt3Tokenizer::getInstance()->encode($content));
+            $tokens = Gpt3Tokenizer::getInstance()->count($content);
             $this->appendMessage($record->id, $role, $message->config, $tokens, $content, $beginTime, $endTime);
             $record->tokens += $tokens;
             $record->qaStatus = QAStatus::ASK;

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { AppState, Language, Theme } from './helper'
-import { getLocalSetting, setLocalSetting } from './helper'
+import type { AppState, Language, Runtime, Theme } from './helper'
+import { getLocalRuntime, getLocalSetting, setLocalSetting } from './helper'
 import { store } from '@/store'
 
 export const useAppStore = defineStore('app-store', {
@@ -32,3 +32,7 @@ export const useAppStore = defineStore('app-store', {
 export function useAppStoreWithOut() {
   return useAppStore(store)
 }
+
+export const useRuntimeStore = defineStore('runtime-store', {
+  state: (): Runtime => getLocalRuntime(),
+})

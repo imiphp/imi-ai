@@ -49,7 +49,7 @@ return [
 
     // 连接池配置
     'pools'    => [
-        'maindb'             => [
+        'mysql'             => [
             // 同步池子
             'pool'        => [
                 'class'        => \Imi\Swoole\Db\Pool\CoroutineDbPool::class,
@@ -65,7 +65,7 @@ return [
                 'port'        => env('APP_MYSQL_PORT', 3306),
                 'username'    => env('APP_MYSQL_USERNAME', 'root'),
                 'password'    => env('APP_MYSQL_PASSWORD', 'root'),
-                'database'    => 'db_imi_ai',
+                'database'    => env('APP_MYSQL_DATABASE', 'db_imi_ai'),
                 'charset'     => 'utf8mb4',
                 'options'     => [
                     \PDO::ATTR_STRINGIFY_FETCHES    => false,
@@ -74,6 +74,26 @@ return [
                 'initSqls'    => [
                     'set session transaction isolation level read committed',
                 ],
+            ],
+        ],
+        'pgsql'    => [
+            'pool'    => [
+                // @phpstan-ignore-next-line
+                'class'        => \Imi\Swoole\Db\Pool\CoroutineDbPool::class,
+                'config'       => [
+                    'maxResources'              => 32,
+                    'minResources'              => 0,
+                    'checkStateWhenGetResource' => false,
+                    'heartbeatInterval'         => 60,
+                ],
+            ],
+            'resource'    => [
+                'host'        => env('APP_PGSQL_HOST', '127.0.0.1'),
+                'port'        => env('APP_PGSQL_PORT', 5432),
+                'username'    => env('APP_PGSQL_USERNAME', 'root'),
+                'password'    => env('APP_PGSQL_PASSWORD', 'root'),
+                'database'    => env('APP_PGSQL_DATABASE', 'db_imi_ai'),
+                'dbClass'     => \Imi\Pgsql\Db\Drivers\SwooleNew\Driver::class,
             ],
         ],
         'redis'              => [
@@ -98,7 +118,7 @@ return [
     // 数据库配置
     'db'    => [
         // 数默认连接池名
-        'defaultPool'    => 'maindb',
+        'defaultPool'    => 'mysql',
         'paginate'       => [
             'fields' => [
                 'pageCount' => 'pageCount',
@@ -120,6 +140,14 @@ return [
                     'tables'    => [
                         'tb_chat_session',
                         'tb_chat_message',
+                    ],
+                ],
+                'app\Module\Embedding\Model' => [
+                    'tables'    => [
+                        'tb_embedding_project',
+                        'tb_embedding_file',
+                        'tb_embedding_section',
+                        'tb_embedding_qa',
                     ],
                 ],
             ],
