@@ -151,6 +151,8 @@ npm install
 
 #### 配置
 
+复制 **.env.tpl** 改名为 **.env** 文件。
+
 编辑 **.env** 文件。
 
 * `VITE_GLOB_API_URL`，服务端接口地址，如：`http://127.0.0.1:12333/`
