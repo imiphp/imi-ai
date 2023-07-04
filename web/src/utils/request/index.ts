@@ -62,7 +62,7 @@ function http(
 export function get<T = any>(
   { url, data, method = 'GET', onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response> {
-  return http<T>({
+  return http({
     url,
     method,
     data,
@@ -77,7 +77,7 @@ export function get<T = any>(
 export function post<T = any>(
   { url, data, method = 'POST', headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response> {
-  return http<T>({
+  return http({
     url,
     method,
     data,
