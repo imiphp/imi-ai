@@ -5,28 +5,22 @@ declare(strict_types=1);
 namespace app\Module\Config\ApiController;
 
 use app\Module\Config\Facade\Config;
+use app\Module\Config\Service\ConfigService;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Route\Annotation\Action;
 use Imi\Server\Http\Route\Annotation\Controller;
 use Imi\Server\Http\Route\Annotation\Route;
 
-/**
- * @Controller("/config/")
- */
+#[Controller(prefix: '/config/')]
 class ConfigController extends \Imi\Server\Http\Controller\HttpController
 {
-    /**
-     * @Inject("ConfigService")
-     *
-     * @var \app\Module\Config\Service\ConfigService
-     */
-    protected $configService;
+    #[Inject()]
+    protected ConfigService $configService;
 
-    /**
-     * @Action
-     *
-     * @Route("public")
-     */
+    #[
+        Action,
+        Route(url: 'public')
+    ]
     public function getPublic(): array
     {
         $configs = [];

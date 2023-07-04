@@ -1,15 +1,35 @@
 <script setup lang='ts'>
-import { h, ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import { computed, h, ref, watch } from 'vue'
+
 import type { MenuOption } from 'naive-ui'
 import { NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu } from 'naive-ui'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
-import { router } from '@/router'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { useAuthStore, useUserStore } from '@/store'
+import type { UserInfo } from '@/store/modules/user/helper'
 
 const { isMobile } = useBasicLayout()
+const authStore = useAuthStore()
+const userStore = useUserStore()
+const router = useRouter()
 
 const menuOptions: MenuOption[] = [
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'Home',
+          },
+        },
+        { default: () => '首页' },
+      ),
+    key: 'Home',
+  },
   {
     label: () =>
       h(
@@ -38,7 +58,57 @@ const menuOptions: MenuOption[] = [
   },
 ]
 
-const selectedKey = ref(router.currentRoute.value.name?.toString() || 'Root')
+const logined = ref(false)
+
+const rightMenuOptions: Ref<any> = ref([
+  {
+    label: () => h(MemberAvatar),
+    key: 'Member',
+    children: [
+      {
+        label: () => userStore.userInfo.nickname,
+        key: 'Nickname',
+        show: logined,
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
+                name: 'Login',
+              },
+            },
+            { default: () => '登录' },
+          ),
+        key: 'Login',
+        show: computed(() => !logined.value),
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
+                name: 'Register',
+              },
+            },
+            { default: () => '注册' },
+          ),
+        key: 'Register',
+        show: computed(() => !logined.value),
+      },
+      {
+        label: '退出',
+        key: 'Logout',
+        show: logined,
+      },
+    ],
+  },
+])
+
+const selectedKey = ref(router.currentRoute.value.name?.toString() || 'Home')
+const rightMenuSelectedKey = ref('')
 
 watch(
   () => router.currentRoute.value,
@@ -46,10 +116,29 @@ watch(
     if (newValue.path.startsWith('/embedding'))
       selectedKey.value = 'Embedding'
     else
-      selectedKey.value = newValue.name?.toString() || 'Root'
+      selectedKey.value = newValue.name?.toString() || 'Home'
   },
   { immediate: true },
 )
+
+watch(
+  () => rightMenuSelectedKey.value,
+  (newValue: string) => {
+    switch (newValue) {
+      case 'Logout':
+        authStore.removeToken()
+        userStore.resetUserInfo()
+        router.replace('/')
+        break
+    }
+    rightMenuSelectedKey.value = ''
+  },
+)
+
+watch(() => userStore.userInfo, (newValue: UserInfo) => {
+  logined.value = (undefined !== newValue.recordId && newValue.recordId.length > 0)
+},
+{ immediate: true })
 </script>
 
 <template>
@@ -64,8 +153,9 @@ watch(
             </h2>
           </div>
         </NLayoutSider>
-        <NLayoutContent>
-          <NMenu v-model:value="selectedKey" mode="horizontal" :options="menuOptions" />
+        <NLayoutContent content-style="justify-content: space-between;display: flex;">
+          <NMenu v-model:value="selectedKey" class="header-menu" mode="horizontal" :options="menuOptions" />
+          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" />
         </NLayoutContent>
       </nlayout>
     </NLayoutHeader>
@@ -96,4 +186,12 @@ watch(
       font-size: 20px;
     }
   }
+</style>
+
+<style lang="less">
+.header-menu {
+  .n-menu-item, .n-menu-item-content{
+    height: 100% !important;
+  }
+}
 </style>

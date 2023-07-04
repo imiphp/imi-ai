@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { AppState, Language, Runtime, Theme } from './helper'
 import { getLocalRuntime, getLocalSetting, setLocalSetting } from './helper'
+import { router } from '@/router'
 import { store } from '@/store'
 
 export const useAppStore = defineStore('app-store', {
@@ -25,6 +26,18 @@ export const useAppStore = defineStore('app-store', {
 
     recordState() {
       setLocalSetting(this.$state)
+    },
+
+    parseAction() {
+      const url = new URL(location.toString())
+      if (!url.searchParams.has('action'))
+        return
+
+      switch (url.searchParams.get('action')) {
+        case 'verifyRegisterEmail':
+          router.push({ name: 'VerifyRegisterEmail' })
+          break
+      }
     },
   },
 })

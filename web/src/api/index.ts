@@ -1,7 +1,9 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { get, post } from '@/utils/request'
 
+export * from './auth'
 export * from './embedding'
+export * from './vcode'
 
 export function fetchChatAPI<T = any>(
   prompt: string,

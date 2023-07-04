@@ -1,4 +1,4 @@
-import type { AxiosProgressEvent, AxiosResponse, GenericAbortSignal } from 'axios'
+import type { AxiosError, AxiosProgressEvent, AxiosResponse, GenericAbortSignal } from 'axios'
 import service from './axios'
 
 export interface HttpOption {
@@ -10,21 +10,20 @@ export interface HttpOption {
   signal?: GenericAbortSignal
   beforeRequest?: () => void
   afterRequest?: () => void
-  apiFailHandler?: (res: AxiosResponse<Response<any>>) => void
+  apiFailHandler?: (res: AxiosResponse<Response>) => void
 }
 
-export interface Response<T = any> {
-  messages: any
-  list: any
-  data: T
+export interface Response {
   code: number
   message: string | null
+  [x: string]: any
 }
 
-function http<T = any>(
+function http(
   { url, data, method, headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ) {
-  const successHandler = (res: AxiosResponse<Response<T>>) => {
+  const successHandler = (res: AxiosResponse<Response>) => {
+    afterRequest?.()
     // const authStore = useAuthStore()
 
     if (res.data.code === 0 || typeof res.data === 'string')
@@ -43,9 +42,10 @@ function http<T = any>(
     return Promise.reject(res.data)
   }
 
-  const failHandler = (error: Response<Error>) => {
+  const failHandler = (res: AxiosError<any>) => {
     afterRequest?.()
-    throw new Error(error?.message || 'Error')
+    dialogFailHandler(res)
+    throw new Error(res?.response?.data?.message || 'Error')
   }
 
   beforeRequest?.()
@@ -61,7 +61,7 @@ function http<T = any>(
 
 export function get<T = any>(
   { url, data, method = 'GET', onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
-): Promise<Response<T>> {
+): Promise<Response> {
   return http<T>({
     url,
     method,
@@ -76,7 +76,7 @@ export function get<T = any>(
 
 export function post<T = any>(
   { url, data, method = 'POST', headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
-): Promise<Response<T>> {
+): Promise<Response> {
   return http<T>({
     url,
     method,
@@ -92,10 +92,18 @@ export function post<T = any>(
 
 export default post
 
-export function dialogApiFailHandler(res: AxiosResponse<Response<any>>): void {
+export function dialogApiFailHandler(res: AxiosResponse<Response>): void {
   window.$dialog?.error({
     title: '错误',
     content: res.data.message || 'Error',
+    positiveText: '确定',
+  })
+}
+
+export function dialogFailHandler(res: AxiosError<any>): void {
+  window.$dialog?.error({
+    title: '错误',
+    content: res?.response?.data?.message || 'Network Error',
     positiveText: '确定',
   })
 }

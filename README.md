@@ -58,7 +58,8 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * [x] 界面多语言
 * [x] 界面主题
-* [ ] 用户注册和登录
+* [x] 用户邮箱注册和登录
+* [ ] 用户手机号注册和登录
 * [ ] 计费系统
 
 更多功能计划中……
@@ -75,7 +76,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Linux / MacOS
 
-* PHP >= 8.1
+* PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole、zip）
 
 * Swoole >= v4.8.13 或 Swoole >= v5.0.3
 

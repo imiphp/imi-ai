@@ -26,10 +26,8 @@ class ApiControllerAspect
      * )
      *
      * @AfterReturning
-     *
-     * @return mixed
      */
-    public function parse(AfterReturningJoinPoint $joinPoint)
+    public function parse(AfterReturningJoinPoint $joinPoint): void
     {
         $returnValue = $joinPoint->getReturnValue();
         if ($returnValue instanceof ResponseInterface)

@@ -3,9 +3,12 @@ import { ss } from '@/utils/storage'
 const LOCAL_NAME = 'userStorage'
 
 export interface UserInfo {
+  recordId: string
+  email: string
+  phone: string
+  nickname: string
   avatar: string
-  name: string
-  description: string
+  register_time: number
 }
 
 export interface UserState {
@@ -15,9 +18,12 @@ export interface UserState {
 export function defaultSetting(): UserState {
   return {
     userInfo: {
-      avatar: 'https://cdn.jsdelivr.net/gh/Chanzhaoyu/chatgpt-web@main/src/assets/avatar.jpg',
-      name: 'imi',
-      description: 'Star on <a href="https://github.com/imiphp/imi-ai" class="text-blue-500" target="_blank" >GitHub</a>',
+      recordId: '',
+      email: '',
+      phone: '',
+      nickname: '',
+      avatar: '',
+      register_time: 0,
     },
   }
 }

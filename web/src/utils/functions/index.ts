@@ -1,3 +1,5 @@
+import sha512 from 'crypto-js/sha512'
+
 export function getCurrentDate() {
   const date = new Date()
   const day = date.getDate()
@@ -13,4 +15,8 @@ export function formatByte(size: number, decimals = 2) {
   return `${(size / 1024 ** index).toFixed(decimals)} ${
     units[index]
   }`
+}
+
+export function hashPassword(password: string): string {
+  return sha512(password).toString()
 }

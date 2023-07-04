@@ -4,23 +4,16 @@ declare(strict_types=1);
 
 namespace app\Module\Config\Service;
 
-use app\Module\Config\Enum\Configs;
-use Imi\Bean\Annotation\Bean;
 use Imi\Redis\Redis;
 
-/**
- * @Bean("ConfigService")
- */
 class ConfigService
 {
+    protected array $configs = [];
+
     /**
      * 获取配置.
-     *
-     * @param mixed $default
-     *
-     * @return mixed
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         $value = Redis::hGet($this->getHashKey(), $key);
         if (false === $value)
@@ -105,10 +98,8 @@ class ConfigService
 
     /**
      * 写入配置.
-     *
-     * @param mixed $value
      */
-    public function set(string $key, $value): bool
+    public function set(string $key, mixed $value): bool
     {
         return (bool) Redis::hSet($this->getHashKey(), $key, $value);
     }
@@ -118,7 +109,7 @@ class ConfigService
      */
     public function getHashKey(): string
     {
-        return 'imi_ai:config';
+        return 'config';
     }
 
     /**
@@ -126,9 +117,6 @@ class ConfigService
      */
     public function getConfigClasses(): array
     {
-        return [
-            Configs::class,
-            \app\Module\Embedding\Enum\Configs::class,
-        ];
+        return $this->configs;
     }
 }

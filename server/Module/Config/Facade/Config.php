@@ -8,7 +8,7 @@ use Imi\Facade\Annotation\Facade;
 use Imi\Facade\BaseFacade;
 
 /**
- * @Facade(class="ConfigService", request=false, args={})
+ * @Facade(class=\app\Module\Config\Service\ConfigService::class, request=false, args={})
  *
  * @method static mixed                              get(string $key, $default = NULL)
  * @method static array                              getMulti(array $keys)

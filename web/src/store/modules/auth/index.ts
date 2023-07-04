@@ -45,6 +45,10 @@ export const useAuthStore = defineStore('auth-store', {
       this.token = undefined
       removeToken()
     },
+
+    hasToken() {
+      return !!this.token
+    },
   },
 })
 

@@ -22,6 +22,7 @@ return [
 
     'ignorePaths' => [
         \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'bin',
+        \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'Module/*/template',
     ],
 
     // Swoole 主服务器配置
@@ -111,6 +112,9 @@ return [
                 'port'      => env('APP_REDIS_PORT', 6379),
                 'password'  => env('APP_REDIS_PASSWORD'),
                 'serialize' => false,
+                'options'   => [
+                    \Redis::OPT_PREFIX => env('APP_REDIS_PREFIX', 'imi_ai:'),
+                ],
             ],
         ],
     ],
@@ -148,6 +152,11 @@ return [
                         'tb_embedding_file',
                         'tb_embedding_section',
                         'tb_embedding_qa',
+                    ],
+                ],
+                'app\Module\Member\Model' => [
+                    'tables'    => [
+                        'tb_member',
                     ],
                 ],
             ],

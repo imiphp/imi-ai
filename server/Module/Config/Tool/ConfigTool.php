@@ -7,26 +7,17 @@ namespace app\Module\Config\Tool;
 use app\Module\Config\Facade\Config;
 use app\Module\Config\Service\ConfigService;
 use Imi\App;
-use Imi\Tool\Annotation\Operation;
-use Imi\Tool\Annotation\Tool;
+use Imi\Cli\Annotation\Command;
+use Imi\Cli\Annotation\CommandAction;
 
-/**
- * @Tool("config")
- */
+#[Command(name: 'config')]
 class ConfigTool
 {
-    /**
-     * 初始化配置.
-     *
-     * @Operation(name="init")
-     *
-     * @return void
-     */
-    public function init()
+    #[CommandAction(name: 'init', description: '初始化配置')]
+    public function init(): void
     {
         \Imi\Bean\Annotation::getInstance()->init(\Imi\Main\Helper::getAppMains());
-        /** @var ConfigService $configService */
-        $configService = App::getBean('ConfigService');
+        $configService = App::getBean(ConfigService::class);
         foreach ($configService->getConfigClasses() as $class)
         {
             foreach ($class::getValues() as $value)

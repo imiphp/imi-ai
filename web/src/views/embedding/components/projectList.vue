@@ -73,7 +73,7 @@ const createColumns = ({
                   renderIcon: () => h(NIcon, null, { default: () => h(ChatbubbleEllipsesOutline) }),
                   onClick: () => chat(row),
                 },
-                { default: () => '聊天' },
+                { default: () => '对话' },
               ),
               h(
                 NButton,
