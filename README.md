@@ -66,13 +66,13 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 > 项目正在持续迭代中，欢迎所有人来贡献代码
 
-## 开发调试
+## 安装
 
 ### 服务端
 
-目录：`server`
+**目录：**`server`
 
-#### 环境要求
+**环境要求：**
 
 * Linux / MacOS
 
@@ -88,19 +88,27 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 > 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
-#### 安装依赖
+**安装依赖：**
 
 `composer update`
 
-#### 配置
+**生成证书：**
+
+jwt 签名需要，内置的证书仅供开发调试用，实际生产必须生成自己的证书！
+
+```shell
+cd resource/jwt
+openssl genrsa -out pri_key.pem 2048
+openssl rsa -in pri_key.pem -pubout -out pub_key.pem
+```
+
+**配置：**
 
 复制 **.env.tpl** 改名为 **.env** 文件。
 
 根据文件内注释修改对应的配置。
 
-#### 数据库
-
-#### MySQL
+**导入 MySQL：**
 
 首先创建 `db_imi_ai` 数据库，如果使用其它名称，需要在 `.env` 中修改。
 
@@ -110,13 +118,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 vendor/bin/imi-swoole generate/table
 ```
 
-#### 运行
-
-```shell
-vendor/bin/imi-swoole swoole/start
-```
-
-#### PostgreSQL
+**导入 PostgreSQL：**
 
 首先创建 `db_imi_ai` 数据库，如果使用其它名称，需要在 `.env` 中修改。
 
@@ -130,47 +132,13 @@ CREATE EXTENSION pgvector;
 
 > 不使用数据训练功能，可以不配置 PostgreSQL。
 
-### 前端
-
-目录：`web`
-
-#### 环境要求
-
-`node` 需要 `^16 || ^18 || ^19` 版本（`node >= 14` 需要安装 [fetch polyfill](https://github.com/developit/unfetch#usage-as-a-polyfill)），使用 [nvm](https://github.com/nvm-sh/nvm) 可管理本地多个 `node` 版本
+**运行服务：**
 
 ```shell
-node -v
+vendor/bin/imi-swoole swoole/start
 ```
 
-#### 安装依赖
-
-```shell
-npm install
-```
-
-> 也可以使用 yarn、pnpm 等。
-
-#### 配置
-
-复制 **.env.tpl** 改名为 **.env** 文件。
-
-编辑 **.env** 文件。
-
-* `VITE_GLOB_API_URL`，服务端接口地址，如：`http://127.0.0.1:12333/`
-
-* `VITE_APP_API_BASE_URL` 前端调试访问地址，如：`http://127.0.0.1:1002/`
-
-#### 运行
-
-```shell
-npm run dev
-```
-
-## 生产部署
-
-### 服务端
-
-#### 配置
+**生产环境：**
 
 编辑 **.env** 文件。
 
@@ -187,6 +155,42 @@ APP_DEBUG=false
 
 ### 前端
 
+**目录：**`web`
+
+**环境要求：**
+
+`node` 需要 `^16 || ^18 || ^19` 版本（`node >= 14` 需要安装 [fetch polyfill](https://github.com/developit/unfetch#usage-as-a-polyfill)），使用 [nvm](https://github.com/nvm-sh/nvm) 可管理本地多个 `node` 版本
+
+```shell
+node -v
+```
+
+**安装依赖：**
+
+```shell
+npm install
+```
+
+> 也可以使用 yarn、pnpm 等。
+
+**配置：**
+
+复制 **.env.tpl** 改名为 **.env** 文件。
+
+编辑 **.env** 文件。
+
+* `VITE_GLOB_API_URL`，服务端接口地址，如：`http://127.0.0.1:12333/`
+
+* `VITE_APP_API_BASE_URL` 前端调试访问地址，如：`http://127.0.0.1:1002/`
+
+**开发调试：**
+
+```shell
+npm run dev
+```
+
+**生产环境：**
+
 #### 编译
 
 ```shell
@@ -197,4 +201,4 @@ npm run build-only
 
 #### 编译结果
 
-所有文件都在 `dist` 目录。
+所有文件都在 `dist` 目录，内部文件放到站点根目录。

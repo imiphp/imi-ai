@@ -11,6 +11,11 @@ use app\Enum\ApiStatus;
  */
 class MemberNoLoginException extends BaseException
 {
+    public function __construct(string $message = '未登录', int $code = 0, \Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
+
     /**
      * 获取状态码
      */

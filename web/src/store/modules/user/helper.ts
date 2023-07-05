@@ -7,7 +7,7 @@ export interface UserInfo {
   email: string
   phone: string
   nickname: string
-  avatar: string
+  avatar: string | null
   register_time: number
 }
 
@@ -22,7 +22,7 @@ export function defaultSetting(): UserState {
       email: '',
       phone: '',
       nickname: '',
-      avatar: '',
+      avatar: null,
       register_time: 0,
     },
   }

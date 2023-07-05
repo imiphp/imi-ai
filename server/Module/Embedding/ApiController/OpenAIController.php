@@ -6,6 +6,7 @@ namespace app\Module\Embedding\ApiController;
 
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
+use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -32,23 +33,29 @@ class OpenAIController extends HttpController
     ]
     public function upload(UploadedFile $file): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'data' => $this->embeddingService->upload(0, $file->getTmpFileName(), $file->getClientFilename()),
+            'data' => $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename()),
         ];
     }
 
     #[Action]
     public function getProject(string $id): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'data' => $this->embeddingService->getProject($id),
+            'data' => $this->embeddingService->getProject($id, $memberSession->getIntMemberId()),
         ];
     }
 
     #[Action]
     public function projectList(int $page = 1, int $limit = 15): array
     {
-        return $this->embeddingService->projectList(0, $page, $limit);
+        $memberSession = MemberUtil::getMemberSession();
+
+        return $this->embeddingService->projectList($memberSession->getIntMemberId(), $page, $limit);
     }
 
     /**
@@ -60,7 +67,8 @@ class OpenAIController extends HttpController
     ]
     public function updateProject(string $id, string $name)
     {
-        $this->embeddingService->updateProject($id, $name, 0);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->embeddingService->updateProject($id, $name, $memberSession->getIntMemberId());
     }
 
     /**
@@ -69,30 +77,37 @@ class OpenAIController extends HttpController
     #[Action]
     public function deleteProject(string $id)
     {
-        $this->embeddingService->deleteProject($id);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->embeddingService->deleteProject($id, $memberSession->getIntMemberId());
     }
 
     #[Action]
     public function fileList(string $projectId): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'list' => $this->embeddingService->fileList($projectId, 0),
+            'list' => $this->embeddingService->fileList($projectId, $memberSession->getIntMemberId()),
         ];
     }
 
     #[Action]
     public function assocFileList(string $projectId): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'list' => $this->embeddingService->assocFileList($projectId, 0),
+            'list' => $this->embeddingService->assocFileList($projectId, $memberSession->getIntMemberId()),
         ];
     }
 
     #[Action]
     public function sectionList(string $projectId, string $fileId): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'list' => $this->embeddingService->sectionList($projectId, $fileId, 0),
+            'list' => $this->embeddingService->sectionList($projectId, $fileId, $memberSession->getIntMemberId()),
         ];
     }
 
@@ -102,23 +117,27 @@ class OpenAIController extends HttpController
     ]
     public function sendMessage(string $question, string $projectId, array|object $config = []): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'data' => $this->openAIService->sendMessage($question, $projectId, 0, IPUtil::getIP($this->request), $config),
+            'data' => $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP($this->request), $config),
         ];
     }
 
     #[Action]
     public function stream(string $id, string $token = ''): void
     {
-        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService) extends SseEmitter {
-            public function __construct(private string $id, private OpenAIService $openAIService)
+        MemberUtil::allowParamToken($token);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService, $memberSession->getIntMemberId()) extends SseEmitter {
+            public function __construct(private string $id, private OpenAIService $openAIService, private int $memberId)
             {
             }
 
             protected function task(): void
             {
                 $handler = $this->getHandler();
-                foreach ($this->openAIService->chatStream($this->id, 0) as $data)
+                foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
                 {
                     // @phpstan-ignore-next-line
                     if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
@@ -133,6 +152,8 @@ class OpenAIController extends HttpController
     #[Action]
     public function chatList(string $id, int $page = 1, int $limit = 15): array
     {
-        return $this->openAIService->list($id, 0, $page, $limit);
+        $memberSession = MemberUtil::getMemberSession();
+
+        return $this->openAIService->list($id, $memberSession->getIntMemberId(), $page, $limit);
     }
 }

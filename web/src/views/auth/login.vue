@@ -21,6 +21,13 @@ watch(success, (val) => {
 const jumpCountDown = ref(0)
 let jumpTimer: NodeJS.Timer | null = null
 
+watch(router.currentRoute, () => {
+  if (jumpTimer) {
+    clearInterval(jumpTimer)
+    jumpTimer = null
+  }
+})
+
 function delayJump() {
   jumpCountDown.value = 3
   jumpTimer = setInterval(() => {

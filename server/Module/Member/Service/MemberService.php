@@ -26,9 +26,9 @@ class MemberService
         return $record;
     }
 
-    public function get(int $id): Member
+    public function get(int|string $id): Member
     {
-        $record = Member::find($id);
+        $record = Member::find(\is_int($id) ? $id : Member::decodeId($id));
         if (!$record)
         {
             throw new NotFoundException('用户不存在');

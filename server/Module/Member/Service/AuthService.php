@@ -8,9 +8,11 @@ use app\Exception\NotFoundException;
 use app\Module\Config\Facade\Config;
 use app\Module\Member\Enum\Configs;
 use Imi\Aop\Annotation\Inject;
+use Imi\JWT\Exception\InvalidTokenException;
 use Imi\JWT\Facade\JWT;
 use Imi\Validate\ValidatorHelper;
 use Lcobucci\JWT\Token;
+use Lcobucci\JWT\UnencryptedToken;
 
 class AuthService
 {
@@ -19,6 +21,10 @@ class AuthService
 
     #[Inject()]
     protected EmailAuthService $emailAuthServiceService;
+
+    public const JWT_NAME = 'memberLoginStatus';
+
+    public const TOKEN_TYPE = 'auth';
 
     public function login(string $account, string $password): array
     {
@@ -62,12 +68,12 @@ class AuthService
         return password_verify($password, $hash);
     }
 
-    public function generateMemberToken(int $memberId): Token
+    public function generateMemberToken(string $memberId): Token
     {
         return JWT::getToken([
-            'type'     => 'auth',
+            'type'     => self::TOKEN_TYPE,
             'memberId' => $memberId,
-        ], 'memberLoginStatus', function (\Lcobucci\JWT\Builder $builder) {
+        ], self::JWT_NAME, function (\Lcobucci\JWT\Builder $builder) {
             $now = new \DateTimeImmutable();
             $builder->expiresAt($now->modify('+' . Config::get(Configs::TOKEN_EXPIRES, 0) . ' second'));
         });
@@ -75,10 +81,23 @@ class AuthService
 
     public function doLogin(int $memberId): Token
     {
-        $token = $this->generateMemberToken($memberId);
         $member = $this->memberService->get($memberId);
         $member->lastLoginTime = time();
         $member->update();
+        $token = $this->generateMemberToken($member->getRecordId());
+
+        return $token;
+    }
+
+    public function verifyToken(string $jwt): UnencryptedToken
+    {
+        /** @var UnencryptedToken $token */
+        $token = JWT::parseToken($jwt, self::JWT_NAME);
+        $data = $token->claims()->get('data');
+        if (self::TOKEN_TYPE !== ($data['type'] ?? null))
+        {
+            throw new InvalidTokenException('Invalid token type');
+        }
 
         return $token;
     }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace app\Module\Chat\ApiController;
 
 use app\Module\Chat\Service\OpenAIService;
+use app\Module\Member\Annotation\LoginRequired;
+use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -24,26 +26,34 @@ class OpenAIController extends HttpController
     #[
         Action,
         Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function sendMessage(string $message, string $id = '', array|object $config = []): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'data' => $this->openAIService->sendMessage($message, $id, 0, IPUtil::getIP($this->request), $config),
+            'data' => $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP($this->request), $config),
         ];
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function stream(string $id, string $token = ''): void
     {
-        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService) extends SseEmitter {
-            public function __construct(private string $id, private OpenAIService $openAIService)
+        MemberUtil::allowParamToken($token);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService, $memberSession->getIntMemberId()) extends SseEmitter {
+            public function __construct(private string $id, private OpenAIService $openAIService, private int $memberId)
             {
             }
 
             protected function task(): void
             {
                 $handler = $this->getHandler();
-                foreach ($this->openAIService->chatStream($this->id, 0) as $data)
+                foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
                 {
                     // @phpstan-ignore-next-line
                     if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
@@ -57,10 +67,13 @@ class OpenAIController extends HttpController
 
     #[
         Action,
+        LoginRequired()
     ]
     public function list(int $page = 1, int $limit = 15): array
     {
-        return $this->openAIService->list(0, $page, $limit);
+        $memberSession = MemberUtil::getMemberSession();
+
+        return $this->openAIService->list($memberSession->getIntMemberId(), $page, $limit);
     }
 
     /**
@@ -69,10 +82,12 @@ class OpenAIController extends HttpController
     #[
         Action,
         Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function edit(string $id, string $title)
     {
-        $this->openAIService->edit($id, $title, 0);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->openAIService->edit($id, $title, $memberSession->getIntMemberId());
     }
 
     /**
@@ -81,19 +96,24 @@ class OpenAIController extends HttpController
     #[
         Action,
         Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function delete(string $id)
     {
-        $this->openAIService->delete($id, 0);
+        $memberSession = MemberUtil::getMemberSession();
+        $this->openAIService->delete($id, $memberSession->getIntMemberId());
     }
 
     #[
         Action,
+        LoginRequired()
     ]
     public function get(string $id): array
     {
+        $memberSession = MemberUtil::getMemberSession();
+
         return [
-            'data'     => $this->openAIService->getByIdStr($id, 0),
+            'data'     => $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId()),
             'messages' => $this->openAIService->selectMessagesIdStr($id, 'asc'),
         ];
     }

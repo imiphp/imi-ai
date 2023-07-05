@@ -1,5 +1,6 @@
 import type { AxiosError, AxiosProgressEvent, AxiosResponse, GenericAbortSignal } from 'axios'
 import service from './axios'
+import { useAuthStore, useUserStore } from '@/store'
 
 export interface HttpOption {
   url: string
@@ -24,20 +25,20 @@ function http(
 ) {
   const successHandler = (res: AxiosResponse<Response>) => {
     afterRequest?.()
-    // const authStore = useAuthStore()
 
     if (res.data.code === 0 || typeof res.data === 'string')
       return res.data
-
-    // if (res.data.status === 'Unauthorized') {
-    //   authStore.removeToken()
-    //   window.location.reload()
-    // }
 
     if (apiFailHandler)
       apiFailHandler(res)
     else
       dialogApiFailHandler(res)
+
+    if (res.data.code === 10001) {
+      useAuthStore().removeToken()
+      useUserStore().resetUserInfo()
+      window.$router.replace({ name: 'Login' })
+    }
 
     return Promise.reject(res.data)
   }
@@ -59,7 +60,7 @@ function http(
     : service.post(url, params, { headers, signal, onDownloadProgress }).then(successHandler, failHandler)
 }
 
-export function get<T = any>(
+export function get(
   { url, data, method = 'GET', onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response> {
   return http({
@@ -74,7 +75,7 @@ export function get<T = any>(
   })
 }
 
-export function post<T = any>(
+export function post(
   { url, data, method = 'POST', headers, onDownloadProgress, signal, beforeRequest, afterRequest, apiFailHandler }: HttpOption,
 ): Promise<Response> {
   return http({

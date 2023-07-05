@@ -10,12 +10,14 @@ import {
   useMessage,
   useNotification,
 } from 'naive-ui'
+import { useRouter } from 'vue-router'
 
 function registerNaiveTools() {
   window.$loadingBar = useLoadingBar()
   window.$dialog = useDialog()
   window.$message = useMessage()
   window.$notification = useNotification()
+  window.$router = useRouter()
 }
 
 const NaiveProviderContent = defineComponent({
