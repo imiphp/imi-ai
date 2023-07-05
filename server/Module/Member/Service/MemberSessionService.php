@@ -41,7 +41,7 @@ class MemberSessionService
      */
     private ?Member $memberInfo = null;
 
-    public function __init()
+    public function __init(): void
     {
         $this->init();
     }
@@ -69,10 +69,6 @@ class MemberSessionService
             }
 
             $data = $this->authService->verifyToken($token);
-            if (!$data)
-            {
-                return;
-            }
 
             $memberId = $data->claims()->get('data')['memberId'] ?? null;
             if (null === $memberId)

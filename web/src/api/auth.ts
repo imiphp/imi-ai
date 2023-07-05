@@ -10,7 +10,7 @@ export function sendRegisterEmail<T = any>(
     vcode: string
   },
 ) {
-  return post<T>({
+  return post({
     url: '/auth/email/sendRegisterEmail',
     data,
   })
@@ -22,7 +22,7 @@ export function emailRegister<T = any>(
     vcodeToken: string
     vcode: string
   }) {
-  return post<T>({
+  return post({
     url: '/auth/email/register',
     data,
   })
@@ -34,7 +34,7 @@ export function verifyFromEmail<T = any>(
   verifyToken: string,
   apiFailHandler?: (res: AxiosResponse<Response>) => void,
 ) {
-  return post<T>({
+  return post({
     url: '/auth/email/verifyFromEmail',
     data: {
       email,
@@ -52,7 +52,7 @@ export function login<T = any>(
     vcodeToken: string
     vcode: string
   }) {
-  return post<T>({
+  return post({
     url: '/auth/login',
     data,
   })

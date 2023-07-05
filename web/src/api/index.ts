@@ -10,7 +10,7 @@ export function fetchChatAPI<T = any>(
   options?: { conversationId?: string; parentMessageId?: string },
   signal?: GenericAbortSignal,
 ) {
-  return post<T>({
+  return post({
     url: '/chat',
     data: { prompt, options },
     signal,
@@ -27,7 +27,7 @@ export function fetchChatAPIProcess<T = any>(
     id,
   }
 
-  return post<T>({
+  return post({
     url: '/chat/openai/stream',
     data,
     signal: params.signal,
@@ -38,7 +38,7 @@ export function fetchChatAPIProcess<T = any>(
 export function getSession<T = any>(
   id: string,
 ) {
-  return get<T>({
+  return get({
     url: '/chat/openai/get',
     data: {
       id,
@@ -50,7 +50,7 @@ export function sessionList<T = any>(
   page = 1,
   limit = 15,
 ) {
-  return get<T>({
+  return get({
     url: '/chat/openai/list',
     data: {
       page,
@@ -63,7 +63,7 @@ export function sendMessage<T = any>(
   id: string,
   message: string,
 ) {
-  return post<T>({
+  return post({
     url: '/chat/openai/sendMessage',
     data: {
       id,
@@ -76,7 +76,7 @@ export function editSession<T = any>(
   id: string,
   title: string,
 ) {
-  return post<T>({
+  return post({
     url: '/chat/openai/edit',
     data: {
       id,
@@ -88,7 +88,7 @@ export function editSession<T = any>(
 export function deleteSession<T = any>(
   id: string,
 ) {
-  return post<T>({
+  return post({
     url: '/chat/openai/delete',
     data: {
       id,

@@ -5,7 +5,7 @@ export function projectList<T = any>(
   page = 1,
   limit = 15,
 ) {
-  return get<T>({
+  return get({
     url: '/embedding/openai/projectList',
     data: {
       page,
@@ -17,7 +17,7 @@ export function projectList<T = any>(
 export function deleteProject<T = any>(
   id: string,
 ) {
-  return post<T>({
+  return post({
     url: '/embedding/openai/deleteProject',
     data: {
       id,
@@ -29,7 +29,7 @@ export function updateProject<T = any>(
   id: string,
   name: string,
 ) {
-  return post<T>({
+  return post({
     url: '/embedding/openai/updateProject',
     data: {
       id,
@@ -41,7 +41,7 @@ export function updateProject<T = any>(
 export function getProject<T = any>(
   id: string,
 ) {
-  return get<T>({
+  return get({
     url: '/embedding/openai/getProject',
     data: {
       id,
@@ -52,7 +52,7 @@ export function getProject<T = any>(
 export function assocFileList<T = any>(
   projectId: string,
 ) {
-  return get<T>({
+  return get({
     url: '/embedding/openai/assocFileList',
     data: {
       projectId,
@@ -64,7 +64,7 @@ export function sectionList<T = any>(
   projectId: string,
   fileId: string,
 ) {
-  return get<T>({
+  return get({
     url: '/embedding/openai/sectionList',
     data: {
       projectId,
@@ -78,7 +78,7 @@ export function chatList<T = any>(
   page = 1,
   limit = 15,
 ) {
-  return get<T>({
+  return get({
     url: '/embedding/openai/chatList',
     data: {
       id,
@@ -93,7 +93,7 @@ export function sendEmbeddingMessage<T = any>(
   question: string,
   config?: any,
 ) {
-  return post<T>({
+  return post({
     url: '/embedding/openai/sendMessage',
     data: {
       projectId,
@@ -113,7 +113,7 @@ export function fetchEmbeddingChatAPIProcess<T = any>(
     id,
   }
 
-  return post<T>({
+  return post({
     url: '/embedding/openai/stream',
     data,
     signal: params.signal,
