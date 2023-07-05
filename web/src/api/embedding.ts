@@ -1,7 +1,7 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { get, post } from '@/utils/request'
 
-export function projectList<T = any>(
+export function projectList(
   page = 1,
   limit = 15,
 ) {
@@ -14,7 +14,7 @@ export function projectList<T = any>(
   })
 }
 
-export function deleteProject<T = any>(
+export function deleteProject(
   id: string,
 ) {
   return post({
@@ -25,7 +25,7 @@ export function deleteProject<T = any>(
   })
 }
 
-export function updateProject<T = any>(
+export function updateProject(
   id: string,
   name: string,
 ) {
@@ -38,7 +38,7 @@ export function updateProject<T = any>(
   })
 }
 
-export function getProject<T = any>(
+export function getProject(
   id: string,
 ) {
   return get({
@@ -49,7 +49,7 @@ export function getProject<T = any>(
   })
 }
 
-export function assocFileList<T = any>(
+export function assocFileList(
   projectId: string,
 ) {
   return get({
@@ -60,7 +60,7 @@ export function assocFileList<T = any>(
   })
 }
 
-export function sectionList<T = any>(
+export function sectionList(
   projectId: string,
   fileId: string,
 ) {
@@ -73,7 +73,7 @@ export function sectionList<T = any>(
   })
 }
 
-export function chatList<T = any>(
+export function chatList(
   id: string,
   page = 1,
   limit = 15,
@@ -88,7 +88,7 @@ export function chatList<T = any>(
   })
 }
 
-export function sendEmbeddingMessage<T = any>(
+export function sendEmbeddingMessage(
   projectId: string,
   question: string,
   config?: any,
@@ -103,7 +103,7 @@ export function sendEmbeddingMessage<T = any>(
   })
 }
 
-export function fetchEmbeddingChatAPIProcess<T = any>(
+export function fetchEmbeddingChatAPIProcess(
   id: string,
   params: {
     signal?: GenericAbortSignal

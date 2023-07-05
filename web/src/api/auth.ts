@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios'
 import type { Response } from '@/utils/request'
 import { post } from '@/utils/request'
 
-export function sendRegisterEmail<T = any>(
+export function sendRegisterEmail(
   data: {
     email: string
     password: string
@@ -16,7 +16,7 @@ export function sendRegisterEmail<T = any>(
   })
 }
 
-export function emailRegister<T = any>(
+export function emailRegister(
   data: {
     email: string
     vcodeToken: string
@@ -28,7 +28,7 @@ export function emailRegister<T = any>(
   })
 }
 
-export function verifyFromEmail<T = any>(
+export function verifyFromEmail(
   email: string,
   token: string,
   verifyToken: string,
@@ -45,7 +45,7 @@ export function verifyFromEmail<T = any>(
   })
 }
 
-export function login<T = any>(
+export function login(
   data: {
     account: string
     password: string

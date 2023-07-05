@@ -5,7 +5,7 @@ export * from './auth'
 export * from './embedding'
 export * from './vcode'
 
-export function fetchChatAPI<T = any>(
+export function fetchChatAPI(
   prompt: string,
   options?: { conversationId?: string; parentMessageId?: string },
   signal?: GenericAbortSignal,
@@ -17,7 +17,7 @@ export function fetchChatAPI<T = any>(
   })
 }
 
-export function fetchChatAPIProcess<T = any>(
+export function fetchChatAPIProcess(
   id: string,
   params: {
     signal?: GenericAbortSignal
@@ -35,7 +35,7 @@ export function fetchChatAPIProcess<T = any>(
   })
 }
 
-export function getSession<T = any>(
+export function getSession(
   id: string,
 ) {
   return get({
@@ -46,7 +46,7 @@ export function getSession<T = any>(
   })
 }
 
-export function sessionList<T = any>(
+export function sessionList(
   page = 1,
   limit = 15,
 ) {
@@ -59,7 +59,7 @@ export function sessionList<T = any>(
   })
 }
 
-export function sendMessage<T = any>(
+export function sendMessage(
   id: string,
   message: string,
 ) {
@@ -72,7 +72,7 @@ export function sendMessage<T = any>(
   })
 }
 
-export function editSession<T = any>(
+export function editSession(
   id: string,
   title: string,
 ) {
@@ -85,7 +85,7 @@ export function editSession<T = any>(
   })
 }
 
-export function deleteSession<T = any>(
+export function deleteSession(
   id: string,
 ) {
   return post({

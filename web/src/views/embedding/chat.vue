@@ -220,7 +220,7 @@ async function fetchStream() {
     let lastText = ''
     let lastIndex = 0
     const fetchChatAPIOnce = async () => {
-      await fetchEmbeddingChatAPIProcess<Chat.ConversationResponse>(qaId, {
+      await fetchEmbeddingChatAPIProcess(qaId, {
         // prompt: message,
         // options,
         signal: controller.signal,
