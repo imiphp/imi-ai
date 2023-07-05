@@ -37,13 +37,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 * [ ] OpenAI 单文件数据训练
 * [x] 聊天 AI 回答问题（可用于问题解答和客服等场景）
 * [ ] 搜索引擎，可定位文件
-* [ ] 支持解压 zip 文件
-* [ ] 支持解压 xz 文件
-* [ ] 支持解压 gz 文件
-* [ ] 支持解压 7z 文件
-* [ ] 支持解压 tar 文件
-* [ ] 支持解压 tar.gz 文件
-* [ ] 支持解压 tar.xz 文件
+* [x] 支持解压文件（zip、rar、7z、xz、gz、bz、tar.*）
 * [x] 支持解析 txt 文件
 * [ ] 支持解析 md 文件
 * [ ] 支持解析 doc/docx 文件
@@ -76,7 +70,10 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Linux / MacOS
 
-* PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole、zip）
+* 7-Zip
+（可选，使用数据训练必选。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录）
+
+* PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
 * Swoole >= v4.8.13 或 Swoole >= v5.0.3
 

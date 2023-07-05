@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, NTime, useDialog, useMessage } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, useDialog, useMessage } from 'naive-ui'
 import type { CSSProperties, Ref } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -13,7 +13,7 @@ import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useRuntimeStore } from '@/store'
 import { useEmbeddingStore } from '@/store/modules/embedding'
 import { t } from '@/locales'
-import { SvgIcon } from '@/components/common'
+import { HoverButton, SvgIcon, Time } from '@/components/common'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const appStore = useAppStore()
@@ -491,7 +491,7 @@ onMounted(async () => {
               <p><b>Token 数量：</b><span v-text="embeddingState.$state.currentProject?.tokens" /></p>
             </div>
             <div span="4 m:2 l:1">
-              <p><b>创建时间：</b><NTime :time="embeddingState.$state.currentProject?.createTime" format="yyyy-MM-dd hh:mm:ss.SSS" /></p>
+              <p><b>创建时间：</b><Time :time="embeddingState.$state.currentProject?.createTime" /></p>
             </div>
           </div>
         </NLayoutSider>

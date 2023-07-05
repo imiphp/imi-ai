@@ -6,6 +6,7 @@ import { ArchiveOutline as ArchiveIcon } from '@vicons/ionicons5'
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import service from '@/utils/request/axios'
+import { useAuthStore } from '@/store'
 
 const dialog = useDialog()
 const router = useRouter()
@@ -15,6 +16,9 @@ const uploadActionUrl = service.getUri({
 })
 
 const fileList = ref<UploadFileInfo[]>([])
+const uploadHeaders = ref({
+  Authorization: `Bearer ${useAuthStore().token}`,
+})
 
 const onFinish = (options: { event?: ProgressEvent }) => {
   try {
@@ -62,6 +66,7 @@ const onFinish = (options: { event?: ProgressEvent }) => {
     :action="uploadActionUrl"
     :max="1"
     :on-finish="onFinish"
+    :headers="uploadHeaders"
   >
     <NUploadDragger>
       <div style="margin-bottom: 12px">

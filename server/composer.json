@@ -5,8 +5,8 @@
     "require": {
         "php": ">=8.1",
         "ext-gd": "*",
-        "ext-zip": "*",
         "ankane/pgvector": "^0.1.2",
+        "gemorroj/archive7z": "^5.6",
         "gioni06/gpt3-tokenizer": "^1.2",
         "guzzlehttp/guzzle": "^7.5",
         "hashids/hashids": "^5.0",

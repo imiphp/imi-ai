@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import type { TreeOption } from 'naive-ui'
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDescriptions, NDescriptionsItem, NDivider, NEllipsis, NEmpty, NGi, NGrid, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NModal, NSpin, NTabPane, NTabs, NText, NTime, NTree } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDescriptions, NDescriptionsItem, NDivider, NEllipsis, NEmpty, NGi, NGrid, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NModal, NSpin, NTabPane, NTabs, NText, NTree } from 'naive-ui'
 import type { CSSProperties, Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
@@ -12,6 +12,7 @@ import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
+import { Time } from '@/components/common'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -182,13 +183,13 @@ onUnmounted(() => {
                 <p><b>状态：</b><span v-text="selectedFile.statusText" /></p>
               </NGi>
               <NGi span="4 m:2 l:1">
-                <p><b>创建时间：</b><NTime :time="selectedFile.createTime" format="yyyy-MM-dd hh:mm:ss.SSS" /></p>
+                <p><b>创建时间：</b><Time :time="selectedFile.createTime" /></p>
               </NGi>
               <NGi span="4 m:2 l:1">
-                <p><b>开始训练时间：</b><NTime :time="selectedFile.beginTrainingTime" format="yyyy-MM-dd hh:mm:ss.SSS" /></p>
+                <p><b>开始训练时间：</b><Time :time="selectedFile.beginTrainingTime" /></p>
               </NGi>
               <NGi span="4 m:2 l:1">
-                <p><b>结束训练时间：</b><NTime :time="selectedFile.completeTrainingTime" format="yyyy-MM-dd hh:mm:ss.SSS" /></p>
+                <p><b>结束训练时间：</b><Time :time="selectedFile.completeTrainingTime" /></p>
               </NGi>
               <NGi span="4 m:2 l:1">
                 <p><b>文件大小：</b><span v-text="formatByte(selectedFile.fileSize)" /></p>
@@ -254,16 +255,16 @@ onUnmounted(() => {
       <NTabPane name="info" tab="信息">
         <NDescriptions label-placement="top" :column="2" label-style="font-weight: bold">
           <NDescriptionsItem label="创建时间">
-            <NTime :time="currentSection?.createTime" format="yyyy-MM-dd hh:mm:ss.SSS" />
+            <Time :time="currentSection?.createTime" />
           </NDescriptionsItem>
           <NDescriptionsItem label="状态">
             <NText>{{ currentSection?.statusText }}</NText>
           </NDescriptionsItem>
           <NDescriptionsItem label="开始训练时间">
-            <NTime :time="currentSection?.beginTrainingTime" format="yyyy-MM-dd hh:mm:ss.SSS" />
+            <Time :time="currentSection?.beginTrainingTime" />
           </NDescriptionsItem>
           <NDescriptionsItem label="结束训练时间">
-            <NTime :time="currentSection?.completeTrainingTime" format="yyyy-MM-dd hh:mm:ss.SSS" />
+            <Time :time="currentSection?.completeTrainingTime" />
           </NDescriptionsItem>
           <NDescriptionsItem label="Token 数量">
             <NText>{{ currentSection?.tokens }}</NText>

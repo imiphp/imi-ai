@@ -14,6 +14,7 @@ use app\Module\Embedding\Enum\UploadFileTypes;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
+use Archive7z\Archive7z;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
 use Imi\Swoole\Util\Coroutine;
@@ -25,8 +26,6 @@ use Swoole\Coroutine\Channel;
 
 class EmbeddingUploadParser
 {
-    private string $fileType = '';
-
     private string $extractPath = '';
 
     /**
@@ -40,7 +39,7 @@ class EmbeddingUploadParser
 
     public function __construct(private int $memberId, private string $fileName, private string $clientFileName)
     {
-        $this->fileType = $this->getFileType();
+        $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
         $this->taskChannel = new Channel(\PHP_INT_MAX);
     }
@@ -81,7 +80,7 @@ class EmbeddingUploadParser
         throw new \RuntimeException('Failed to create extract path');
     }
 
-    private function getFileType(): string
+    private function assertFileType(): string
     {
         $ext = pathinfo($this->clientFileName, \PATHINFO_EXTENSION);
         UploadFileTypes::assert($ext);
@@ -91,31 +90,40 @@ class EmbeddingUploadParser
 
     private function extract(): void
     {
-        // 检查文件大小
-        if (filesize($this->fileName) > ($size = Config::get(Configs::MAX_COMPRESSED_FILE_SIZE)))
+        $newFileName = $this->fileName . '.' . $this->clientFileName;
+        rename($this->fileName, $newFileName);
+        try
         {
-            throw new \RuntimeException(sprintf('Compressed file size too large. Max size: %s', Imi::formatByte($size)));
-        }
-        switch($this->fileType)
-        {
-            case UploadFileTypes::ZIP:
-                $this->extractZip();
-                break;
-            default:
-                throw new \RuntimeException('Unsupported file type: ' . $this->fileType);
-        }
-    }
+            // 检查文件大小
+            if (filesize($newFileName) > ($size = Config::get(Configs::MAX_COMPRESSED_FILE_SIZE)))
+            {
+                throw new \RuntimeException(sprintf('Compressed file size too large. Max size: %s', Imi::formatByte($size)));
+            }
+            $archive = new Archive7z($newFileName);
 
-    private function extractZip(): void
-    {
-        $zip = new \ZipArchive();
-        $res = $zip->open($this->fileName);
-        if (true !== $res)
-        {
-            throw new \RuntimeException('Failed to open zip file: ' . $this->fileName);
+            $totalSize = 0;
+            foreach ($archive->getEntries() as $entry)
+            {
+                $totalSize += $entry->getSize();
+            }
+            if ($totalSize > ($size = Config::get(Configs::MAX_TOTAL_FILES_SIZE)))
+            {
+                throw new \RuntimeException(sprintf('Total files size too large. Max size: %s', Imi::formatByte($size)));
+            }
+
+            $archive->setOutputDirectory($this->extractPath);
+            $archive->extract();
+            foreach (File::enumFile($this->extractPath, null, ['tar']) as $file)
+            {
+                $archive = new Archive7z($file->getFullPath());
+                $archive->setOutputDirectory($this->extractPath);
+                $archive->extract();
+            }
         }
-        $zip->extractTo($this->extractPath);
-        $zip->close();
+        finally
+        {
+            unlink($newFileName);
+        }
     }
 
     private function parseFiles(): void
