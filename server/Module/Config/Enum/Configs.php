@@ -9,9 +9,9 @@ use Imi\Enum\BaseEnum;
 
 abstract class Configs extends BaseEnum
 {
-    #[EnumItem(['text' => '接口地址', 'default' => null])]
+    #[EnumItem(['text' => '接口地址', 'default' => ''])]
     public const API_URL = 'api_url';
 
-    #[EnumItem(['text' => '前端地址', 'default' => null])]
+    #[EnumItem(['text' => '前端地址', 'default' => ''])]
     public const WEB_URL = 'web_url';
 }

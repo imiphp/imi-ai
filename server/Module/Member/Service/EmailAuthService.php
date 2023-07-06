@@ -63,7 +63,7 @@ class EmailAuthService
                 'verifyToken' => $verifyToken,
             ]),
         ];
-        $this->emailService->sendMail($email, $config[Configs::EMAIL_TITLE], $config[Configs::EMAIL_CONTENT], $params, $config[Configs::EMAIL_IS_HTML]);
+        $this->emailService->sendMail($email, $config[Configs::REGISTER_EMAIL_TITLE], $config[Configs::REGISTER_EMAIL_CONTENT], $params, $config[Configs::REGISTER_EMAIL_IS_HTML]);
 
         return [
             'token' => $token,

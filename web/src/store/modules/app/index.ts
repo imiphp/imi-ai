@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import type { AppState, Language, Runtime, Theme } from './helper'
 import { getLocalRuntime, getLocalSetting, setLocalSetting } from './helper'
-import { router } from '@/router'
 import { store } from '@/store'
 
 export const useAppStore = defineStore('app-store', {
@@ -32,10 +31,18 @@ export const useAppStore = defineStore('app-store', {
       const url = new URL(location.toString())
       if (!url.searchParams.has('action'))
         return
+      const action = url.searchParams.get('action')
+      const params: any = {}
+      url.searchParams.forEach((value, key) => {
+        if (key !== 'action')
+          params[key] = value
+      })
 
-      switch (url.searchParams.get('action')) {
+      switch (action) {
         case 'verifyRegisterEmail':
-          router.push({ name: 'VerifyRegisterEmail' })
+          url.search = ''
+          history.replaceState(null, '', url)
+          window.$router.replace({ name: 'VerifyRegisterEmail', params })
           break
       }
     },

@@ -17,8 +17,8 @@ class AppUtil
 
     public static function apiUrl(string $path = '/', array $params = []): string
     {
-        $apiUrl = Config::get(Configs::API_URL);
-        if (null === $apiUrl)
+        $apiUrl = Config::get(Configs::API_URL, '');
+        if ('' === $apiUrl)
         {
             $apiUrl = 'http://127.0.0.1:' . \Imi\Config::get('@app.mainServer.port');
         }
@@ -57,7 +57,7 @@ class AppUtil
     public static function webUrl(string $path = '/', array $params = []): string
     {
         $webUrl = Config::get(Configs::WEB_URL);
-        if (null === $webUrl)
+        if ('' === $webUrl)
         {
             $webUrl = 'http://127.0.0.1:1002';
         }

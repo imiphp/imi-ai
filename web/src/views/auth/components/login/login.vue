@@ -4,6 +4,7 @@ import { NButton, NForm, NFormItemRow, NInput } from 'naive-ui'
 import type { Ref } from 'vue'
 import { computed, ref } from 'vue'
 
+import { useRouter } from 'vue-router'
 import { VCode } from '@/components/common'
 import { login } from '@/api'
 import { useAuthStore, useUserStore } from '@/store'
@@ -27,6 +28,7 @@ const success = computed({
 
 const userStore = useUserStore()
 const authStore = useAuthStore()
+const router = useRouter()
 
 const form = ref<FormInst | null>(null)
 const formData = ref({
@@ -75,6 +77,10 @@ async function handleClickLogin() {
     }
   })
 }
+
+function handleClickRegister() {
+  router.push({ name: 'Register' })
+}
 </script>
 
 <template>
@@ -91,6 +97,9 @@ async function handleClickLogin() {
     </NFormItemRow>
     <NButton attr-type="submit" type="primary" block strong :loading="loading" @click="handleClickLogin">
       登录
+    </NButton>
+    <NButton secondary block :loading="loading" @click="handleClickRegister">
+      没有账号？点击注册
     </NButton>
   </NForm>
 </template>

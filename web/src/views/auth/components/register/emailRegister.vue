@@ -93,7 +93,6 @@ async function handleClickSendEmail() {
       data.password = hashPassword(data.password)
       const response = await sendRegisterEmail({ ...data })
       formData.value.emailVCodeToken = response.token
-      formRules.value = registerRules
       emailSent.value = true
       sendButtonDisabled.value = true
       sendButtonTitleCountdown = 60

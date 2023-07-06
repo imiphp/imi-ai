@@ -415,10 +415,10 @@ const footerClass = computed(() => {
 })
 
 onMounted(async () => {
-  const hasNewSession = chatStore.history && chatStore.history[0].id.length === 0
+  const hasNewSession = chatStore.history && chatStore.history.length > 1 && chatStore.history[0].id.length === 0
   if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id) {
     await chatStore.loadChatList()
-    if (hasNewSession) {
+    if (hasNewSession && (!id || id.length === 0)) {
       chatStore.addHistory({
         id: '',
         title: 'New Chat',

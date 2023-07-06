@@ -177,7 +177,7 @@ export const useChatStore = defineStore('chat-store', {
       }
 
       const index = this.chat.findIndex(item => item.id === id)
-      if (index !== -1) {
+      if (index !== -1 && this.chat[index] && this.history[index]) {
         this.chat[index].data.push(chat)
         if (this.history[index].title === 'New Chat')
           this.history[index].title = chat.message

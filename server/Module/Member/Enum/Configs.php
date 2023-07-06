@@ -21,16 +21,16 @@ abstract class Configs extends BaseEnum
     public const REGISTER_CODE_TTL = 'register_code_ttl';
 
     #[EnumItem(['text' => '注册邮件标题', 'default' => 'imi AI 邮箱注册'])]
-    public const EMAIL_TITLE = 'email_title';
+    public const REGISTER_EMAIL_TITLE = 'register_email_title';
 
     #[EnumItem(['text' => '注册邮件内容', 'default' => <<<'HTML'
     <p>验证码：<span style="color: #ff0000;">{code}</span></p>
     <p><a href="{url}" target="_blank">点我验证</a></p>
     HTML])]
-    public const EMAIL_CONTENT = 'email_content';
+    public const REGISTER_EMAIL_CONTENT = 'register_email_content';
 
     #[EnumItem(['text' => '注册邮件是否html', 'default' => true])]
-    public const EMAIL_IS_HTML = 'email_is_html';
+    public const REGISTER_EMAIL_IS_HTML = 'register_email_is_html';
 
     /**
      * 登录Token有效时长.

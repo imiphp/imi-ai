@@ -2,13 +2,20 @@
 import { NButton, NCard, NIcon, NSpin } from 'naive-ui'
 import { ref } from 'vue'
 import { CheckmarkCircle, CloseCircle } from '@vicons/ionicons5'
+import { useRoute } from 'vue-router'
 import { verifyFromEmail } from '@/api'
-import { useAuthStore } from '@/store'
+import { useAuthStore, useUserStore } from '@/store'
+import { isString } from '@/utils/is'
 
-const url = new URL(location.toString())
-const email = url.searchParams.get('email')
-const token = url.searchParams.get('token')
-const verifyToken = url.searchParams.get('verifyToken')
+const route = useRoute()
+let { email, token, verifyToken }: any = route.params
+if (!isString(email))
+  email = null
+if (!isString(token))
+  token = null
+if (!isString(verifyToken))
+  verifyToken = null
+
 const status = ref((email === null || token === null || verifyToken === null) ? 'paramError' : 'normal')
 const loading = ref(false)
 const success = ref(false)
@@ -20,8 +27,11 @@ async function verify() {
     const response = await verifyFromEmail(email ?? '', token ?? '', verifyToken ?? '', (response) => {
       failReason.value = response.data.message || 'Error'
     })
-    if (response.token)
+    if (response.token) {
+      success.value = true
+      useUserStore().updateUserInfo(response.member)
       useAuthStore().setToken(response.token)
+    }
   }
   catch (e: any) {
     success.value = false

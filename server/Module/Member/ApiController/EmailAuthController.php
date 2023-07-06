@@ -57,8 +57,8 @@ class EmailAuthController extends HttpController
         $token = $this->emailAuthService->authService->doLogin($member->id);
 
         return [
-            'member' => $member,
             'token'  => $token->toString(),
+            'member' => $member,
         ];
     }
 }

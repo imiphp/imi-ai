@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/auth/verifyRegisterEmail',
+        path: '/auth/verifyRegisterEmail/:email/:token/:verifyToken',
         name: 'VerifyRegisterEmail',
         component: () => import('@/views/auth/verifyRegisterEmail.vue'),
         meta: {
