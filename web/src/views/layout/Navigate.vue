@@ -56,6 +56,18 @@ const menuOptions: MenuOption[] = [
       ),
     key: 'Embedding',
   },
+  {
+    label: () =>
+      h(
+        'a',
+        {
+          href: 'https://github.com/imiphp/imi-ai',
+          target: '_blank',
+        },
+        '开源代码',
+      ),
+    key: 'Source',
+  },
 ]
 
 const logined = ref(false)

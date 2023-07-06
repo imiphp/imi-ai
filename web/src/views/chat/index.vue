@@ -29,6 +29,7 @@ const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
 let { id } = route.params as { id: string }
+chatStore.setActive(id ?? '')
 
 const dataSources = computed(() => chatStore.getChatByUuid(id))
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
@@ -414,8 +415,21 @@ const footerClass = computed(() => {
 })
 
 onMounted(async () => {
-  if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0))
+  const hasNewSession = chatStore.history && chatStore.history[0].id.length === 0
+  if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id) {
     await chatStore.loadChatList()
+    if (hasNewSession) {
+      chatStore.addHistory({
+        id: '',
+        title: 'New Chat',
+        isEdit: false,
+        createTime: 0,
+        updateTime: 0,
+        qaStatus: QAStatus.ASK,
+        tokens: 0,
+      })
+    }
+  }
 
   if (id && id.length > 0) {
     const response = await getSession(id)

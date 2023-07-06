@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { setupI18n } from './locales'
 import { setupAssets, setupScrollbarStyle } from './plugins'
-import { setupStore, useAppStore } from './store'
+import { setupStore, useAppStoreWithOut } from './store'
 import { setupRouter } from './router'
 
 async function bootstrap() {
@@ -19,7 +19,7 @@ async function bootstrap() {
 
   app.mount('#app')
 
-  useAppStore().parseAction()
+  useAppStoreWithOut().parseAction()
 }
 
 bootstrap()
