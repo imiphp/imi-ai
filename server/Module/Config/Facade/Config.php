@@ -8,14 +8,10 @@ use Imi\Facade\Annotation\Facade;
 use Imi\Facade\BaseFacade;
 
 /**
- * @Facade(class=\app\Module\Config\Service\ConfigService::class, request=false, args={})
+ * @Facade(class="\app\Module\Config\Service\ConfigService", request=false, args={})
  *
- * @method static mixed                              get(string $key, $default = NULL)
- * @method static array                              getMulti(array $keys)
- * @method static \Imi\Enum\Annotation\EnumItem|null getConfigItem(string $key)
- * @method static bool                               set(string $key, $value)
- * @method static string                             getHashKey()
- * @method static array                              getConfigClasses()
+ * @method static void                                                                                                  init()
+ * @method static array<string,array{class:string,redisEntityAnnotation:RedisEntity,configModelAnnotation:ConfigModel}> getConfigClasses()
  */
 class Config extends BaseFacade
 {

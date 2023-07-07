@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\Util;
 
+use app\Module\OpenAI\Model\Redis\OpenAIConfig;
 use Imi\Config;
 use Imi\Util\Text;
 use OpenAI\Client;
@@ -19,14 +20,20 @@ class OpenAI
     // @phpstan-ignore-next-line
     public static function makeClient(): Client
     {
+        $openaiConfig = OpenAIConfig::__getConfig();
+        $config = Config::get('@app.openai.http', []);
+        if ($proxy = $openaiConfig->getProxy())
+        {
+            $config['proxy'] = $proxy;
+        }
         $factory = \OpenAI::factory()
-            ->withApiKey(Config::get('@app.openai.key'))
-            ->withHttpClient($client = new \GuzzleHttp\Client(Config::get('@app.openai.http', [])))
+            ->withApiKey($openaiConfig->getApiKey())
+            ->withHttpClient($client = new \GuzzleHttp\Client($config))
             ->withStreamHandler(fn (RequestInterface $request): ResponseInterface => $client->send($request, [
                 'stream' => true,
             ]));
 
-        $baseUrl = Config::get('@app.openai.baseUrl');
+        $baseUrl = $openaiConfig->getBaseUrl();
         if (!Text::isEmpty($baseUrl))
         {
             $factory->withBaseUri($baseUrl);

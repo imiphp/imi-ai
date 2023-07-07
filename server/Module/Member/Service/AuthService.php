@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Member\Service;
 
 use app\Exception\NotFoundException;
-use app\Module\Config\Facade\Config;
-use app\Module\Member\Enum\Configs;
+use app\Module\Member\Model\Redis\MemberConfig;
 use Imi\Aop\Annotation\Inject;
 use Imi\JWT\Exception\InvalidTokenException;
 use Imi\JWT\Facade\JWT;
@@ -75,7 +74,7 @@ class AuthService
             'memberId' => $memberId,
         ], self::JWT_NAME, function (\Lcobucci\JWT\Builder $builder) {
             $now = new \DateTimeImmutable();
-            $builder->expiresAt($now->modify('+' . Config::get(Configs::TOKEN_EXPIRES, 0) . ' second'));
+            $builder->expiresAt($now->modify('+' . MemberConfig::__getConfig()->getTokenExpires() . ' second'));
         });
     }
 

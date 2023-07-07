@@ -115,50 +115,60 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 
 * 系统设置
 
+键名：`imi_ai:config:common`
+
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| api_url | 空字符串 | 接口地址 |
-| web_url | 空字符串 | 前端地址 |
+| apiUrl | 空字符串 | 接口地址 |
+| webUrl | 空字符串 | 前端地址 |
 
 * 模型训练设置
 
+键名：`imi_ai:config:embedding`
+
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| max_compressed_file_size | `4194304` | 压缩文件最大尺寸，单位：字节，默认：4MB |
-| max_single_file_size | `2097152` | 单个文件最大尺寸，单位：字节，默认：2MB |
-| max_total_files_size | `4194304` | 所有文件最大尺寸，单位：字节，默认：4MB |
-| max_section_tokens | `512` | 段落最大Token数量 |
-| chat_stream_sections | `5` | 聊天最多携带段落数量 |
+| maxCompressedFileSize | `4194304` | 压缩文件最大尺寸，单位：字节，默认：4MB |
+| maxSingleFileSize | `2097152` | 单个文件最大尺寸，单位：字节，默认：2MB |
+| maxTotalFilesSize | `4194304` | 所有文件最大尺寸，单位：字节，默认：4MB |
+| maxSectionTokens | `512` | 段落最大Token数量 |
+| chatStreamSections | `5` | 聊天最多携带段落数量 |
 
 * 邮箱设置
 
+键名：`imi_ai:config:email`
+
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| email_from_address | 空字符串 | 发信邮箱 |
-| email_from_name | `imi AI` | 发信人 |
-| email_smtp_host | 空字符串 | SMTP服务器地址 |
-| email_port | 25 | SMTP服务器端口 |
-| email_secure | 空字符串 | SMTP安全协议 |
-| email_auth | `1` | 启用验证，默认为 `true` |
-| email_username | 空字符串 | SMTP用户名 |
-| email_password | 空字符串 | SMTP密码 |
+| fromAddress | 空字符串 | 发信邮箱 |
+| fromName | `imi AI` | 发信人 |
+| host | 空字符串 | SMTP服务器地址 |
+| port | 25 | SMTP服务器端口 |
+| secure | 空字符串 | SMTP安全协议，如：`ssl` |
+| auth | `1` | 启用验证，默认为 `true` |
+| username | 空字符串 | SMTP用户名 |
+| password | 空字符串 | SMTP密码 |
 
 * 用户设置
 
+键名：`imi_ai:config:member`
+
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| email_register | `1` | 启用邮箱注册，默认为 `true` |
-| register_code_ttl | `3600` | 注册验证码有效时长 |
-| register_email_title | `imi AI 邮箱注册` | 注册邮件标题 |
-| register_email_content | 详见代码 | 注册邮件内容 |
-| register_email_is_html | `1` | 注册邮件是否html，默认为 `true` |
-| token_expires | `2592000` | 登录Token有效时长，单位：秒，默认 `30` 天 |
+| emailRegister | `1` | 启用邮箱注册，默认为 `true` |
+| registerCodeTTL | `3600` | 注册验证码有效时长 |
+| registerEmailTitle | `imi AI 邮箱注册` | 注册邮件标题 |
+| registerEmailContent | 详见代码 | 注册邮件内容 |
+| registerEmailIsHtml | `1` | 注册邮件是否html，默认为 `true` |
+| tokenExpires | `2592000` | 登录Token有效时长，单位：秒，默认 `30` 天 |
 
 * 验证码设置
 
+键名：`imi_ai:config:vcode`
+
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| vcode_ttl | `300` | 验证码有效时长，单位：秒 |
+| ttl | `300` | 验证码有效时长，单位：秒 |
 
 > 暂时需要手动到 Redis 中修改，后续将开发管理后台可以图形化配置。
 

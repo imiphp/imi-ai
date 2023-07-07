@@ -6,14 +6,13 @@ namespace app\Module\Embedding\Service;
 
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
-use app\Module\Config\Facade\Config;
-use app\Module\Embedding\Enum\Configs;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Enum\SupportFileTypes;
 use app\Module\Embedding\Enum\UploadFileTypes;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
+use app\Module\Embedding\Model\Redis\EmbeddingConfig;
 use Archive7z\Archive7z;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
@@ -37,11 +36,14 @@ class EmbeddingUploadParser
 
     private Channel $taskChannel;
 
+    private EmbeddingConfig $config;
+
     public function __construct(private int $memberId, private string $fileName, private string $clientFileName)
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
         $this->taskChannel = new Channel(\PHP_INT_MAX);
+        $this->config = EmbeddingConfig::__getConfig();
     }
 
     public function upload(): EmbeddingProject
@@ -95,7 +97,7 @@ class EmbeddingUploadParser
         try
         {
             // 检查文件大小
-            if (filesize($newFileName) > ($size = Config::get(Configs::MAX_COMPRESSED_FILE_SIZE)))
+            if (filesize($newFileName) > ($size = $this->config->getMaxCompressedFileSize()))
             {
                 throw new \RuntimeException(sprintf('Compressed file size too large. Max size: %s', Imi::formatByte($size)));
             }
@@ -106,7 +108,7 @@ class EmbeddingUploadParser
             {
                 $totalSize += $entry->getSize();
             }
-            if ($totalSize > ($size = Config::get(Configs::MAX_TOTAL_FILES_SIZE)))
+            if ($totalSize > ($size = $this->config->getMaxTotalFilesSize()))
             {
                 throw new \RuntimeException(sprintf('Total files size too large. Max size: %s', Imi::formatByte($size)));
             }
@@ -137,13 +139,13 @@ class EmbeddingUploadParser
             $fileName = $file->getFullPath();
             $relativeFileName = substr($fileName, $subPathOffset);
             // 检查单文件大小
-            if (($size = filesize($fileName)) > ($maxSingleFileSize ??= Config::get(Configs::MAX_SINGLE_FILE_SIZE)))
+            if (($size = filesize($fileName)) > ($maxSingleFileSize ??= $this->config->getMaxSingleFileSize()))
             {
                 throw new \RuntimeException(sprintf('File %s size too large. Max size: %s', $relativeFileName, Imi::formatByte($maxSingleFileSize)));
             }
             $this->totalSize += $size;
             // 检查文件总大小
-            if ($this->totalSize > ($maxTotalFilesSize ??= Config::get(Configs::MAX_TOTAL_FILES_SIZE)))
+            if ($this->totalSize > ($maxTotalFilesSize ??= $this->config->getMaxTotalFilesSize()))
             {
                 throw new \RuntimeException(sprintf('Total files size too large. Max size: %s', Imi::formatByte($maxTotalFilesSize)));
             }
@@ -305,7 +307,7 @@ class EmbeddingUploadParser
     {
         $tokenizer = Gpt3Tokenizer::getInstance();
         $fileTokens = 0;
-        foreach ($tokenizer->chunk($file->content, Config::get(Configs::MAX_SECTION_TOKENS)) as $chunk)
+        foreach ($tokenizer->chunk($file->content, $this->config->getMaxSectionTokens()) as $chunk)
         {
             $sectionRecord = EmbeddingSection::newInstance();
             $sectionRecord->projectId = $file->projectId;

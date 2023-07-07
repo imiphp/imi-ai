@@ -48,14 +48,5 @@ return (function () {
                 ],
             ],
         ],
-        \app\Module\Config\Service\ConfigService::class => [
-            'configs' => [
-                \app\Module\Config\Enum\Configs::class,
-                \app\Module\Embedding\Enum\Configs::class,
-                \app\Module\Email\Enum\Configs::class,
-                \app\Module\Member\Enum\Configs::class,
-                \app\Module\VCode\Enum\Configs::class,
-            ],
-        ],
     ];
 })();

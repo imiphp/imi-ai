@@ -6,10 +6,9 @@ namespace app\Module\Member\Service;
 
 use app\Exception\ErrorException;
 use app\Module\Common\Service\TokenService;
-use app\Module\Config\Facade\Config;
 use app\Module\Email\Service\EmailService;
-use app\Module\Member\Enum\Configs;
 use app\Module\Member\Model\Member;
+use app\Module\Member\Model\Redis\MemberConfig;
 use app\Module\Member\Struct\EmailRegisterTokenStore;
 use app\Util\AppUtil;
 use app\Util\Generator;
@@ -45,15 +44,15 @@ class EmailAuthService
         {
             throw new ErrorException('该邮箱已注册');
         }
-        $config = Config::getMulti(Configs::getValues());
-        if (!$config[Configs::EMAIL_REGISTER])
+        $config = MemberConfig::__getConfig();
+        if (!$config->getEmailRegister())
         {
             throw new \RuntimeException('未启用邮箱注册');
         }
         $code = Generator::generateCode(6);
         $verifyToken = Generator::generateToken(32);
         $store = new EmailRegisterTokenStore($email, $password, $code, $verifyToken);
-        $token = $this->tokenService->generateToken(self::REGISTER_TOKEN_TYPE, 32, $store, Config::get(Configs::REGISTER_CODE_TTL));
+        $token = $this->tokenService->generateToken(self::REGISTER_TOKEN_TYPE, 32, $store, $config->getRegisterCodeTTL());
         $params = [
             'code' => $code,
             'url'  => AppUtil::webUrl('/', [
@@ -63,7 +62,7 @@ class EmailAuthService
                 'verifyToken' => $verifyToken,
             ]),
         ];
-        $this->emailService->sendMail($email, $config[Configs::REGISTER_EMAIL_TITLE], $config[Configs::REGISTER_EMAIL_CONTENT], $params, $config[Configs::REGISTER_EMAIL_IS_HTML]);
+        $this->emailService->sendMail($email, $config->getRegisterEmailTitle(), $config->getRegisterEmailContent(), $params, $config->getRegisterEmailIsHtml());
 
         return [
             'token' => $token,

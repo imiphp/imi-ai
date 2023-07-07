@@ -7,12 +7,11 @@ namespace app\Module\Embedding\Service;
 use app\Exception\NotFoundException;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
-use app\Module\Config\Facade\Config;
-use app\Module\Embedding\Enum\Configs;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
+use app\Module\Embedding\Model\Redis\EmbeddingConfig;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Query\Interfaces\IPaginateResult;
@@ -82,7 +81,8 @@ class OpenAIService
         {
             throw new \RuntimeException('AI 已回答完毕');
         }
-        $searchResult = $this->search($record->projectId, $record->question, 1, Config::get(Configs::CHAT_STREAM_SECTIONS));
+        $config = EmbeddingConfig::__getConfig();
+        $searchResult = $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections());
         if ($list = $searchResult->getList())
         {
             /** @var EmbeddingSectionSearched[] $list */

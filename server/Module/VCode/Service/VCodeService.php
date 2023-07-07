@@ -6,8 +6,7 @@ namespace app\Module\VCode\Service;
 
 use app\Exception\ErrorException;
 use app\Module\Common\Service\TokenService;
-use app\Module\Config\Facade\Config;
-use app\Module\VCode\Enum\Configs;
+use app\Module\VCode\Model\Redis\VCodeConfig;
 use app\Module\VCode\Struct\VCode;
 use app\Module\VCode\Struct\VCodeTokenStore;
 use app\Util\AppUtil;
@@ -25,7 +24,7 @@ class VCodeService
     {
         $vcode = Random::text('2345678abcdefhijkmnpqrstuvwxyzABCDEFHIJKMNPQRSTUVWXYZ', 4);
         $store = new VCodeTokenStore($vcode);
-        $token = $this->tokenService->generateToken(self::TOKEN_TYPE, 32, $store, Config::get(Configs::VCODE_TTL));
+        $token = $this->tokenService->generateToken(self::TOKEN_TYPE, 32, $store, VCodeConfig::__getConfig()->getttl());
         $image = $this->generateImage($vcode);
 
         return new VCode($image, $vcode, $token);

@@ -4,116 +4,56 @@ declare(strict_types=1);
 
 namespace app\Module\Config\Service;
 
-use Imi\Redis\Redis;
+use app\Module\Config\Annotation\ConfigModel;
+use Imi\Bean\Annotation\AnnotationManager;
+use Imi\Log\Log;
+use Imi\Model\Annotation\RedisEntity;
 
 class ConfigService
 {
+    /**
+     * @var array<string,array{class:string,redisEntityAnnotation:RedisEntity,configModelAnnotation:ConfigModel}>
+     */
     protected array $configs = [];
 
-    /**
-     * 获取配置.
-     */
-    public function get(string $key, mixed $default = null): mixed
+    public function __construct()
     {
-        $value = Redis::hGet($this->getHashKey(), $key);
-        if (false === $value)
+        foreach (AnnotationManager::getAnnotationPoints(ConfigModel::class, 'class') as $point)
         {
-            if (null !== $default)
+            $redisEntityAnnotation = AnnotationManager::getClassAnnotations($point->getClass(), RedisEntity::class, onlyFirst: true);
+            if (!$redisEntityAnnotation)
             {
-                return $default;
+                throw new \RuntimeException(sprintf('Class %s must have annotation %s', $point->getClass(), ConfigModel::class));
             }
-            $annotation = $this->getConfigItem($key);
-
-            return $annotation ? $annotation['default'] : $default;
-        }
-        else
-        {
-            $annotation = $this->getConfigItem($key);
-            if ($annotation)
-            {
-                if (\is_int($annotation['default']))
-                {
-                    return (int) $value;
-                }
-                if (\is_float($annotation['default']))
-                {
-                    return (float) $value;
-                }
-                if (\is_bool($annotation['default']))
-                {
-                    return (bool) $value;
-                }
-            }
-
-            return $value;
+            /** @var ConfigModel $configModelAnnotation */
+            $configModelAnnotation = $point->getAnnotation();
+            $this->configs[] = [
+                'class'                 => $point->getClass(),
+                'redisEntityAnnotation' => $redisEntityAnnotation,
+                'configModelAnnotation' => $configModelAnnotation,
+            ];
         }
     }
 
-    public function getMulti(array $keys): array
+    public function init(): void
     {
-        $result = Redis::hMget($this->getHashKey(), $keys) ?: [];
-        foreach ($keys as $key)
+        foreach ($this->configs as $config)
         {
-            $annotation = $this->getConfigItem($key);
-            if (isset($result[$key]) && false !== $result[$key])
+            $modelClass = $config['class'];
+            Log::info(sprintf('Init config %s', $modelClass));
+            $record = $modelClass::find();
+            if (!$record)
             {
-                if ($annotation)
-                {
-                    if (\is_int($annotation['default']))
-                    {
-                        $result[$key] = (int) $result[$key];
-                    }
-                    if (\is_float($annotation['default']))
-                    {
-                        $result[$key] = (float) $result[$key];
-                    }
-                    if (\is_bool($annotation['default']))
-                    {
-                        $result[$key] = (bool) $result[$key];
-                    }
-                }
+                $record = $modelClass::newInstance();
             }
-            else
-            {
-                $result[$key] = $annotation ? $annotation['default'] : null;
-            }
+            $record->save();
         }
-
-        return $result;
-    }
-
-    public function getConfigItem(string $key): ?array
-    {
-        foreach ($this->getConfigClasses() as $class)
-        {
-            $annotation = $class::getData($key);
-            if ($annotation)
-            {
-                return $annotation;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * 写入配置.
-     */
-    public function set(string $key, mixed $value): bool
-    {
-        return (bool) Redis::hSet($this->getHashKey(), $key, $value);
-    }
-
-    /**
-     * 获取集合键名.
-     */
-    public function getHashKey(): string
-    {
-        return 'config';
     }
 
     /**
      * 获取配置类列表.
+     *
+     * @return array<string,array{class:string,redisEntityAnnotation:RedisEntity,configModelAnnotation:ConfigModel}>
      */
     public function getConfigClasses(): array
     {

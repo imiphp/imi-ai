@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace app\Util;
 
-use app\Module\Config\Enum\Configs;
-use app\Module\Config\Facade\Config;
+use app\Module\Common\Model\Redis\CommonConfig;
 use Imi\App;
 use Imi\AppContexts;
 use Imi\Util\File;
@@ -17,7 +16,8 @@ class AppUtil
 
     public static function apiUrl(string $path = '/', array $params = []): string
     {
-        $apiUrl = Config::get(Configs::API_URL, '');
+        $commonConfig = CommonConfig::__getConfig();
+        $apiUrl = $commonConfig->getApiUrl();
         if ('' === $apiUrl)
         {
             $apiUrl = 'http://127.0.0.1:' . \Imi\Config::get('@app.mainServer.port');
@@ -56,7 +56,8 @@ class AppUtil
 
     public static function webUrl(string $path = '/', array $params = []): string
     {
-        $webUrl = Config::get(Configs::WEB_URL);
+        $commonConfig = CommonConfig::__getConfig();
+        $webUrl = $commonConfig->getWebUrl();
         if ('' === $webUrl)
         {
             $webUrl = 'http://127.0.0.1:1002';
