@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Service;
 
-use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Enum\SupportFileTypes;
 use app\Module\Embedding\Enum\UploadFileTypes;
+use app\Module\Embedding\FileHandler\IFileHandler;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
 use Archive7z\Archive7z;
+use Imi\App;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
 use Imi\Swoole\Util\Coroutine;
@@ -132,7 +133,7 @@ class EmbeddingUploadParser
     {
         $this->files = [];
         $this->totalSize = 0;
-        $subPathOffset = (\strlen($this->extractPath) + 1);
+        $subPathOffset = \strlen($this->extractPath) + 1;
         /** @var FileEnumItem $file */
         foreach (File::enumFile($this->extractPath, null, SupportFileTypes::getValues()) as $file)
         {
@@ -305,17 +306,23 @@ class EmbeddingUploadParser
 
     private function parseSections(EmbeddingFile $file): void
     {
-        $tokenizer = Gpt3Tokenizer::getInstance();
+        $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
+        /** @var IFileHandler $handler */
+        $handler = App::getBean(ucfirst($fileType) . 'FileHandler');
+
+        $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
+
         $fileTokens = 0;
-        foreach ($tokenizer->chunk($file->content, $this->config->getMaxSectionTokens()) as $chunk)
+        foreach ($generator as $item)
         {
+            [$chunk, $tokens] = $item;
             $sectionRecord = EmbeddingSection::newInstance();
             $sectionRecord->projectId = $file->projectId;
             $sectionRecord->fileId = $file->id;
             $sectionRecord->status = EmbeddingStatus::TRAINING;
             $sectionRecord->content = $chunk;
             $sectionRecord->vector = '[0]';
-            $sectionRecord->tokens = $tokens = $tokenizer->count($chunk);
+            $sectionRecord->tokens = $tokens;
             $fileTokens += $tokens;
             $sectionRecord->insert();
             $this->taskChannel->push($sectionRecord);

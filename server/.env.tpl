@@ -28,12 +28,5 @@ APP_PGSQL_DATABASE=db_imi_ai
 APP_REDIS_HOST=127.0.0.1
 APP_REDIS_PORT=6379
 
-# OpenAI 配置
-OPENAI_KEY=""
-# OpenAI 接口地址，支持自搭建代理
-# OPENAI_BASE_URL="api.openai.com/v1"
-# HTTP 代理
-# OPENAI_PROXY="127.0.0.1:12345"
-
 # id 加密盐，改成你自己的
 AI_ID_SALT=imi_ai
