@@ -8,6 +8,7 @@ use app\Exception\NotFoundException;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
+use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
@@ -26,7 +27,9 @@ class OpenAIService
 {
     public const ALLOW_PARAMS = ['temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
 
-    public const SYSTEM_CONTENT = '我是一个非常有帮助的QA机器人，能准确地使用现有文档回答用户的问题。我只使用所提供的资料来形成我的答案，在可能的情况下，尽量使用自己的话而不是逐字逐句地抄袭原文。我的回答是准确、有帮助、简明、清晰且严格的。资料里没有可以回不知道。';
+    // public const SYSTEM_CONTENT = '我是一个非常有帮助的QA机器人，能准确地使用现有文档回答用户的问题。我只使用所提供的资料来形成我的答案，在可能的情况下，尽量使用自己的话而不是逐字逐句地抄袭原文。我的回答是准确、有帮助、简明、清晰且严格的。资料里没有请回答不知道，不要使用公共数据。';
+
+    public const SYSTEM_CONTENT = '我是问答机器人，只根据提供的资料回答问题，优先用代码回答问题。我的回答严谨且准确，资料中没有的就回答不知道，不使用公共数据。';
 
     #[Inject()]
     protected EmbeddingService $embeddingService;
@@ -67,6 +70,7 @@ class OpenAIService
         $vector = new Vector($response->embeddings[0]->embedding);
 
         return EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
+                                                ->where('status', '=', EmbeddingStatus::COMPLETED)
                                                 ->order('distance')
                                                 ->order('update_time', 'desc')
                                                 ->bindValue(':keyword', (string) $vector)
@@ -89,6 +93,7 @@ class OpenAIService
             $data = '';
             foreach ($list as $item)
             {
+                var_dump($item->id . ':' . $item->fileId . ':' . $item->content);
                 $data .= $item->content . "\n";
             }
             $question = '资料:' . $data . '问题:' . $record->question;
@@ -103,6 +108,8 @@ class OpenAIService
                 ],
             ];
 
+            var_dump($question);
+
             $client = OpenAI::makeClient();
             $params = [];
             foreach (self::ALLOW_PARAMS as $name)
@@ -112,6 +119,7 @@ class OpenAIService
                     $params[$name] = $record->config[$name];
                 }
             }
+            $params['temperature'] = 0;
             $params['model'] = 'gpt-3.5-turbo';
             $params['messages'] = $messages;
             $record->beginTime = (int) (microtime(true) * 1000);

@@ -115,9 +115,10 @@ class EmbeddingService
                 // @phpstan-ignore-next-line
                 if (!isset($parent[$dir]))
                 {
+                    $itemFileName = implode('/', $dirs);
                     $parent[$dir] = [
-                        'recordId' => '',
-                        'fileName' => implode('/', $dirs),
+                        'recordId' => $itemFileName,
+                        'fileName' => $itemFileName,
                         'baseName' => $dir,
                         'children' => [],
                     ];

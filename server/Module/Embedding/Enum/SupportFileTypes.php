@@ -11,4 +11,7 @@ class SupportFileTypes extends BaseEnum
 {
     #[EnumItem(text: 'txt')]
     public const TXT = 'txt';
+
+    #[EnumItem(text: 'md')]
+    public const MD = 'md';
 }

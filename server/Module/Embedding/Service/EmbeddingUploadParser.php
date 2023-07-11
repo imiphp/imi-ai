@@ -49,23 +49,34 @@ class EmbeddingUploadParser
 
     public function upload(): EmbeddingProject
     {
-        // 解压
-        $this->extract();
+        try
+        {
+            // 解压
+            $this->extract();
 
-        // 处理文件
-        $this->parseFiles();
+            // 处理文件
+            $this->parseFiles();
 
-        $project = EmbeddingProject::newInstance();
-        $project->memberId = $this->memberId;
-        $project->name = mb_substr($this->clientFileName, 0, 32);
-        $project->totalFileSize = $this->totalSize;
-        $project->status = EmbeddingStatus::TRAINING;
-        $project->insert();
+            $project = EmbeddingProject::newInstance();
+            $project->memberId = $this->memberId;
+            $project->name = mb_substr($this->clientFileName, 0, 32);
+            $project->totalFileSize = $this->totalSize;
+            $project->status = EmbeddingStatus::TRAINING;
+            $project->insert();
 
-        // 处理文件内容
-        Coroutine::defer(fn () => Coroutine::create(fn () => $this->praseFilesContent($project)));
+            // 处理文件内容
+            Coroutine::defer(fn () => Coroutine::create(fn () => $this->praseFilesContent($project)));
 
-        return $project;
+            return $project;
+        }
+        catch (\Throwable $th)
+        {
+            if (is_dir($this->extractPath))
+            {
+                File::deleteDir($this->extractPath);
+            }
+            throw $th;
+        }
     }
 
     private function getExtractPath(): string
@@ -308,7 +319,7 @@ class EmbeddingUploadParser
     {
         $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
         /** @var IFileHandler $handler */
-        $handler = App::getBean(ucfirst($fileType) . 'FileHandler');
+        $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
 
         $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
 

@@ -31,17 +31,18 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 * [x] 保存消息到本地图片
 * [x] 提示词模型商店
 
-### 数据训练
+### 模型训练
 
-* [x] OpenAI 多文件（压缩）数据训练
-* [ ] OpenAI 单文件数据训练
+* [x] OpenAI 多文件（压缩）模型训练
+* [ ] OpenAI 单文件模型训练
 * [x] 聊天 AI 回答问题（可用于问题解答和客服等场景）
 * [ ] 搜索引擎，可定位文件
 * [x] 支持解压文件（zip、rar、7z、xz、gz、bz、tar.*）
 * [x] 支持解析 txt 文件
-* [ ] 支持解析 md 文件
+* [x] 支持解析 md 文件
 * [ ] 支持解析 doc/docx 文件
 * [ ] 支持解析 pdf 文件
+* [ ] 消息队列异步处理训练任务
 
 ### AI 生图
 
@@ -71,7 +72,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 * Linux / MacOS
 
 * 7-Zip
-（可选，使用数据训练必选。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录）
+（可选，使用模型训练必选。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录）
 
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
@@ -81,7 +82,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Redis
 
-* PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用数据训练必选）
+* PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用模型训练必选）
 
 > 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
@@ -194,7 +195,7 @@ CREATE EXTENSION pgvector;
 
 导入 `pgsql.sql` 文件，创建表。
 
-> 不使用数据训练功能，可以不配置 PostgreSQL。
+> 不使用模型训练功能，可以不配置 PostgreSQL。
 
 **运行服务：**
 
