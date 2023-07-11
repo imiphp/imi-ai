@@ -93,7 +93,6 @@ class OpenAIService
             $data = '';
             foreach ($list as $item)
             {
-                var_dump($item->id . ':' . $item->fileId . ':' . $item->content);
                 $data .= $item->content . "\n";
             }
             $question = '资料:' . $data . '问题:' . $record->question;
@@ -107,8 +106,6 @@ class OpenAIService
                     'content' => $question,
                 ],
             ];
-
-            var_dump($question);
 
             $client = OpenAI::makeClient();
             $params = [];

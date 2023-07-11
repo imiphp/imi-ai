@@ -70,7 +70,6 @@ class MdFileHandler implements IFileHandler
         $content = '';
         foreach ($nodes as $node)
         {
-            // var_dump(\get_class($node));
             if ($node instanceof Heading)
             {
                 if ('' !== $content)
@@ -79,10 +78,6 @@ class MdFileHandler implements IFileHandler
                     $content = '';
                 }
                 $tmpContent = '';
-                // foreach ($this->parseNode($node->children()) as $subContent)
-                // {
-                //     $tmpContent .= $subContent . "\n";
-                // }
                 foreach ($node->children() as $tmpNode)
                 {
                     if ($tmpNode instanceof StringContainerInterface)
@@ -103,7 +98,6 @@ class MdFileHandler implements IFileHandler
                     'content' => $tmpContent,
                     'level'   => $level,
                 ];
-                // var_dump($this->headingStack);
                 continue;
             }
             else
