@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Business\Enum\BusinessType;
 use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
+use app\Module\Wallet\Enum\OperationType;
+use app\Module\Wallet\Service\WalletTokensService;
+use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
-use Imi\Db\Db;
 use Imi\Log\Log;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
@@ -22,6 +25,9 @@ class OpenAIService
 {
     public const ALLOW_PARAMS = ['temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
 
+    #[Inject()]
+    protected WalletTokensService $walletTokensService;
+
     #[
         Transaction(),
         AutoValidation(),
@@ -29,6 +35,11 @@ class OpenAIService
     ]
     public function sendMessage(string $message, string $id, int $memberId, string $ip = '', array|object $config = []): ChatSession
     {
+        $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
+
+        // 检查余额
+        $this->walletTokensService->checkBalance($memberId, $tokens + 1, 0);
+
         if ([] === $config)
         {
             $config = new \stdClass();
@@ -51,8 +62,6 @@ class OpenAIService
             $record->update();
         }
 
-        $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
-
         $this->appendMessage($record->id, 'user', $config, $tokens, $message, $record->updateTime, $record->updateTime);
 
         return $record;
@@ -66,17 +75,19 @@ class OpenAIService
         {
             throw new \RuntimeException('AI 已回答完毕');
         }
-        $tokens = $record->tokens;
-        $record->tokens += $tokens;
+        $gpt3Tokenizer = Gpt3Tokenizer::getInstance();
+        $inputTokens = 0;
         $messages = [];
-        foreach ($this->selectMessages($record->id, 'asc') as $message)
+        foreach (goWait(fn () => $this->selectMessages($record->id, 'asc'), 30, true) as $message)
         {
             $messages[] = ['role' => $message->role, 'content' => $message->message];
+            $inputTokens += $gpt3Tokenizer->count($message->message);
         }
         if (!$messages)
         {
             throw new \RuntimeException('没有消息');
         }
+        $record->tokens += $inputTokens;
 
         $client = OpenAI::makeClient();
         $beginTime = time();
@@ -125,13 +136,15 @@ class OpenAIService
             }
         }
         $endTime = time();
-        Db::transContext(function () use ($record, $role, $message, $content, $beginTime, $endTime) {
-            $tokens = Gpt3Tokenizer::getInstance()->count($content);
-            $this->appendMessage($record->id, $role, $message->config, $tokens, $content, $beginTime, $endTime);
-            $record->tokens += $tokens;
-            $record->qaStatus = QAStatus::ASK;
-            $record->update();
-        });
+        $outputTokens = $gpt3Tokenizer->count($content);
+        $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime);
+        $record->tokens += $outputTokens;
+        $record->qaStatus = QAStatus::ASK;
+        $record->update();
+
+        // 扣款
+        $totalTokens = $inputTokens + $outputTokens;
+        $this->walletTokensService->change($record->memberId, OperationType::PAY, -$totalTokens, BusinessType::CHAT, time: $endTime);
     }
 
     public function getByIdStr(string $id, int $memberId = 0): ChatSession
