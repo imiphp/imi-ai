@@ -164,6 +164,39 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | maxTotalFilesSize | `4194304` | 所有文件最大尺寸，单位：字节，默认：4MB |
 | maxSectionTokens | `512` | 段落最大Token数量 |
 | chatStreamSections | `5` | 聊天最多携带段落数量 |
+| embeddingModelPrice | 详见表格下方 | 训练模型定价 |
+| chatModelPrice | 详见表格下方 | 聊天模型定价 |
+
+**embeddingModelPrice：**
+
+```js
+{
+    // 模型名称 => [输入倍率, 输出倍率]
+    {
+        "text-embedding-ada-002": [0.05, 0.05],
+    }
+}
+```
+
+**chatModelPrice：**
+
+```js
+{
+    // 模型名称 => [输入倍率, 输出倍率]
+    {
+        "gpt-3.5-turbo": [0.75, 1],
+        "gpt-3.5-turbo-16k": [1.5, 2],
+        "gpt-4": [150, 3],
+        "gpt-4-32k": [300, 6]
+    }
+}
+```
+
+默认值 1 倍默认以 `gpt-3.5-turbo` 输出价格为准。
+
+OpenAI 官方价格表：<https://openai.com/pricing>
+
+> 手动写入时请去除注释。
 
 * 邮箱设置
 

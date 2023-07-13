@@ -18,6 +18,6 @@ class BusinessType extends BaseEnum
     #[EnumItem(text: '模型训练')]
     public const EMBEDDING = 3;
 
-    #[EnumItem(text: '模型训练聊天')]
+    #[EnumItem(text: '模型训练对话')]
     public const EMBEDDING_CHAT = 4;
 }

@@ -29,6 +29,7 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null                             $status       状态
  * @property string|null                          $title        标题
  * @property int|null                             $createTime   创建时间
+ * @property int|null                             $payTokens    支付 Token 数量
  */
 abstract class EmbeddingQaBase extends Model
 {
@@ -405,6 +406,36 @@ abstract class EmbeddingQaBase extends Model
     public function setCreateTime(?int $createTime)
     {
         $this->createTime = $createTime;
+
+        return $this;
+    }
+
+    /**
+     * 支付 Token 数量.
+     * pay_tokens.
+     *
+     * @Column(name="pay_tokens", type="int4", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?int $payTokens = 0;
+
+    /**
+     * 获取 payTokens - 支付 Token 数量.
+     */
+    public function getPayTokens(): ?int
+    {
+        return $this->payTokens;
+    }
+
+    /**
+     * 赋值 payTokens - 支付 Token 数量.
+     *
+     * @param int|null $payTokens pay_tokens
+     *
+     * @return static
+     */
+    public function setPayTokens(?int $payTokens)
+    {
+        $this->payTokens = $payTokens;
 
         return $this;
     }

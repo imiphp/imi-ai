@@ -29,6 +29,7 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null    $completeTrainingTime 完成训练时间
  * @property string|null $reason               失败原因
  * @property int|null    $tokens               Token数量
+ * @property int|null    $payTokens            支付 Token 数量
  */
 abstract class EmbeddingSectionBase extends Model
 {
@@ -397,6 +398,36 @@ abstract class EmbeddingSectionBase extends Model
     public function setTokens(?int $tokens)
     {
         $this->tokens = $tokens;
+
+        return $this;
+    }
+
+    /**
+     * 支付 Token 数量.
+     * pay_tokens.
+     *
+     * @Column(name="pay_tokens", type="int4", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?int $payTokens = 0;
+
+    /**
+     * 获取 payTokens - 支付 Token 数量.
+     */
+    public function getPayTokens(): ?int
+    {
+        return $this->payTokens;
+    }
+
+    /**
+     * 赋值 payTokens - 支付 Token 数量.
+     *
+     * @param int|null $payTokens pay_tokens
+     *
+     * @return static
+     */
+    public function setPayTokens(?int $payTokens)
+    {
+        $this->payTokens = $payTokens;
 
         return $this;
     }

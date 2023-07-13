@@ -19,7 +19,8 @@ CACHE 1
   "update_time" int8 NOT NULL,
   "begin_training_time" int8 NOT NULL DEFAULT 0,
   "complete_training_time" int8 NOT NULL DEFAULT 0,
-  "tokens" int4 NOT NULL DEFAULT 0
+  "tokens" int8 NOT NULL DEFAULT 0,
+  "pay_tokens" int8 NOT NULL DEFAULT 0
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_file"."project_id" IS '项目ID';
@@ -32,6 +33,7 @@ COMMENT ON COLUMN "public"."tb_embedding_file"."update_time" IS '更新时间';
 COMMENT ON COLUMN "public"."tb_embedding_file"."begin_training_time" IS '开始训练时间';
 COMMENT ON COLUMN "public"."tb_embedding_file"."complete_training_time" IS '完成训练时间';
 COMMENT ON COLUMN "public"."tb_embedding_file"."tokens" IS 'Token数量';
+COMMENT ON COLUMN "public"."tb_embedding_file"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON TABLE "public"."tb_embedding_file" IS '训练的文件';
 
 -- ----------------------------
@@ -52,7 +54,8 @@ CACHE 1
   "create_time" int8 NOT NULL,
   "update_time" int8 NOT NULL,
   "status" int2 NOT NULL,
-  "tokens" int4 NOT NULL DEFAULT 0
+  "tokens" int8 NOT NULL DEFAULT 0,
+  "pay_tokens" int8 NOT NULL DEFAULT 0
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -62,6 +65,7 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."create_time" IS '创建时间
 COMMENT ON COLUMN "public"."tb_embedding_project"."update_time" IS '更新时间';
 COMMENT ON COLUMN "public"."tb_embedding_project"."status" IS '状态';
 COMMENT ON COLUMN "public"."tb_embedding_project"."tokens" IS 'Token数量';
+COMMENT ON COLUMN "public"."tb_embedding_project"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------
@@ -86,7 +90,8 @@ CACHE 1
   "config" json NOT NULL,
   "status" int2 NOT NULL,
   "title" varchar(16) COLLATE "pg_catalog"."default" NOT NULL,
-  "create_time" int8 NOT NULL
+  "create_time" int8 NOT NULL,
+  "pay_tokens" int4 NOT NULL DEFAULT 0
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_qa"."member_id" IS '用户ID';
@@ -100,6 +105,7 @@ COMMENT ON COLUMN "public"."tb_embedding_qa"."config" IS '配置';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."status" IS '状态';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."title" IS '标题';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."create_time" IS '创建时间';
+COMMENT ON COLUMN "public"."tb_embedding_qa"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON TABLE "public"."tb_embedding_qa" IS '训练文件问答';
 
 -- ----------------------------
@@ -124,7 +130,8 @@ CACHE 1
   "begin_training_time" int8 NOT NULL DEFAULT 0,
   "complete_training_time" int8 NOT NULL DEFAULT 0,
   "reason" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text,
-  "tokens" int4 NOT NULL
+  "tokens" int4 NOT NULL,
+  "pay_tokens" int4 NOT NULL DEFAULT 0
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_section"."project_id" IS '项目ID';
@@ -138,6 +145,7 @@ COMMENT ON COLUMN "public"."tb_embedding_section"."begin_training_time" IS '开�
 COMMENT ON COLUMN "public"."tb_embedding_section"."complete_training_time" IS '完成训练时间';
 COMMENT ON COLUMN "public"."tb_embedding_section"."reason" IS '失败原因';
 COMMENT ON COLUMN "public"."tb_embedding_section"."tokens" IS 'Token数量';
+COMMENT ON COLUMN "public"."tb_embedding_section"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON TABLE "public"."tb_embedding_section" IS '训练内容段落';
 
 -- ----------------------------

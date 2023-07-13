@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Service;
 
+use app\Module\Business\Enum\BusinessType;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Enum\SupportFileTypes;
@@ -13,7 +14,11 @@ use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\Wallet\Enum\OperationType;
+use app\Module\Wallet\Service\WalletTokensService;
+use app\Module\Wallet\Util\TokensUtil;
 use Archive7z\Archive7z;
+use Imi\Aop\Annotation\Inject;
 use Imi\App;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
@@ -26,6 +31,9 @@ use Swoole\Coroutine\Channel;
 
 class EmbeddingUploadParser
 {
+    #[Inject()]
+    protected WalletTokensService $walletTokensService;
+
     private string $extractPath = '';
 
     /**
@@ -38,6 +46,8 @@ class EmbeddingUploadParser
     private Channel $taskChannel;
 
     private EmbeddingConfig $config;
+
+    private string $model = 'text-embedding-ada-002';
 
     public function __construct(private int $memberId, private string $fileName, private string $clientFileName)
     {
@@ -172,6 +182,7 @@ class EmbeddingUploadParser
     #[Transaction()]
     private function praseFilesContent(EmbeddingProject $project): void
     {
+        $projectTokens = $projectPayTokens = 0;
         try
         {
             $completeChannel = new Channel();
@@ -185,7 +196,6 @@ class EmbeddingUploadParser
                     $completeChannel->push(true);
                 }
             });
-            $projectTokens = 0;
             foreach ($this->files as $file)
             {
                 ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size] = $file;
@@ -199,9 +209,8 @@ class EmbeddingUploadParser
                 $fileRecord->insert();
                 $this->parseSections($fileRecord);
                 $projectTokens += $fileRecord->tokens;
+                $projectPayTokens += $fileRecord->payTokens;
             }
-            $project->tokens = $projectTokens;
-            $project->update();
             $this->taskChannel->close();
             $completeChannel->pop();
         }
@@ -213,7 +222,9 @@ class EmbeddingUploadParser
         {
             // 更新项目状态
             EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)->update([
-                'status' => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                'status'     => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                'tokens'     => $projectTokens,
+                'pay_tokens' => $projectPayTokens,
             ]);
             // 更新文件状态
             EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
@@ -223,6 +234,8 @@ class EmbeddingUploadParser
             EmbeddingFile::query()->where('project_id', '=', $project->id)->update([
                 'complete_training_time' => (int) (microtime(true) * 1000),
             ]);
+            // 扣除余额
+            $this->walletTokensService->change($this->memberId, OperationType::PAY, -$projectPayTokens, BusinessType::EMBEDDING);
             File::deleteDir($this->extractPath);
         }
     }
@@ -259,7 +272,7 @@ class EmbeddingUploadParser
             try
             {
                 $response = $client->embeddings()->create([
-                    'model' => 'text-embedding-ada-002',
+                    'model' => $this->model,
                     'input' => $input,
                 ]);
                 $time = (int) (microtime(true) * 1000);
@@ -323,7 +336,7 @@ class EmbeddingUploadParser
 
         $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
 
-        $fileTokens = 0;
+        $fileTokens = $filePayTokens = 0;
         foreach ($generator as $item)
         {
             [$chunk, $tokens] = $item;
@@ -335,10 +348,14 @@ class EmbeddingUploadParser
             $sectionRecord->vector = '[0]';
             $sectionRecord->tokens = $tokens;
             $fileTokens += $tokens;
+            [$payTokens] = TokensUtil::calcDeductToken($this->model, $tokens, 0, $this->config->getEmbeddingModelPrice());
+            $sectionRecord->payTokens = $payTokens;
+            $filePayTokens += $payTokens;
             $sectionRecord->insert();
             $this->taskChannel->push($sectionRecord);
         }
         $file->tokens = $fileTokens;
+        $file->payTokens = $filePayTokens;
         $file->update();
     }
 }

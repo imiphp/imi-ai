@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Business\Enum\BusinessType;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
@@ -13,6 +14,9 @@ use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\Wallet\Enum\OperationType;
+use app\Module\Wallet\Service\WalletTokensService;
+use app\Module\Wallet\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Query\Interfaces\IPaginateResult;
@@ -34,6 +38,9 @@ class OpenAIService
     #[Inject()]
     protected EmbeddingService $embeddingService;
 
+    #[Inject()]
+    protected WalletTokensService $walletTokensService;
+
     #[
         Transaction(),
         AutoValidation(),
@@ -41,6 +48,11 @@ class OpenAIService
     ]
     public function sendMessage(string $question, string $projectId, int $memberId, string $ip = '', array|object $config = []): EmbeddingQa
     {
+        $tokens = \count(Gpt3Tokenizer::getInstance()->encode($question));
+
+        // 检查余额
+        $this->walletTokensService->checkBalance($memberId, $tokens + 1, 0);
+
         $project = $this->embeddingService->getProject($projectId, $memberId);
 
         if ([] === $config)
@@ -60,14 +72,18 @@ class OpenAIService
         return $record;
     }
 
-    public function search(int $projectId, string $q = '', int $page = 1, int $limit = 15): IPaginateResult
+    public function search(int $projectId, string $q = '', int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
         $client = OpenAI::makeClient();
         $response = $client->embeddings()->create([
-            'model' => 'text-embedding-ada-002',
+            'model' => $model = 'text-embedding-ada-002',
             'input' => $q,
         ]);
         $vector = new Vector($response->embeddings[0]->embedding);
+
+        $tokens = Gpt3Tokenizer::getInstance()->count($q);
+        $config = EmbeddingConfig::__getConfig();
+        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelPrice());
 
         return EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
                                                 ->where('status', '=', EmbeddingStatus::COMPLETED)
@@ -86,7 +102,8 @@ class OpenAIService
             throw new \RuntimeException('AI 已回答完毕');
         }
         $config = EmbeddingConfig::__getConfig();
-        $searchResult = $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections());
+        $model = 'gpt-3.5-turbo';
+        $searchResult = $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections(), $embeddingTokens, $embeddingPayTokens);
         if ($list = $searchResult->getList())
         {
             /** @var EmbeddingSectionSearched[] $list */
@@ -117,7 +134,7 @@ class OpenAIService
                 }
             }
             $params['temperature'] = 0;
-            $params['model'] = 'gpt-3.5-turbo';
+            $params['model'] = $model;
             $params['messages'] = $messages;
             $record->beginTime = (int) (microtime(true) * 1000);
             // @phpstan-ignore-next-line
@@ -151,11 +168,11 @@ class OpenAIService
                 yield $yieldData;
             }
             $tokenizer = Gpt3Tokenizer::getInstance();
-            $tokens = $tokenizer->count(self::SYSTEM_CONTENT) // 系统提示语
+            $chatInputTokens = $tokenizer->count(self::SYSTEM_CONTENT) // 系统提示语
             + $tokenizer->count($question) // 问题提示语
             + $tokenizer->count($content) // 内容提示语
-            + $tokenizer->count($record->question) // 搜索时训练向量的Token
             ;
+            $chatOutputTokens = $tokenizer->count($content);
             $record->answer = $content;
         }
         else
@@ -163,14 +180,16 @@ class OpenAIService
             yield ['content' => $record->answer = '没有搜索到内容'];
             yield ['finishReason' => 'stop'];
             $question = $content = '';
-            $tokenizer = Gpt3Tokenizer::getInstance();
-            $tokens = $tokenizer->count($record->question); // 搜索时训练向量的Token
+            $chatInputTokens = $chatOutputTokens = 0;
         }
         $endTime = (int) (microtime(true) * 1000);
-        $record->tokens = $tokens;
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->chatModelPrice);
+        $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
+        $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;
         $record->completeTime = $endTime;
         $record->update();
+        $this->walletTokensService->change($memberId, OperationType::PAY, -$payTokens, BusinessType::EMBEDDING_CHAT);
     }
 
     public function getByIdStr(string $id, int $memberId = 0): EmbeddingQa

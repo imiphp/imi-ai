@@ -109,4 +109,51 @@ class EmbeddingConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 训练模型定价.
+     *
+     * 模型名称 => [输入倍率, 输出倍率]
+     */
+    #[Column(type: 'json')]
+    public array $embeddingModelPrice = [
+        'text-embedding-ada-002' => [0.05, 0.05],
+    ];
+
+    public function getEmbeddingModelPrice(): array
+    {
+        return $this->embeddingModelPrice;
+    }
+
+    public function setEmbeddingModelPrice(array $embeddingModelPrice): self
+    {
+        $this->embeddingModelPrice = $embeddingModelPrice;
+
+        return $this;
+    }
+
+    /**
+     * 聊天模型定价.
+     *
+     * 模型名称 => [输入倍率, 输出倍率]
+     */
+    #[Column(type: 'json')]
+    public array $chatModelPrice = [
+        'gpt-3.5-turbo'     => [0.75, 1],
+        'gpt-3.5-turbo-16k' => [1.5, 2],
+        'gpt-4'             => [150, 3],
+        'gpt-4-32k'         => [300, 6],
+    ];
+
+    public function getChatModelPrice(): array
+    {
+        return $this->chatModelPrice;
+    }
+
+    public function setChatModelPrice(array $chatModelPrice): self
+    {
+        $this->chatModelPrice = $chatModelPrice;
+
+        return $this;
+    }
 }
