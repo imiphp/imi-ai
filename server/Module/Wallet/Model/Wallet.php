@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Wallet\Model;
 
 use app\Module\Wallet\Model\Base\WalletBase;
-use app\Module\Wallet\Util\TokensUnit;
+use app\Module\Wallet\Util\TokensUtil;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
 
@@ -21,6 +21,6 @@ class Wallet extends WalletBase
 
     public function getTokensStr(): ?string
     {
-        return TokensUnit::formatChinese($this->tokens);
+        return TokensUtil::formatChinese($this->tokens);
     }
 }

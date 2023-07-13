@@ -9,10 +9,12 @@ use app\Module\Business\Enum\BusinessType;
 use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
+use app\Module\Chat\Model\Redis\ChatConfig;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Wallet\Enum\OperationType;
 use app\Module\Wallet\Service\WalletTokensService;
+use app\Module\Wallet\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
@@ -80,6 +82,7 @@ class OpenAIService
         $messages = [];
         foreach (goWait(fn () => $this->selectMessages($record->id, 'asc'), 30, true) as $message)
         {
+            /** @var ChatMessage $message */
             $messages[] = ['role' => $message->role, 'content' => $message->message];
             $inputTokens += $gpt3Tokenizer->count($message->message);
         }
@@ -99,7 +102,7 @@ class OpenAIService
                 $params[$name] = $message->config[$name];
             }
         }
-        $params['model'] = 'gpt-3.5-turbo';
+        $model = $params['model'] = 'gpt-3.5-turbo';
         $params['messages'] = $messages;
         // @phpstan-ignore-next-line
         $stream = $client->chat()->createStreamed($params);
@@ -137,14 +140,27 @@ class OpenAIService
         }
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
+        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, ChatConfig::__getConfig()->modelPrice);
         $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime);
+        $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
+        $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
         $record->qaStatus = QAStatus::ASK;
         $record->update();
 
         // 扣款
-        $totalTokens = $inputTokens + $outputTokens;
-        $this->walletTokensService->change($record->memberId, OperationType::PAY, -$totalTokens, BusinessType::CHAT, time: $endTime);
+        $this->walletTokensService->change($record->memberId, OperationType::PAY, -$payTokens, BusinessType::CHAT, time: $endTime);
+    }
+
+    public function getById(int $id, int $memberId = 0): ChatSession
+    {
+        $record = ChatSession::find($id);
+        if (!$record || ($memberId && $record->memberId !== $memberId))
+        {
+            throw new NotFoundException(sprintf('会话 %s 不存在', $id));
+        }
+
+        return $record;
     }
 
     public function getByIdStr(string $id, int $memberId = 0): ChatSession
@@ -197,7 +213,7 @@ class OpenAIService
         $record->delete();
     }
 
-    public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime): void
+    public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime): ChatMessage
     {
         $record = ChatMessage::newInstance();
         $record->sessionId = $sessionId;
@@ -208,6 +224,8 @@ class OpenAIService
         $record->beginTime = $beginTime;
         $record->completeTime = $completeTime;
         $record->insert();
+
+        return $record;
     }
 
     /**

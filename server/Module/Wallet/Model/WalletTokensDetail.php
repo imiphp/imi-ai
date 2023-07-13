@@ -7,7 +7,7 @@ namespace app\Module\Wallet\Model;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Wallet\Enum\OperationType;
 use app\Module\Wallet\Model\Base\WalletTokensDetailBase;
-use app\Module\Wallet\Util\TokensUnit;
+use app\Module\Wallet\Util\TokensUtil;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
 
@@ -23,7 +23,7 @@ class WalletTokensDetail extends WalletTokensDetailBase
 
     public function getChangeAmountStr(): ?string
     {
-        return TokensUnit::formatChinese($this->changeAmount);
+        return TokensUtil::formatChinese($this->changeAmount);
     }
 
     #[Column(virtual: true)]
@@ -31,7 +31,7 @@ class WalletTokensDetail extends WalletTokensDetailBase
 
     public function getBeforeAmountStr(): ?string
     {
-        return TokensUnit::formatChinese($this->beforeAmount);
+        return TokensUtil::formatChinese($this->beforeAmount);
     }
 
     #[Column(virtual: true)]
@@ -39,7 +39,7 @@ class WalletTokensDetail extends WalletTokensDetailBase
 
     public function getAfterAmountStr(): ?string
     {
-        return TokensUnit::formatChinese($this->afterAmount);
+        return TokensUtil::formatChinese($this->afterAmount);
     }
 
     #[Column(virtual: true)]

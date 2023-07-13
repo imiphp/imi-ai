@@ -17,8 +17,6 @@ class WalletTokensService
 
     /**
      * 变更余额.
-     *
-     * @param bool $allowNegativeAmount 是否允许余额为负数
      */
     #[
         Transaction()

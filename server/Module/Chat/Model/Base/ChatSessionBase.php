@@ -18,13 +18,14 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.name", default="tb_chat_session"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint(3) unsigned NOT NULL COMMENT '问答状态',   `tokens` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '累计使用 Token 数量',   `config` json NOT NULL COMMENT '配置',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `update_time` int(10) unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`update_time`),   KEY `delete_time` (`delete_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='AI聊天会话'")
+ * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint(3) unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `update_time` int(10) unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`update_time`),   KEY `delete_time` (`delete_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='AI聊天会话'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $memberId   用户ID
  * @property string|null                                 $title      标题
  * @property int|null                                    $qaStatus   问答状态
- * @property int|null                                    $tokens     累计使用 Token 数量
+ * @property int|null                                    $tokens     累计 Token 数量，此为实际数量，不是在平台消耗的数量
+ * @property int|null                                    $payTokens  支付 Token 数量
  * @property \Imi\Util\LazyArrayObject|object|array|null $config     配置
  * @property int|null                                    $createTime 创建时间
  * @property int|null                                    $updateTime 最后更新时间
@@ -166,15 +167,15 @@ abstract class ChatSessionBase extends Model
     }
 
     /**
-     * 累计使用 Token 数量.
+     * 累计 Token 数量，此为实际数量，不是在平台消耗的数量.
      * tokens.
      *
-     * @Column(name="tokens", type="int", length=10, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="tokens", type="bigint", length=20, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $tokens = 0;
 
     /**
-     * 获取 tokens - 累计使用 Token 数量.
+     * 获取 tokens - 累计 Token 数量，此为实际数量，不是在平台消耗的数量.
      */
     public function getTokens(): ?int
     {
@@ -182,7 +183,7 @@ abstract class ChatSessionBase extends Model
     }
 
     /**
-     * 赋值 tokens - 累计使用 Token 数量.
+     * 赋值 tokens - 累计 Token 数量，此为实际数量，不是在平台消耗的数量.
      *
      * @param int|null $tokens tokens
      *
@@ -191,6 +192,36 @@ abstract class ChatSessionBase extends Model
     public function setTokens($tokens)
     {
         $this->tokens = null === $tokens ? null : (int) $tokens;
+
+        return $this;
+    }
+
+    /**
+     * 支付 Token 数量.
+     * pay_tokens.
+     *
+     * @Column(name="pay_tokens", type="bigint", length=20, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $payTokens = 0;
+
+    /**
+     * 获取 payTokens - 支付 Token 数量.
+     */
+    public function getPayTokens(): ?int
+    {
+        return $this->payTokens;
+    }
+
+    /**
+     * 赋值 payTokens - 支付 Token 数量.
+     *
+     * @param int|null $payTokens pay_tokens
+     *
+     * @return static
+     */
+    public function setPayTokens($payTokens)
+    {
+        $this->payTokens = null === $payTokens ? null : (int) $payTokens;
 
         return $this;
     }

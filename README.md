@@ -125,6 +125,34 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 | apiUrl | 空字符串 | 接口地址 |
 | webUrl | 空字符串 | 前端地址 |
 
+* AI聊天设置
+
+键名：`imi_ai:config:chat`
+
+| 名称 | 默认值 | 说明 |
+|-|-|-|
+| modelPrice | 详见表格下方 | 模型定价 |
+
+**modelPrice：**
+
+```js
+{
+    // 模型名称 => [输入倍率, 输出倍率]
+    {
+        "gpt-3.5-turbo": [0.75, 1],
+        "gpt-3.5-turbo-16k": [1.5, 2],
+        "gpt-4": [150, 3],
+        "gpt-4-32k": [300, 6]
+    }
+}
+```
+
+默认值 1 倍默认以 `gpt-3.5-turbo` 输出价格为准。
+
+OpenAI 官方价格表：<https://openai.com/pricing>
+
+> 手动写入时请去除注释。
+
 * 模型训练设置
 
 键名：`imi_ai:config:embedding`

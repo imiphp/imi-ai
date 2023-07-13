@@ -18,13 +18,13 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.name", default="tb_chat_message"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint(20) unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int(10) unsigned NOT NULL COMMENT 'token数量',   `message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `begin_time` int(10) unsigned NOT NULL COMMENT '开始时间',   `complete_time` int(10) unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`),   KEY `session_id` (`session_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='AI聊天对话消息'")
+ * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint(20) unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int(10) unsigned NOT NULL COMMENT '实际 Token 数量',   `message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `begin_time` int(10) unsigned NOT NULL COMMENT '开始时间',   `complete_time` int(10) unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`),   KEY `session_id` (`session_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='AI聊天对话消息'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $sessionId    会话ID
  * @property string|null                                 $role         角色
  * @property \Imi\Util\LazyArrayObject|object|array|null $config       配置
- * @property int|null                                    $tokens       token数量
+ * @property int|null                                    $tokens       实际 Token 数量
  * @property string|null                                 $message      消息内容
  * @property int|null                                    $beginTime    开始时间
  * @property int|null                                    $completeTime 完成时间
@@ -169,7 +169,7 @@ abstract class ChatMessageBase extends Model
     }
 
     /**
-     * token数量.
+     * 实际 Token 数量.
      * tokens.
      *
      * @Column(name="tokens", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
@@ -177,7 +177,7 @@ abstract class ChatMessageBase extends Model
     protected ?int $tokens = null;
 
     /**
-     * 获取 tokens - token数量.
+     * 获取 tokens - 实际 Token 数量.
      */
     public function getTokens(): ?int
     {
@@ -185,7 +185,7 @@ abstract class ChatMessageBase extends Model
     }
 
     /**
-     * 赋值 tokens - token数量.
+     * 赋值 tokens - 实际 Token 数量.
      *
      * @param int|null $tokens tokens
      *

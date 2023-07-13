@@ -6,7 +6,7 @@ namespace app\Module\Wallet\Util;
 
 use Imi\Util\Traits\TStaticClass;
 
-class TokensUnit
+class TokensUtil
 {
     use TStaticClass;
 
@@ -30,5 +30,22 @@ class TokensUnit
         }
 
         return $result . (self::BYTE_UNITS[$i] ?? '');
+    }
+
+    public static function calcDeductToken(string $model, int $inputTokens, int $outputTokens, array $config): array
+    {
+        if (empty($config[$model]))
+        {
+            // 没有配置，直接返回
+            return [$inputTokens, $outputTokens];
+        }
+
+        [$inputMultiple, $outputMultiple] = $config[$model];
+
+        // 按最大倍率计算返回
+        return [
+            (int) ceil($inputTokens * $inputMultiple),
+            (int) ceil($outputTokens * $outputMultiple),
+        ];
     }
 }
