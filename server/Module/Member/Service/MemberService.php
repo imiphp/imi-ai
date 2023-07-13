@@ -7,12 +7,14 @@ namespace app\Module\Member\Service;
 use app\Exception\NotFoundException;
 use app\Module\Member\Model\Member;
 use Imi\Aop\Annotation\Inject;
+use Imi\Db\Annotation\Transaction;
 
 class MemberService
 {
     #[Inject]
     protected EmailAuthService $emailAuthService;
 
+    #[Transaction()]
     public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = ''): Member
     {
         $record = Member::newInstance();

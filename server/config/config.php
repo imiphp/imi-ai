@@ -159,6 +159,12 @@ return [
                         'tb_member',
                     ],
                 ],
+                'app\Module\Wallet\Model' => [
+                    'tables'    => [
+                        'tb_wallet',
+                        'tb_wallet_tokens_detail',
+                    ],
+                ],
             ],
         ],
     ],

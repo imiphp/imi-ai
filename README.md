@@ -10,6 +10,8 @@
 
 imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 ChatGPT 功能。
 
+本项目支持 ChatGPT 聊天 AI 和 Embedding 模型训练对话。
+
 后端基于 [imi](https://github.com/imiphp/imi)（PHP+Swoole），前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web)。
 
 项目采用 MIT 协议开源，你可以方便地进行二次开发，并且可以用于商业用途。
@@ -170,6 +172,14 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 | 名称 | 默认值 | 说明 |
 |-|-|-|
 | ttl | `300` | 验证码有效时长，单位：秒 |
+
+* 钱包设置
+
+键名：`imi_ai:config:wallet`
+
+| 名称 | 默认值 | 说明 |
+|-|-|-|
+| registerGiftTokens | `0` | 注册赠送 Tokens |
 
 > 暂时需要手动到 Redis 中修改，后续将开发管理后台可以图形化配置。
 
