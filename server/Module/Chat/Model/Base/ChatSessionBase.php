@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.name", default="tb_chat_session"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint(3) unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `update_time` int(10) unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`update_time`),   KEY `delete_time` (`delete_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='AI聊天会话'")
+ * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint(3) unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then '' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `update_time` int(10) unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`update_time`),   KEY `delete_time` (`delete_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='AI聊天会话'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $memberId   用户ID
@@ -27,6 +27,8 @@ use Imi\Model\Model;
  * @property int|null                                    $tokens     累计 Token 数量，此为实际数量，不是在平台消耗的数量
  * @property int|null                                    $payTokens  支付 Token 数量
  * @property \Imi\Util\LazyArrayObject|object|array|null $config     配置
+ * @property string|null                                 $ipData     IP数据
+ * @property string|null                                 $ip         IP
  * @property int|null                                    $createTime 创建时间
  * @property int|null                                    $updateTime 最后更新时间
  * @property int|null                                    $deleteTime 删除时间
@@ -256,6 +258,70 @@ abstract class ChatSessionBase extends Model
     public function setConfig($config)
     {
         $this->config = null === $config ? null : $config;
+
+        return $this;
+    }
+
+    /**
+     * IP数据.
+     * ip_data.
+     *
+     * @Column(name="ip_data", type="varbinary", length=16, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $ipData = '';
+
+    /**
+     * 获取 ipData - IP数据.
+     */
+    public function getIpData(): ?string
+    {
+        return $this->ipData;
+    }
+
+    /**
+     * 赋值 ipData - IP数据.
+     *
+     * @param string|null $ipData ip_data
+     *
+     * @return static
+     */
+    public function setIpData($ipData)
+    {
+        $this->ipData = null === $ipData ? null : (string) $ipData;
+
+        return $this;
+    }
+
+    /**
+     * IP.
+     * ip.
+     *
+     * @Column(name="ip", type="varchar", length=39, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=true)
+     */
+    protected ?string $ip = null;
+
+    /**
+     * 获取 ip - IP.
+     */
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    /**
+     * 赋值 ip - IP.
+     *
+     * @param string|null $ip ip
+     *
+     * @return static
+     */
+    public function setIp($ip)
+    {
+        if (\is_string($ip) && mb_strlen($ip) > 39)
+        {
+            throw new \InvalidArgumentException('The maximum length of $ip is 39');
+        }
+        $this->ip = null === $ip ? null : (string) $ip;
 
         return $this;
     }

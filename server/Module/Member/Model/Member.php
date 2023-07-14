@@ -16,7 +16,7 @@ use Imi\Model\Annotation\Serializables;
  *
  * @Inherit
  */
-#[Serializables(mode: 'deny', fields: ['id', 'emailHash', 'password'])]
+#[Serializables(mode: 'deny', fields: ['id', 'emailHash', 'password', 'registerIpData', 'lastLoginIpData'])]
 class Member extends MemberBase
 {
     use TRecordId;

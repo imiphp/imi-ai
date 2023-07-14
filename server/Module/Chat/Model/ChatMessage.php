@@ -15,7 +15,7 @@ use Imi\Model\Annotation\Serializables;
  * @Inherit
  */
 #[
-    Serializables(mode: 'deny', fields: ['id', 'deleteTime']),
+    Serializables(mode: 'deny', fields: ['id', 'deleteTime', 'ipData']),
 ]
 class ChatMessage extends ChatMessageBase
 {

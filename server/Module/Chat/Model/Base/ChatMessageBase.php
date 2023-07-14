@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.name", default="tb_chat_message"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint(20) unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int(10) unsigned NOT NULL COMMENT '实际 Token 数量',   `message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `begin_time` int(10) unsigned NOT NULL COMMENT '开始时间',   `complete_time` int(10) unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`),   KEY `session_id` (`session_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='AI聊天对话消息'")
+ * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint(20) unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int(10) unsigned NOT NULL COMMENT '实际 Token 数量',   `message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then '' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `begin_time` int(10) unsigned NOT NULL COMMENT '开始时间',   `complete_time` int(10) unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`),   KEY `session_id` (`session_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='AI聊天对话消息'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $sessionId    会话ID
@@ -26,6 +26,8 @@ use Imi\Model\Model;
  * @property \Imi\Util\LazyArrayObject|object|array|null $config       配置
  * @property int|null                                    $tokens       实际 Token 数量
  * @property string|null                                 $message      消息内容
+ * @property string|null                                 $ipData       IP数据
+ * @property string|null                                 $ip           IP
  * @property int|null                                    $beginTime    开始时间
  * @property int|null                                    $completeTime 完成时间
  */
@@ -228,6 +230,70 @@ abstract class ChatMessageBase extends Model
             throw new \InvalidArgumentException('The maximum length of $message is 65535');
         }
         $this->message = null === $message ? null : (string) $message;
+
+        return $this;
+    }
+
+    /**
+     * IP数据.
+     * ip_data.
+     *
+     * @Column(name="ip_data", type="varbinary", length=16, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $ipData = '';
+
+    /**
+     * 获取 ipData - IP数据.
+     */
+    public function getIpData(): ?string
+    {
+        return $this->ipData;
+    }
+
+    /**
+     * 赋值 ipData - IP数据.
+     *
+     * @param string|null $ipData ip_data
+     *
+     * @return static
+     */
+    public function setIpData($ipData)
+    {
+        $this->ipData = null === $ipData ? null : (string) $ipData;
+
+        return $this;
+    }
+
+    /**
+     * IP.
+     * ip.
+     *
+     * @Column(name="ip", type="varchar", length=39, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=true)
+     */
+    protected ?string $ip = null;
+
+    /**
+     * 获取 ip - IP.
+     */
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    /**
+     * 赋值 ip - IP.
+     *
+     * @param string|null $ip ip
+     *
+     * @return static
+     */
+    public function setIp($ip)
+    {
+        if (\is_string($ip) && mb_strlen($ip) > 39)
+        {
+            throw new \InvalidArgumentException('The maximum length of $ip is 39');
+        }
+        $this->ip = null === $ip ? null : (string) $ip;
 
         return $this;
     }

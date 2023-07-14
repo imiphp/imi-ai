@@ -33,7 +33,7 @@ class OpenAIController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
 
         return [
-            'data' => $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP($this->request), $config),
+            'data' => $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP(), $config),
         ];
     }
 
@@ -53,7 +53,7 @@ class OpenAIController extends HttpController
             protected function task(): void
             {
                 $handler = $this->getHandler();
-                foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
+                foreach ($this->openAIService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
                 {
                     // @phpstan-ignore-next-line
                     if (!$handler->send((string) new SseMessageEvent(json_encode($data))))

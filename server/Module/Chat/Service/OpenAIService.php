@@ -64,12 +64,12 @@ class OpenAIService
             $record->update();
         }
 
-        $this->appendMessage($record->id, 'user', $config, $tokens, $message, $record->updateTime, $record->updateTime);
+        $this->appendMessage($record->id, 'user', $config, $tokens, $message, $record->updateTime, $record->updateTime, $ip);
 
         return $record;
     }
 
-    public function chatStream(string $id, int $memberId): \Iterator
+    public function chatStream(string $id, int $memberId, string $ip): \Iterator
     {
         /** @var ChatSession $record */
         $record = goWait(fn () => $this->getByIdStr($id, $memberId), 30, true);
@@ -141,7 +141,7 @@ class OpenAIService
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
         [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, ChatConfig::__getConfig()->modelPrice);
-        $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime);
+        $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
         $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
@@ -182,6 +182,7 @@ class OpenAIService
         $record->title = $title;
         $record->config = $config;
         $record->qaStatus = QAStatus::ANSWER;
+        $record->ipData = inet_pton($ip) ?: '';
         $record->insert();
 
         return $record;
@@ -213,7 +214,7 @@ class OpenAIService
         $record->delete();
     }
 
-    public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime): ChatMessage
+    public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime, string $ip): ChatMessage
     {
         $record = ChatMessage::newInstance();
         $record->sessionId = $sessionId;
@@ -223,6 +224,7 @@ class OpenAIService
         $record->message = $message;
         $record->beginTime = $beginTime;
         $record->completeTime = $completeTime;
+        $record->ipData = inet_pton($ip) ?: '';
         $record->insert();
 
         return $record;

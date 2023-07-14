@@ -20,7 +20,7 @@ use Imi\Model\SoftDelete\Traits\TSoftDelete;
  * @Inherit
  */
 #[
-    Serializables(mode: 'deny', fields: ['id']),
+    Serializables(mode: 'deny', fields: ['id', 'ipData']),
     SoftDelete()
 ]
 class ChatSession extends ChatSessionBase
