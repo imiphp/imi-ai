@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\ApiController;
 
+use app\Module\Chat\Model\ChatMessage;
+use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Service\OpenAIService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
+use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Message\Emitter\SseEmitter;
@@ -32,8 +35,11 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
+        $session = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP(), $config);
+        $session->__setSecureField(true);
+
         return [
-            'data' => $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP(), $config),
+            'data' => $session,
         ];
     }
 
@@ -55,6 +61,10 @@ class OpenAIController extends HttpController
                 $handler = $this->getHandler();
                 foreach ($this->openAIService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
                 {
+                    if (isset($data['content']))
+                    {
+                        $data['content'] = SecureFieldUtil::encode($data['content']);
+                    }
                     // @phpstan-ignore-next-line
                     if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
                     {
@@ -73,7 +83,14 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        return $this->openAIService->list($memberSession->getIntMemberId(), $page, $limit);
+        $result = $this->openAIService->list($memberSession->getIntMemberId(), $page, $limit);
+        /** @var ChatSession $item */
+        foreach ($result['list']  as $item)
+        {
+            $item->__setSecureField(true);
+        }
+
+        return $result;
     }
 
     /**
@@ -111,10 +128,18 @@ class OpenAIController extends HttpController
     public function get(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $session = $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId());
+        $session->__setSecureField(true);
+        $messages = $this->openAIService->selectMessagesIdStr($id, 'asc');
+        /** @var ChatMessage $message */
+        foreach ($messages as $message)
+        {
+            $message->__setSecureField(true);
+        }
 
         return [
-            'data'     => $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId()),
-            'messages' => $this->openAIService->selectMessagesIdStr($id, 'asc'),
+            'data'     => $session,
+            'messages' => $messages,
         ];
     }
 }

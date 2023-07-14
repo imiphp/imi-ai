@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\ApiController;
 
+use app\Module\Embedding\Model\EmbeddingProject;
+use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
+use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Message\Emitter\SseEmitter;
@@ -36,9 +39,11 @@ class OpenAIController extends HttpController
     public function upload(UploadedFile $file): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $project = $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename(), IPUtil::getIP());
+        $project->__setSecureField(true);
 
         return [
-            'data' => $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename(), IPUtil::getIP()),
+            'data' => $project,
         ];
     }
 
@@ -49,9 +54,11 @@ class OpenAIController extends HttpController
     public function getProject(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $project = $this->embeddingService->getProject($id, $memberSession->getIntMemberId());
+        $project->__setSecureField(true);
 
         return [
-            'data' => $this->embeddingService->getProject($id, $memberSession->getIntMemberId()),
+            'data' => $project,
         ];
     }
 
@@ -63,7 +70,14 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        return $this->embeddingService->projectList($memberSession->getIntMemberId(), $page, $limit);
+        $result = $this->embeddingService->projectList($memberSession->getIntMemberId(), $page, $limit);
+        /** @var EmbeddingProject $project */
+        foreach ($result['list'] as $project)
+        {
+            $project->__setSecureField(true);
+        }
+
+        return $result;
     }
 
     /**
@@ -101,9 +115,14 @@ class OpenAIController extends HttpController
     public function fileList(string $projectId): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $list = $this->embeddingService->fileList($projectId, $memberSession->getIntMemberId());
+        foreach ($list as $file)
+        {
+            $file->__setSecureField(true);
+        }
 
         return [
-            'list' => $this->embeddingService->fileList($projectId, $memberSession->getIntMemberId()),
+            'list' => $list,
         ];
     }
 
@@ -116,7 +135,7 @@ class OpenAIController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
 
         return [
-            'list' => $this->embeddingService->assocFileList($projectId, $memberSession->getIntMemberId()),
+            'list' => $this->embeddingService->assocFileList($projectId, $memberSession->getIntMemberId(), true),
         ];
     }
 
@@ -127,9 +146,14 @@ class OpenAIController extends HttpController
     public function sectionList(string $projectId, string $fileId): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $list = $this->embeddingService->sectionList($projectId, $fileId, $memberSession->getIntMemberId());
+        foreach ($list as $item)
+        {
+            $item->__setSecureField(true);
+        }
 
         return [
-            'list' => $this->embeddingService->sectionList($projectId, $fileId, $memberSession->getIntMemberId()),
+            'list' => $list,
         ];
     }
 
@@ -141,9 +165,11 @@ class OpenAIController extends HttpController
     public function sendMessage(string $question, string $projectId, array|object $config = []): array
     {
         $memberSession = MemberUtil::getMemberSession();
+        $qa = $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config);
+        $qa->__setSecureField(true);
 
         return [
-            'data' => $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config),
+            'data' => $qa,
         ];
     }
 
@@ -162,6 +188,10 @@ class OpenAIController extends HttpController
                 $handler = $this->getHandler();
                 foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
                 {
+                    if (isset($data['content']))
+                    {
+                        $data['content'] = SecureFieldUtil::encode($data['content']);
+                    }
                     // @phpstan-ignore-next-line
                     if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
                     {
@@ -180,6 +210,13 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        return $this->openAIService->list($id, $memberSession->getIntMemberId(), $page, $limit);
+        $result = $this->openAIService->list($id, $memberSession->getIntMemberId(), $page, $limit);
+        /** @var EmbeddingQa $item */
+        foreach ($result['list'] as $item)
+        {
+            $item->__setSecureField(true);
+        }
+
+        return $result;
     }
 }

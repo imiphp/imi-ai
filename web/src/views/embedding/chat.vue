@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, useDialog, useMessage } from 'naive-ui'
-import type { CSSProperties, Ref } from 'vue'
+import type { CSSProperties } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { useRoute } from 'vue-router'
@@ -8,12 +8,13 @@ import html2canvas from 'html2canvas'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from '../chat/components'
 import { useScroll } from '../chat/hooks/useScroll'
-import { assocFileList, chatList, fetchEmbeddingChatAPIProcess, getProject, sectionList, sendEmbeddingMessage } from '@/api'
+import { chatList, fetchEmbeddingChatAPIProcess, getProject, sectionList, sendEmbeddingMessage } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useRuntimeStore } from '@/store'
 import { useEmbeddingStore } from '@/store/modules/embedding'
 import { t } from '@/locales'
 import { HoverButton, SvgIcon, Time } from '@/components/common'
+import { decodeSecureField } from '@/utils/request'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const appStore = useAppStore()
@@ -23,7 +24,6 @@ const ms = useMessage()
 const embeddingState = useEmbeddingStore()
 const runtimeStore = useRuntimeStore()
 const id = route.params.id.toString()
-const data: Ref<any> = ref([])
 const selectedKeys = ref<Array<string | number>>([])
 const selectedFileId = computed(() => selectedKeys.value[0])
 const sectionListData = ref<Array<Embedding.Section>>([])
@@ -233,6 +233,9 @@ async function fetchStream() {
             try {
               const chunk = responseText.substring(lastIndex, currentIndex)
               const data = JSON.parse(chunk.substring('data:'.length))
+              if (data.content)
+                data.content = decodeSecureField(data.content)
+
               if (!data.finishReason) {
                 // updateChatSome(
                 //   id,
@@ -395,12 +398,10 @@ onMounted(async () => {
   try {
     showLoading.value = true
     const projectPromise = getProject(id)
-    const assocFileListPromise = assocFileList(id)
     const chatListPromise = chatList(id, 1, 99999)
-    const [projectResponse, assocFileListResponse, chatListPromiseResponse] = await Promise.all([projectPromise, assocFileListPromise, chatListPromise])
+    const [projectResponse, chatListPromiseResponse] = await Promise.all([projectPromise, chatListPromise])
     embeddingState.$state.currentProject = projectResponse.data
     runtimeStore.$state.headerTitle = projectResponse.data.name
-    data.value = assocFileListResponse.list
     const _dataSources: Array<Chat.Chat> = []
     chatListPromiseResponse.list.reverse()
     for (item of chatListPromiseResponse.list) {

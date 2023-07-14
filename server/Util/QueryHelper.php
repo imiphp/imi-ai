@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace app\Util;
 
+use Imi\Util\Traits\TStaticClass;
 use Imi\Db\Query\Interfaces\IQuery;
 
 class QueryHelper
 {
-    private function __construct()
-    {
-    }
+    use TStaticClass;
 
     public static function orderByField(IQuery $query, string $name, array $values): IQuery
     {

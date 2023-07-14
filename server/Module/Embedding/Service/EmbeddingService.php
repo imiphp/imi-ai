@@ -8,6 +8,7 @@ use app\Exception\NotFoundException;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
+use app\Util\SecureFieldUtil;
 use Imi\App;
 use Imi\Db\Annotation\Transaction;
 
@@ -90,7 +91,7 @@ class EmbeddingService
                      ->getArray();
     }
 
-    public function assocFileList(string $projectId, int $memberId = 0): array
+    public function assocFileList(string $projectId, int $memberId = 0, bool $secureField = false): array
     {
         $list = $this->fileList($projectId, $memberId);
         // 构建关联数组，以 fileName 作为键名
@@ -115,11 +116,11 @@ class EmbeddingService
                 // @phpstan-ignore-next-line
                 if (!isset($parent[$dir]))
                 {
-                    $itemFileName = implode('/', $dirs);
+                    $itemFileName = SecureFieldUtil::encode(implode('/', $dirs));
                     $parent[$dir] = [
                         'recordId' => $itemFileName,
                         'fileName' => $itemFileName,
-                        'baseName' => $dir,
+                        'baseName' => SecureFieldUtil::encode($dir),
                         'children' => [],
                     ];
                     $childrens[] = &$parent[$dir]['children'];
@@ -127,7 +128,7 @@ class EmbeddingService
                 $parent = &$parent[$dir]['children'];
             }
 
-            $item['baseName'] = basename($fileName);
+            $item['baseName'] = SecureFieldUtil::encode(basename($fileName));
             $parent[] = $item;
         }
 
@@ -139,6 +140,9 @@ class EmbeddingService
         return array_values($tree);
     }
 
+    /**
+     * @return EmbeddingSection[]
+     */
     public function sectionList(string $projectId, string $fileId, int $memberId = 0): array
     {
         $project = $this->getProject($projectId, $memberId);

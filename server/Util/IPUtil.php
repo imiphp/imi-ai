@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace app\Util;
 
-use Imi\Server\Http\Message\Contract\IHttpRequest;
+use Imi\Util\Traits\TStaticClass;
 use Imi\Server\Http\Message\Proxy\RequestProxy;
+use Imi\Server\Http\Message\Contract\IHttpRequest;
 
 class IPUtil
 {
-    private function __construct()
-    {
-    }
+    use TStaticClass;
 
     public static function getIP(?IHttpRequest $request = null): string
     {

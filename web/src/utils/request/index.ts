@@ -1,3 +1,4 @@
+import pako from 'pako'
 import type { AxiosError, AxiosProgressEvent, AxiosResponse, GenericAbortSignal } from 'axios'
 import service from './axios'
 import { useAuthStore, useUserStore } from '@/store'
@@ -107,4 +108,15 @@ export function dialogFailHandler(res: AxiosError<any>): void {
     content: res?.response?.data?.message || 'Network Error',
     positiveText: '确定',
   })
+}
+
+export function decodeSecureField(value: string): string {
+  try {
+    const input = Uint8Array.from(window.atob(value), m => m.codePointAt(0) ?? 0)
+    return pako.inflate(input, { raw: true, to: 'string' })
+  }
+  catch (err) {
+    window.console.log(err)
+    return ''
+  }
 }

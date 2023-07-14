@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Model;
 
 use app\Module\Common\Model\Traits\TRecordId;
+use app\Module\Common\Model\Traits\TSecureField;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
 use app\Module\Embedding\Model\Base\EmbeddingQaBase;
 use Imi\Bean\Annotation\Inherit;
@@ -22,6 +23,12 @@ use Imi\Model\Annotation\Serializables;
 class EmbeddingQa extends EmbeddingQaBase
 {
     use TRecordId;
+    use TSecureField;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['question', 'answer', 'title'];
 
     /**
      * 创建时间.

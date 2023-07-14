@@ -13,6 +13,7 @@ import { useAppStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
 import { Time } from '@/components/common'
+import { decodeSecureField } from '@/utils/request'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -87,6 +88,11 @@ watch(selectedFileId, async () => {
 async function viewSection(section: Embedding.Section) {
   currentSection.value = section
   showViewSection.value = true
+}
+
+function onRenderTreeLabel({ option }: any) {
+  const result = decodeSecureField(option.baseName)
+  return result
 }
 
 onMounted(async () => {
@@ -165,6 +171,7 @@ onUnmounted(() => {
           label-field="baseName"
           :on-update:selected-keys="handleSelectKeys"
           :watch-props="['defaultExpandedKeys', 'defaultCheckedKeys', 'defaultSelectedKeys']"
+          :render-label="onRenderTreeLabel"
         />
       </NLayoutSider>
       <NLayoutContent :class="getContainerClass">

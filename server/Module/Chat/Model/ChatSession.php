@@ -7,6 +7,7 @@ namespace app\Module\Chat\Model;
 use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\Base\ChatSessionBase;
 use app\Module\Common\Model\Traits\TRecordId;
+use app\Module\Common\Model\Traits\TSecureField;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\JsonDecode;
@@ -26,7 +27,13 @@ use Imi\Model\SoftDelete\Traits\TSoftDelete;
 class ChatSession extends ChatSessionBase
 {
     use TRecordId;
+    use TSecureField;
     use TSoftDelete;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['title'];
 
     /**
      * 创建时间.

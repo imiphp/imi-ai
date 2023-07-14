@@ -1,17 +1,22 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
-import { get, post } from '@/utils/request'
+import { decodeSecureField, get, post } from '@/utils/request'
 
-export function projectList(
+export async function projectList(
   page = 1,
   limit = 15,
 ) {
-  return get({
+  const response = await get({
     url: '/embedding/openai/projectList',
     data: {
       page,
       limit,
     },
   })
+
+  for (const project of response.list)
+    decodeEmbeddingProjectSecureFields(project)
+
+  return response
 }
 
 export function deleteProject(
@@ -38,15 +43,19 @@ export function updateProject(
   })
 }
 
-export function getProject(
+export async function getProject(
   id: string,
 ) {
-  return get({
+  const response = await get({
     url: '/embedding/openai/getProject',
     data: {
       id,
     },
   })
+
+  decodeEmbeddingProjectSecureFields(response.data)
+
+  return response
 }
 
 export function assocFileList(
@@ -60,25 +69,30 @@ export function assocFileList(
   })
 }
 
-export function sectionList(
+export async function sectionList(
   projectId: string,
   fileId: string,
 ) {
-  return get({
+  const response = await get({
     url: '/embedding/openai/sectionList',
     data: {
       projectId,
       fileId,
     },
   })
+
+  for (const section of response.list)
+    decodeEmbeddingSectionSecureFields(section)
+
+  return response
 }
 
-export function chatList(
+export async function chatList(
   id: string,
   page = 1,
   limit = 15,
 ) {
-  return get({
+  const response = await get({
     url: '/embedding/openai/chatList',
     data: {
       id,
@@ -86,14 +100,19 @@ export function chatList(
       limit,
     },
   })
+
+  for (const chat of response.list)
+    decodeEmbeddingQASecureFields(chat)
+
+  return response
 }
 
-export function sendEmbeddingMessage(
+export async function sendEmbeddingMessage(
   projectId: string,
   question: string,
   config?: any,
 ) {
-  return post({
+  const response = await post({
     url: '/embedding/openai/sendMessage',
     data: {
       projectId,
@@ -101,6 +120,10 @@ export function sendEmbeddingMessage(
       config,
     },
   })
+
+  decodeEmbeddingQASecureFields(response.data)
+
+  return response
 }
 
 export function fetchEmbeddingChatAPIProcess(
@@ -119,4 +142,18 @@ export function fetchEmbeddingChatAPIProcess(
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
   })
+}
+
+function decodeEmbeddingProjectSecureFields(data: any) {
+  data.name = decodeSecureField(data.name)
+}
+
+function decodeEmbeddingSectionSecureFields(data: any) {
+  data.content = decodeSecureField(data.content)
+}
+
+function decodeEmbeddingQASecureFields(data: any) {
+  data.question = decodeSecureField(data.question)
+  data.answer = decodeSecureField(data.answer)
+  data.title = decodeSecureField(data.title)
 }

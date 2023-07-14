@@ -1,5 +1,5 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
-import { get, post } from '@/utils/request'
+import { decodeSecureField, get, post } from '@/utils/request'
 
 export * from './auth'
 export * from './embedding'
@@ -35,41 +35,58 @@ export function fetchChatAPIProcess(
   })
 }
 
-export function getSession(
+export async function getSession(
   id: string,
 ) {
-  return get({
+  const response = await get({
     url: '/chat/openai/get',
     data: {
       id,
     },
   })
+
+  decodeChatSessionSecureFields(response.data)
+  for (const message of response.messages)
+    decodeChatMessageSecureFields(message)
+
+  return response
 }
 
-export function sessionList(
+export async function sessionList(
   page = 1,
   limit = 15,
 ) {
-  return get({
+  const response = await get({
     url: '/chat/openai/list',
     data: {
       page,
       limit,
     },
   })
+
+  if (response.list) {
+    for (const item of response.list)
+      decodeChatSessionSecureFields(item)
+  }
+
+  return response
 }
 
-export function sendMessage(
+export async function sendMessage(
   id: string,
   message: string,
 ) {
-  return post({
+  const response = await post({
     url: '/chat/openai/sendMessage',
     data: {
       id,
       message,
     },
   })
+
+  decodeChatSessionSecureFields(response.data)
+
+  return response
 }
 
 export function editSession(
@@ -94,4 +111,12 @@ export function deleteSession(
       id,
     },
   })
+}
+
+function decodeChatSessionSecureFields(data: any) {
+  data.title = decodeSecureField(data.title)
+}
+
+function decodeChatMessageSecureFields(data: any) {
+  data.message = decodeSecureField(data.message)
 }

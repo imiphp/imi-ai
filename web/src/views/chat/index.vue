@@ -15,6 +15,7 @@ import { QAStatus, useChatStore, usePromptStore, useRuntimeStore } from '@/store
 import { fetchChatAPIProcess, getSession, sendMessage } from '@/api'
 import { t } from '@/locales'
 import { ChatLayout } from '@/views/chat/layout'
+import { decodeSecureField } from '@/utils/request'
 
 let controller = new AbortController()
 
@@ -191,6 +192,7 @@ async function fetchStream() {
             try {
               const chunk = responseText.substring(lastIndex, currentIndex)
               const data = JSON.parse(chunk.substring('data:'.length))
+              data.content = decodeSecureField(data.content)
               if (!data.finishReason) {
                 updateChatSome(
                   id,

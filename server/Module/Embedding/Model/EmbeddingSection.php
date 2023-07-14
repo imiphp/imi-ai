@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Model;
 
 use app\Module\Common\Model\Traits\TRecordId;
+use app\Module\Common\Model\Traits\TSecureField;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\Base\EmbeddingSectionBase;
 use Imi\Bean\Annotation\Inherit;
@@ -22,6 +23,12 @@ use Imi\Model\Annotation\Serializables;
 class EmbeddingSection extends EmbeddingSectionBase
 {
     use TRecordId;
+    use TSecureField;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['content'];
 
     /**
      * 创建时间.

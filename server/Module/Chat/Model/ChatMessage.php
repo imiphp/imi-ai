@@ -6,6 +6,7 @@ namespace app\Module\Chat\Model;
 
 use app\Module\Chat\Model\Base\ChatMessageBase;
 use app\Module\Common\Model\Traits\TRecordId;
+use app\Module\Common\Model\Traits\TSecureField;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Serializables;
 
@@ -20,4 +21,10 @@ use Imi\Model\Annotation\Serializables;
 class ChatMessage extends ChatMessageBase
 {
     use TRecordId;
+    use TSecureField;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['message'];
 }
