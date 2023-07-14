@@ -67,6 +67,7 @@ class OpenAIService
         $record->config = $config;
         $record->status = EmbeddingQAStatus::ANSWERING;
         $record->title = mb_substr($question, 0, 16);
+        $record->ip = $ip;
         $record->insert();
 
         return $record;

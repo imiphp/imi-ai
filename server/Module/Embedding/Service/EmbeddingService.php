@@ -13,9 +13,9 @@ use Imi\Db\Annotation\Transaction;
 
 class EmbeddingService
 {
-    public function upload(int $memberId, string $fileName, string $clientFileName): EmbeddingProject
+    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip): EmbeddingProject
     {
-        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName);
+        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip);
 
         return $parser->upload();
     }

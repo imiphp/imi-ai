@@ -81,7 +81,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Swoole >= v4.8.13 或 Swoole >= v5.0.3
 
-* MySQL
+* MySQL 5.7 / 8.0
 
 * Redis
 

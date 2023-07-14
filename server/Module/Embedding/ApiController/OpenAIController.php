@@ -38,7 +38,7 @@ class OpenAIController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
 
         return [
-            'data' => $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename()),
+            'data' => $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename(), IPUtil::getIP()),
         ];
     }
 
@@ -143,7 +143,7 @@ class OpenAIController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
 
         return [
-            'data' => $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP($this->request), $config),
+            'data' => $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config),
         ];
     }
 

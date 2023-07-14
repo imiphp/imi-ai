@@ -49,7 +49,7 @@ class EmbeddingUploadParser
 
     private string $model = 'text-embedding-ada-002';
 
-    public function __construct(private int $memberId, private string $fileName, private string $clientFileName)
+    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip)
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
@@ -72,6 +72,7 @@ class EmbeddingUploadParser
             $project->name = mb_substr($this->clientFileName, 0, 32);
             $project->totalFileSize = $this->totalSize;
             $project->status = EmbeddingStatus::TRAINING;
+            $project->ip = $this->ip;
             $project->insert();
 
             // 处理文件内容
@@ -206,6 +207,7 @@ class EmbeddingUploadParser
                 $fileRecord->fileName = $relativeFileName;
                 $fileRecord->fileSize = $size;
                 $fileRecord->content = $content;
+                $fileRecord->ip = $this->ip;
                 $fileRecord->insert();
                 $this->parseSections($fileRecord);
                 $projectTokens += $fileRecord->tokens;

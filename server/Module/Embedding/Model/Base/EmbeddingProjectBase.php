@@ -26,6 +26,7 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null    $status        状态
  * @property int|null    $tokens        Token数量
  * @property int|null    $payTokens     支付 Token 数量
+ * @property string|null $ip            IP地址
  */
 abstract class EmbeddingProjectBase extends Model
 {
@@ -308,6 +309,36 @@ abstract class EmbeddingProjectBase extends Model
     public function setPayTokens(?int $payTokens)
     {
         $this->payTokens = $payTokens;
+
+        return $this;
+    }
+
+    /**
+     * IP地址.
+     * ip.
+     *
+     * @Column(name="ip", type="inet", length=-1, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?string $ip = null;
+
+    /**
+     * 获取 ip - IP地址.
+     */
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    /**
+     * 赋值 ip - IP地址.
+     *
+     * @param string|null $ip ip
+     *
+     * @return static
+     */
+    public function setIp(?string $ip)
+    {
+        $this->ip = $ip;
 
         return $this;
     }
