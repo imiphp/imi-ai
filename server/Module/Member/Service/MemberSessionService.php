@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace app\Module\Member\Service;
 
+use app\Exception\MemberBandedException;
 use app\Exception\MemberNoLoginException;
+use app\Exception\MemberStatusAnomalyException;
+use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Member;
 use Imi\Aop\Annotation\Inject;
 use Imi\JWT\Exception\InvalidAuthorizationException;
@@ -98,6 +101,15 @@ class MemberSessionService
         if (!$this->isLogin())
         {
             throw new MemberNoLoginException();
+        }
+        switch($this->getMemberInfo()->status)
+        {
+            case MemberStatus::NORMAL:
+                break;
+            case MemberStatus::BANDED:
+                throw new MemberBandedException();
+            default:
+                throw new MemberStatusAnomalyException();
         }
     }
 

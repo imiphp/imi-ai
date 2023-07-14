@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Member\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Member;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
@@ -15,9 +16,10 @@ class MemberService
     protected EmailAuthService $emailAuthService;
 
     #[Transaction()]
-    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = ''): Member
+    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = '', int $status = MemberStatus::NORMAL): Member
     {
         $record = Member::newInstance();
+        $record->status = $status;
         $record->email = $email;
         $record->emailHash = $this->emailAuthService->hash($email);
         $record->phone = $phone;

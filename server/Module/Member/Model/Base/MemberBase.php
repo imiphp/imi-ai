@@ -18,9 +18,10 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.name", default="tb_member"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_member` (   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int(10) unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint(20) unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `register_time` int(10) unsigned NOT NULL COMMENT '注册时间',   `last_login_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   PRIMARY KEY (`id`),   KEY `phone` (`phone`),   KEY `email_hash` (`email_hash`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
+ * @DDL(sql="CREATE TABLE `tb_member` (   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,   `status` tinyint(3) unsigned NOT NULL COMMENT '状态',   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int(10) unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint(20) unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `register_time` int(10) unsigned NOT NULL COMMENT '注册时间',   `last_login_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   PRIMARY KEY (`id`),   KEY `phone` (`phone`),   KEY `email_hash` (`email_hash`),   KEY `status` (`status`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
  *
  * @property int|null    $id
+ * @property int|null    $status        状态
  * @property string|null $email         邮箱地址
  * @property int|null    $emailHash     邮箱哈希（crc32）
  * @property int|null    $phone         手机号码
@@ -66,6 +67,36 @@ abstract class MemberBase extends Model
     public function setId($id)
     {
         $this->id = null === $id ? null : (int) $id;
+
+        return $this;
+    }
+
+    /**
+     * 状态.
+     * status.
+     *
+     * @Column(name="status", type="tinyint", length=3, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $status = null;
+
+    /**
+     * 获取 status - 状态.
+     */
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    /**
+     * 赋值 status - 状态.
+     *
+     * @param int|null $status status
+     *
+     * @return static
+     */
+    public function setStatus($status)
+    {
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }

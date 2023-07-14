@@ -6,6 +6,7 @@ namespace app\Module\Embedding\ApiController;
 
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
+use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
@@ -29,7 +30,8 @@ class OpenAIController extends HttpController
 
     #[
         Action(),
-        Route(method: RequestMethod::POST)
+        Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function upload(UploadedFile $file): array
     {
@@ -40,7 +42,10 @@ class OpenAIController extends HttpController
         ];
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function getProject(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
@@ -50,7 +55,10 @@ class OpenAIController extends HttpController
         ];
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function projectList(int $page = 1, int $limit = 15): array
     {
         $memberSession = MemberUtil::getMemberSession();
@@ -63,7 +71,8 @@ class OpenAIController extends HttpController
      */
     #[
         Action(),
-        Route(method: RequestMethod::POST)
+        Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function updateProject(string $id, string $name)
     {
@@ -74,14 +83,21 @@ class OpenAIController extends HttpController
     /**
      * @return mixed
      */
-    #[Action]
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
     public function deleteProject(string $id)
     {
         $memberSession = MemberUtil::getMemberSession();
         $this->embeddingService->deleteProject($id, $memberSession->getIntMemberId());
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function fileList(string $projectId): array
     {
         $memberSession = MemberUtil::getMemberSession();
@@ -91,7 +107,10 @@ class OpenAIController extends HttpController
         ];
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function assocFileList(string $projectId): array
     {
         $memberSession = MemberUtil::getMemberSession();
@@ -101,7 +120,10 @@ class OpenAIController extends HttpController
         ];
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function sectionList(string $projectId, string $fileId): array
     {
         $memberSession = MemberUtil::getMemberSession();
@@ -114,6 +136,7 @@ class OpenAIController extends HttpController
     #[
         Action,
         Route(method: RequestMethod::POST),
+        LoginRequired()
     ]
     public function sendMessage(string $question, string $projectId, array|object $config = []): array
     {
@@ -149,7 +172,10 @@ class OpenAIController extends HttpController
         });
     }
 
-    #[Action]
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function chatList(string $id, int $page = 1, int $limit = 15): array
     {
         $memberSession = MemberUtil::getMemberSession();

@@ -49,7 +49,8 @@ class EmailAuthController extends HttpController
     }
 
     #[
-        Action
+        Action,
+        Route(method: RequestMethod::POST)
     ]
     public function verifyFromEmail(string $email, string $token, string $verifyToken): array
     {

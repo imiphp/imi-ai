@@ -45,6 +45,16 @@ abstract class ApiStatus extends BaseEnum
     public const VCODE_ERROR = 10003;
 
     /**
+     * @EnumItem("用户已封禁")
+     */
+    public const MEMBER_BANDED = 10004;
+
+    /**
+     * @EnumItem("用户状态异常")
+     */
+    public const MEMBER_STATUS_ANOMALY = 10005;
+
+    /**
      * @EnumItem("积分不足")
      */
     public const NO_SCORE = 11001;
