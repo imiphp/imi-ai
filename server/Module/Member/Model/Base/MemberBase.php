@@ -18,17 +18,21 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.name", default="tb_member"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_member` (   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,   `status` tinyint(3) unsigned NOT NULL COMMENT '状态',   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int(10) unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint(20) unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `register_time` int(10) unsigned NOT NULL COMMENT '注册时间',   `last_login_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   PRIMARY KEY (`id`),   KEY `phone` (`phone`),   KEY `email_hash` (`email_hash`),   KEY `status` (`status`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
+ * @DDL(sql="CREATE TABLE `tb_member` (   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,   `status` tinyint(3) unsigned NOT NULL COMMENT '状态',   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int(10) unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint(20) unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `register_time` int(10) unsigned NOT NULL COMMENT '注册时间',   `register_ip_data` varbinary(16) NOT NULL COMMENT '注册IP数据',   `register_ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`register_ip_data`) when 0 then '' else inet6_ntoa(`register_ip_data`) end)) VIRTUAL NOT NULL COMMENT '注册IP',   `last_login_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   `last_login_ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT '最后登录IP数据',   `last_login_ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`last_login_ip_data`) when 0 then '' else inet6_ntoa(`last_login_ip_data`) end)) VIRTUAL NOT NULL COMMENT '最后登录IP',   PRIMARY KEY (`id`),   KEY `phone` (`phone`),   KEY `email_hash` (`email_hash`),   KEY `status` (`status`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
  *
  * @property int|null    $id
- * @property int|null    $status        状态
- * @property string|null $email         邮箱地址
- * @property int|null    $emailHash     邮箱哈希（crc32）
- * @property int|null    $phone         手机号码
- * @property string|null $password      密码
- * @property string|null $nickname      昵称
- * @property int|null    $registerTime  注册时间
- * @property int|null    $lastLoginTime 最后登录时间
+ * @property int|null    $status          状态
+ * @property string|null $email           邮箱地址
+ * @property int|null    $emailHash       邮箱哈希（crc32）
+ * @property int|null    $phone           手机号码
+ * @property string|null $password        密码
+ * @property string|null $nickname        昵称
+ * @property int|null    $registerTime    注册时间
+ * @property string|null $registerIpData  注册IP数据
+ * @property string|null $registerIp      注册IP
+ * @property int|null    $lastLoginTime   最后登录时间
+ * @property string|null $lastLoginIpData 最后登录IP数据
+ * @property string|null $lastLoginIp     最后登录IP
  */
 abstract class MemberBase extends Model
 {
@@ -294,6 +298,70 @@ abstract class MemberBase extends Model
     }
 
     /**
+     * 注册IP数据.
+     * register_ip_data.
+     *
+     * @Column(name="register_ip_data", type="varbinary", length=16, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $registerIpData = null;
+
+    /**
+     * 获取 registerIpData - 注册IP数据.
+     */
+    public function getRegisterIpData(): ?string
+    {
+        return $this->registerIpData;
+    }
+
+    /**
+     * 赋值 registerIpData - 注册IP数据.
+     *
+     * @param string|null $registerIpData register_ip_data
+     *
+     * @return static
+     */
+    public function setRegisterIpData($registerIpData)
+    {
+        $this->registerIpData = null === $registerIpData ? null : (string) $registerIpData;
+
+        return $this;
+    }
+
+    /**
+     * 注册IP.
+     * register_ip.
+     *
+     * @Column(name="register_ip", type="varchar", length=39, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=true)
+     */
+    protected ?string $registerIp = null;
+
+    /**
+     * 获取 registerIp - 注册IP.
+     */
+    public function getRegisterIp(): ?string
+    {
+        return $this->registerIp;
+    }
+
+    /**
+     * 赋值 registerIp - 注册IP.
+     *
+     * @param string|null $registerIp register_ip
+     *
+     * @return static
+     */
+    public function setRegisterIp($registerIp)
+    {
+        if (\is_string($registerIp) && mb_strlen($registerIp) > 39)
+        {
+            throw new \InvalidArgumentException('The maximum length of $registerIp is 39');
+        }
+        $this->registerIp = null === $registerIp ? null : (string) $registerIp;
+
+        return $this;
+    }
+
+    /**
      * 最后登录时间.
      * last_login_time.
      *
@@ -319,6 +387,70 @@ abstract class MemberBase extends Model
     public function setLastLoginTime($lastLoginTime)
     {
         $this->lastLoginTime = null === $lastLoginTime ? null : (int) $lastLoginTime;
+
+        return $this;
+    }
+
+    /**
+     * 最后登录IP数据.
+     * last_login_ip_data.
+     *
+     * @Column(name="last_login_ip_data", type="varbinary", length=16, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $lastLoginIpData = '';
+
+    /**
+     * 获取 lastLoginIpData - 最后登录IP数据.
+     */
+    public function getLastLoginIpData(): ?string
+    {
+        return $this->lastLoginIpData;
+    }
+
+    /**
+     * 赋值 lastLoginIpData - 最后登录IP数据.
+     *
+     * @param string|null $lastLoginIpData last_login_ip_data
+     *
+     * @return static
+     */
+    public function setLastLoginIpData($lastLoginIpData)
+    {
+        $this->lastLoginIpData = null === $lastLoginIpData ? null : (string) $lastLoginIpData;
+
+        return $this;
+    }
+
+    /**
+     * 最后登录IP.
+     * last_login_ip.
+     *
+     * @Column(name="last_login_ip", type="varchar", length=39, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=true)
+     */
+    protected ?string $lastLoginIp = null;
+
+    /**
+     * 获取 lastLoginIp - 最后登录IP.
+     */
+    public function getLastLoginIp(): ?string
+    {
+        return $this->lastLoginIp;
+    }
+
+    /**
+     * 赋值 lastLoginIp - 最后登录IP.
+     *
+     * @param string|null $lastLoginIp last_login_ip
+     *
+     * @return static
+     */
+    public function setLastLoginIp($lastLoginIp)
+    {
+        if (\is_string($lastLoginIp) && mb_strlen($lastLoginIp) > 39)
+        {
+            throw new \InvalidArgumentException('The maximum length of $lastLoginIp is 39');
+        }
+        $this->lastLoginIp = null === $lastLoginIp ? null : (string) $lastLoginIp;
 
         return $this;
     }

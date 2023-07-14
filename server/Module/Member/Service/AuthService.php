@@ -25,7 +25,7 @@ class AuthService
 
     public const TOKEN_TYPE = 'auth';
 
-    public function login(string $account, string $password): array
+    public function login(string $account, string $password, string $ip): array
     {
         try
         {
@@ -52,7 +52,7 @@ class AuthService
         }
 
         return [
-            'token'  => $this->doLogin($member->id)->toString(),
+            'token'  => $this->doLogin($member->id, $ip)->toString(),
             'member' => $member,
         ];
     }
@@ -78,9 +78,10 @@ class AuthService
         });
     }
 
-    public function doLogin(int $memberId): Token
+    public function doLogin(int $memberId, string $ip): Token
     {
         $member = $this->memberService->get($memberId);
+        $member->lastLoginIpData = inet_pton($ip) ?: '';
         $member->lastLoginTime = time();
         $member->update();
         $token = $this->generateMemberToken($member->getRecordId());

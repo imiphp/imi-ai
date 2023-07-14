@@ -69,7 +69,7 @@ class EmailAuthService
         ];
     }
 
-    public function verifyFromEmail(string $email, string $token, string $verifyToken): Member
+    public function verifyFromEmail(string $email, string $token, string $verifyToken, string $ip): Member
     {
         $store = $this->autoCheckRegisterVerifyToken($token, $verifyToken, $email);
         if ($this->isRegistered($email))
@@ -77,17 +77,17 @@ class EmailAuthService
             throw new ErrorException('该邮箱已注册');
         }
 
-        return $this->emailRegister($email, $store->getPassword());
+        return $this->emailRegister($email, $store->getPassword(), $ip);
     }
 
-    public function emailRegister(string $email, string $password): Member
+    public function emailRegister(string $email, string $password, string $ip): Member
     {
         if ($this->isRegistered($email))
         {
             throw new ErrorException('该邮箱已注册');
         }
 
-        return $this->memberService->create(email: $email, password: $this->authService->passwordHash($password), nickname: $email);
+        return $this->memberService->create(email: $email, password: $this->authService->passwordHash($password), nickname: $email, ip: $ip);
     }
 
     public function hash(string $email): int

@@ -6,6 +6,7 @@ namespace app\Module\Member\ApiController;
 
 use app\Module\Member\Service\EmailAuthService;
 use app\Module\VCode\Service\VCodeService;
+use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Route\Annotation\Action;
@@ -40,10 +41,10 @@ class EmailAuthController extends HttpController
     public function register(string $email, string $vcodeToken, string $vcode): array
     {
         $store = $this->emailAuthService->autoCheckRegisterCode($vcodeToken, $vcode, $email);
-        $member = $this->emailAuthService->emailRegister($email, $store->getPassword());
+        $member = $this->emailAuthService->emailRegister($email, $store->getPassword(), $ip = IPUtil::getIP());
 
         return [
-            'token'  => $this->emailAuthService->authService->doLogin($member->id)->toString(),
+            'token'  => $this->emailAuthService->authService->doLogin($member->id, $ip)->toString(),
             'member' => $member,
         ];
     }
@@ -54,8 +55,8 @@ class EmailAuthController extends HttpController
     ]
     public function verifyFromEmail(string $email, string $token, string $verifyToken): array
     {
-        $member = $this->emailAuthService->verifyFromEmail($email, $token, $verifyToken);
-        $token = $this->emailAuthService->authService->doLogin($member->id);
+        $member = $this->emailAuthService->verifyFromEmail($email, $token, $verifyToken, $ip = IPUtil::getIP());
+        $token = $this->emailAuthService->authService->doLogin($member->id, $ip);
 
         return [
             'token'  => $token->toString(),

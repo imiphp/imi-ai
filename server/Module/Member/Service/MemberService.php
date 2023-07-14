@@ -16,7 +16,7 @@ class MemberService
     protected EmailAuthService $emailAuthService;
 
     #[Transaction()]
-    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = '', int $status = MemberStatus::NORMAL): Member
+    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = '', int $status = MemberStatus::NORMAL, string $ip = ''): Member
     {
         $record = Member::newInstance();
         $record->status = $status;
@@ -25,6 +25,7 @@ class MemberService
         $record->phone = $phone;
         $record->password = $password;
         $record->nickname = $nickname;
+        $record->registerIpData = inet_pton($ip) ?: '';
         $record->insert();
 
         return $record;

@@ -6,6 +6,7 @@ namespace app\Module\Member\ApiController;
 
 use app\Module\Member\Service\AuthService;
 use app\Module\VCode\Service\VCodeService;
+use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Route\Annotation\Action;
@@ -30,6 +31,6 @@ class LoginController extends HttpController
     {
         $this->vCodeService->autoCheck($vcodeToken, $vcode);
 
-        return $this->authService->login($account, $password);
+        return $this->authService->login($account, $password, IPUtil::getIP());
     }
 }
