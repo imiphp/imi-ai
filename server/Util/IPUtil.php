@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace app\Util;
 
-use Imi\Util\Traits\TStaticClass;
-use Imi\Server\Http\Message\Proxy\RequestProxy;
 use Imi\Server\Http\Message\Contract\IHttpRequest;
+use Imi\Server\Http\Message\Proxy\RequestProxy;
+use Imi\Util\Traits\TStaticClass;
 
 class IPUtil
 {

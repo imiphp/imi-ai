@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace app\Util;
 
-use Imi\Util\Traits\TStaticClass;
 use Imi\Db\Query\Interfaces\IQuery;
+use Imi\Util\Traits\TStaticClass;
 
 class QueryHelper
 {
