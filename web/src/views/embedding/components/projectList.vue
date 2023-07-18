@@ -2,7 +2,7 @@
 import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
-import { h, onMounted, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, TrashOutline } from '@vicons/ionicons5'
 import { deleteProject, projectList, updateProject } from '@/api'
@@ -171,11 +171,28 @@ const columns = createColumns({
   },
 })
 
+const pagination = reactive({
+  page: 1,
+  pageSize: 15,
+  pageCount: 1,
+  itemCount: 0,
+  onChange: (page: number) => {
+    pagination.page = page
+    loadProjectList()
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    pagination.pageSize = pageSize
+    pagination.page = 1
+  },
+})
+
 async function loadProjectList() {
   tableLoading.value = true
   try {
-    const response = await projectList()
+    const response = await projectList(pagination.page, pagination.pageSize)
     data.value = response.list
+    pagination.pageCount = response.pageCount
+    pagination.itemCount = response.total
   }
   finally {
     tableLoading.value = false
@@ -207,6 +224,8 @@ onMounted(async () => {
     :bordered="false"
     :loading="tableLoading"
     scroll-x="max-content"
+    remote
+    :pagination="pagination"
   />
   <NModal
     v-model:show="showEditModal"
