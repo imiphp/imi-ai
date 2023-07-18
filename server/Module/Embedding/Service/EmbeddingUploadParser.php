@@ -29,6 +29,8 @@ use Imi\Util\Imi;
 use Pgvector\Vector;
 use Swoole\Coroutine\Channel;
 
+use function Yurun\Swoole\Coroutine\goWait;
+
 class EmbeddingUploadParser
 {
     #[Inject()]
@@ -54,7 +56,7 @@ class EmbeddingUploadParser
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
         $this->taskChannel = new Channel(\PHP_INT_MAX);
-        $this->config = EmbeddingConfig::__getConfig();
+        $this->config = goWait(fn () => EmbeddingConfig::__getConfig(), 30, true);
     }
 
     public function upload(): EmbeddingProject
@@ -73,7 +75,7 @@ class EmbeddingUploadParser
             $project->totalFileSize = $this->totalSize;
             $project->status = EmbeddingStatus::TRAINING;
             $project->ip = $this->ip;
-            $project->insert();
+            goWait(fn () => $project->insert(), 30, true);
 
             // 处理文件内容
             Coroutine::defer(fn () => Coroutine::create(fn () => $this->praseFilesContent($project)));
@@ -208,7 +210,7 @@ class EmbeddingUploadParser
                 $fileRecord->fileSize = $size;
                 $fileRecord->content = $content;
                 $fileRecord->ip = $this->ip;
-                $fileRecord->insert();
+                goWait(fn () => $fileRecord->insert(), 30, true);
                 $this->parseSections($fileRecord);
                 $projectTokens += $fileRecord->tokens;
                 $projectPayTokens += $fileRecord->payTokens;
@@ -222,23 +224,25 @@ class EmbeddingUploadParser
         }
         finally
         {
-            // 更新项目状态
-            EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)->update([
-                'status'     => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
-                'tokens'     => $projectTokens,
-                'pay_tokens' => $projectPayTokens,
-            ]);
-            // 更新文件状态
-            EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
-                'status' => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
-            ]);
-            // 文件完成训练时间（条件不同，不能和上面一起更新）
-            EmbeddingFile::query()->where('project_id', '=', $project->id)->update([
-                'complete_training_time' => (int) (microtime(true) * 1000),
-            ]);
-            // 扣除余额
-            $this->walletTokensService->change($this->memberId, OperationType::PAY, -$projectPayTokens, BusinessType::EMBEDDING);
-            File::deleteDir($this->extractPath);
+            Coroutine::create(function () use ($project, $projectTokens, $projectPayTokens) {
+                // 更新项目状态
+                EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)->update([
+                    'status'     => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                    'tokens'     => $projectTokens,
+                    'pay_tokens' => $projectPayTokens,
+                ]);
+                // 更新文件状态
+                EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
+                    'status' => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                ]);
+                // 文件完成训练时间（条件不同，不能和上面一起更新）
+                EmbeddingFile::query()->where('project_id', '=', $project->id)->update([
+                    'complete_training_time' => (int) (microtime(true) * 1000),
+                ]);
+                // 扣除余额
+                $this->walletTokensService->change($this->memberId, OperationType::PAY, -$projectPayTokens, BusinessType::EMBEDDING);
+                File::deleteDir($this->extractPath);
+            });
         }
     }
 
@@ -266,9 +270,9 @@ class EmbeddingUploadParser
             if ($updateFileIds)
             {
                 // 更新文件开始训练时间
-                EmbeddingFile::query()->whereIn('id', $updateFileIds)->limit(1)->update([
+                goWait(fn () => EmbeddingFile::query()->whereIn('id', $updateFileIds)->limit(1)->update([
                     'begin_training_time' => $beginTrainingTime,
-                ]);
+                ]), 30, true);
             }
 
             try
@@ -285,7 +289,7 @@ class EmbeddingUploadParser
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
-                    $sectionRecord->update();
+                    goWait(fn () => $sectionRecord->update(), 30, true);
                 }
             }
             catch (\Throwable $th)
@@ -298,14 +302,14 @@ class EmbeddingUploadParser
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
                     $sectionRecord->reason = $th->getMessage();
-                    $sectionRecord->update();
+                    goWait(fn () => $sectionRecord->update(), 30, true);
                 }
                 if (!$projectFailedUpdated)
                 {
                     $projectFailedUpdated = true;
-                    EmbeddingProject::query()->where('id', '=', $sectionRecords[0]->projectId)->limit(1)->update([
+                    goWait(fn () => EmbeddingProject::query()->where('id', '=', $sectionRecords[0]->projectId)->limit(1)->update([
                         'status' => EmbeddingStatus::FAILED,
-                    ]);
+                    ]), 30, true);
                 }
             }
             finally
@@ -353,11 +357,11 @@ class EmbeddingUploadParser
             [$payTokens] = TokensUtil::calcDeductToken($this->model, $tokens, 0, $this->config->getEmbeddingModelPrice());
             $sectionRecord->payTokens = $payTokens;
             $filePayTokens += $payTokens;
-            $sectionRecord->insert();
+            goWait(fn () => $sectionRecord->insert(), 30, true);
             $this->taskChannel->push($sectionRecord);
         }
         $file->tokens = $fileTokens;
         $file->payTokens = $filePayTokens;
-        $file->update();
+        goWait(fn () => $file->update(), 30, true);
     }
 }

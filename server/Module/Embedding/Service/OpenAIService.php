@@ -104,10 +104,13 @@ class OpenAIService
         }
         $config = EmbeddingConfig::__getConfig();
         $model = 'gpt-3.5-turbo';
-        $searchResult = $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections(), $embeddingTokens, $embeddingPayTokens);
-        if ($list = $searchResult->getList())
+        $embeddingTokens = $embeddingPayTokens = 0;
+        $list = goWait(function () use ($record, $config) {
+            return $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections(), $embeddingTokens, $embeddingPayTokens)->getList();
+        }, 30, true);
+        /** @var EmbeddingSectionSearched[] $list */
+        if ($list)
         {
-            /** @var EmbeddingSectionSearched[] $list */
             $data = '';
             foreach ($list as $item)
             {
