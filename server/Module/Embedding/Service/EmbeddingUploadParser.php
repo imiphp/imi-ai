@@ -51,6 +51,8 @@ class EmbeddingUploadParser
 
     private string $model = 'text-embedding-ada-002';
 
+    private bool $isCompressedFile = false;
+
     public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip)
     {
         $this->assertFileType();
@@ -63,8 +65,11 @@ class EmbeddingUploadParser
     {
         try
         {
-            // 解压
-            $this->extract();
+            if ($this->isCompressedFile)
+            {
+                // 解压
+                $this->extract();
+            }
 
             // 处理文件
             $this->parseFiles();
@@ -110,7 +115,10 @@ class EmbeddingUploadParser
     private function assertFileType(): string
     {
         $ext = pathinfo($this->clientFileName, \PATHINFO_EXTENSION);
-        UploadFileTypes::assert($ext);
+        if (!($this->isCompressedFile = UploadFileTypes::validate($ext)) && !SupportFileTypes::validate($ext))
+        {
+            throw new \RuntimeException(sprintf('Unsupport file %s', $ext));
+        }
 
         return $ext;
     }
@@ -155,29 +163,42 @@ class EmbeddingUploadParser
 
     private function parseFiles(): void
     {
-        $this->files = [];
-        $this->totalSize = 0;
-        $subPathOffset = \strlen($this->extractPath) + 1;
-        /** @var FileEnumItem $file */
-        foreach (File::enumFile($this->extractPath, null, SupportFileTypes::getValues()) as $file)
+        if ($this->isCompressedFile)
         {
-            $fileName = $file->getFullPath();
-            $relativeFileName = substr($fileName, $subPathOffset);
-            // 检查单文件大小
-            if (($size = filesize($fileName)) > ($maxSingleFileSize ??= $this->config->getMaxSingleFileSize()))
+            $this->files = [];
+            $this->totalSize = 0;
+            $subPathOffset = \strlen($this->extractPath) + 1;
+            /** @var FileEnumItem $file */
+            foreach (File::enumFile($this->extractPath, null, SupportFileTypes::getValues()) as $file)
             {
-                throw new \RuntimeException(sprintf('File %s size too large. Max size: %s', $relativeFileName, Imi::formatByte($maxSingleFileSize)));
+                $fileName = $file->getFullPath();
+                $relativeFileName = substr($fileName, $subPathOffset);
+                // 检查单文件大小
+                if (($size = filesize($fileName)) > ($maxSingleFileSize ??= $this->config->getMaxSingleFileSize()))
+                {
+                    throw new \RuntimeException(sprintf('File %s size too large. Max size: %s', $relativeFileName, Imi::formatByte($maxSingleFileSize)));
+                }
+                $this->totalSize += $size;
+                // 检查文件总大小
+                if ($this->totalSize > ($maxTotalFilesSize ??= $this->config->getMaxTotalFilesSize()))
+                {
+                    throw new \RuntimeException(sprintf('Total files size too large. Max size: %s', Imi::formatByte($maxTotalFilesSize)));
+                }
+                $this->files[] = [
+                    'name'             => $fileName,
+                    'relativeFileName' => $relativeFileName,
+                    'size'             => $size,
+                ];
             }
-            $this->totalSize += $size;
-            // 检查文件总大小
-            if ($this->totalSize > ($maxTotalFilesSize ??= $this->config->getMaxTotalFilesSize()))
-            {
-                throw new \RuntimeException(sprintf('Total files size too large. Max size: %s', Imi::formatByte($maxTotalFilesSize)));
-            }
-            $this->files[] = [
-                'name'             => $fileName,
-                'relativeFileName' => $relativeFileName,
-                'size'             => $size,
+        }
+        else
+        {
+            $this->files = [
+                [
+                    'name'             => $this->fileName,
+                    'relativeFileName' => $this->clientFileName,
+                    'size'             => $this->totalSize = filesize($this->fileName),
+                ],
             ];
         }
     }
@@ -224,16 +245,17 @@ class EmbeddingUploadParser
         }
         finally
         {
-            Coroutine::create(function () use ($project, $projectTokens, $projectPayTokens) {
+            $status = isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED;
+            Coroutine::create(function () use ($status, $project, $projectTokens, $projectPayTokens) {
                 // 更新项目状态
                 EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)->update([
-                    'status'     => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                    'status'     => $status,
                     'tokens'     => $projectTokens,
                     'pay_tokens' => $projectPayTokens,
                 ]);
                 // 更新文件状态
                 EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
-                    'status' => isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED,
+                    'status' => $status,
                 ]);
                 // 文件完成训练时间（条件不同，不能和上面一起更新）
                 EmbeddingFile::query()->where('project_id', '=', $project->id)->update([

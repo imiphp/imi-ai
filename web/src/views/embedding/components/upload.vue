@@ -78,7 +78,7 @@ const onFinish = (options: { event?: ProgressEvent }) => {
         点击或者拖动文件到该区域来上传
       </NText>
       <NP depth="3" style="margin: 8px 0 0 0">
-        文件格式：zip，文件大小限制：4M
+        文件格式：zip/rar/7z/xz/gz/bz/txt/md，文件大小限制：4M
       </NP>
     </NUploadDragger>
   </NUpload>
