@@ -102,7 +102,7 @@ class MemberSessionService
         {
             throw new MemberNoLoginException();
         }
-        switch($this->getMemberInfo()->status)
+        switch ($this->getMemberInfo()->status)
         {
             case MemberStatus::NORMAL:
                 break;

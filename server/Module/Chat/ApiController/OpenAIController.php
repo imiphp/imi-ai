@@ -85,7 +85,7 @@ class OpenAIController extends HttpController
 
         $result = $this->openAIService->list($memberSession->getIntMemberId(), $page, $limit);
         /** @var ChatSession $item */
-        foreach ($result['list']  as $item)
+        foreach ($result['list'] as $item)
         {
             $item->__setSecureField(true);
         }
