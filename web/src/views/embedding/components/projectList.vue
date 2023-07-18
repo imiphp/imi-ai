@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { NButton, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, useDialog } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
 import { h, onMounted, ref } from 'vue'
@@ -47,6 +47,13 @@ const createColumns = ({
     {
       title: '状态',
       key: 'statusText',
+    },
+    {
+      title: '权限',
+      key: 'public',
+      render(row) {
+        return row.public ? '公开' : '私有'
+      },
     },
     {
       title: '创建时间',
@@ -178,7 +185,7 @@ async function loadProjectList() {
 async function handleSaveButtonClient() {
   editLoading.value = true
   try {
-    await updateProject(editData.value.recordId, editData.value.name)
+    await updateProject(editData.value.recordId, { ...editData.value })
     editLoading.value = false
     showEditModal.value = false
     await loadProjectList()
@@ -220,6 +227,9 @@ onMounted(async () => {
       >
         <NFormItem label="项目名称" path="name">
           <NInput v-model:value="editData.name" />
+        </NFormItem>
+        <NFormItem label="权限" path="name">
+          <NCheckbox v-model:checked="editData.public" label="公开" />
         </NFormItem>
         <div style="display: flex; justify-content: flex-end">
           <NButton round type="primary" @click="handleSaveButtonClient">

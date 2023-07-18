@@ -32,13 +32,15 @@ export function deleteProject(
 
 export function updateProject(
   id: string,
-  name: string,
+  data: {
+    name: string
+  },
 ) {
   return post({
     url: '/embedding/openai/updateProject',
     data: {
       id,
-      name,
+      ...data,
     },
   })
 }

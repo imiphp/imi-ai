@@ -95,6 +95,7 @@ return [
                 'password'    => env('APP_PGSQL_PASSWORD', 'root'),
                 'database'    => env('APP_PGSQL_DATABASE', 'db_imi_ai'),
                 'dbClass'     => \Imi\Pgsql\Db\Drivers\SwooleNew\Driver::class,
+                // 'dbClass'     => \Imi\Pgsql\Db\Drivers\PdoPgsql\Driver::class,
             ],
         ],
         'redis'              => [

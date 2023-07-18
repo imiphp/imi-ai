@@ -53,7 +53,7 @@ class OpenAIService
         // 检查余额
         $this->walletTokensService->checkBalance($memberId, $tokens + 1, 0);
 
-        $project = $this->embeddingService->getProject($projectId, $memberId);
+        $project = $this->embeddingService->getReadonlyProject($projectId, $memberId);
 
         if ([] === $config)
         {

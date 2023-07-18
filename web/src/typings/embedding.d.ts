@@ -13,6 +13,7 @@ declare namespace Embedding {
         statusText: string
         tokens: number
         recordId: string
+        public: boolean
     }
 
     interface File {

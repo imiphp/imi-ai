@@ -20,7 +20,8 @@ CACHE 1
   "begin_training_time" int8 NOT NULL DEFAULT 0,
   "complete_training_time" int8 NOT NULL DEFAULT 0,
   "tokens" int8 NOT NULL DEFAULT 0,
-  "pay_tokens" int8 NOT NULL DEFAULT 0
+  "pay_tokens" int8 NOT NULL DEFAULT 0,
+  "ip" inet NOT NULL
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_file"."project_id" IS '项目ID';
@@ -34,6 +35,7 @@ COMMENT ON COLUMN "public"."tb_embedding_file"."begin_training_time" IS '开始�
 COMMENT ON COLUMN "public"."tb_embedding_file"."complete_training_time" IS '完成训练时间';
 COMMENT ON COLUMN "public"."tb_embedding_file"."tokens" IS 'Token数量';
 COMMENT ON COLUMN "public"."tb_embedding_file"."pay_tokens" IS '支付 Token 数量';
+COMMENT ON COLUMN "public"."tb_embedding_file"."ip" IS 'IP地址';
 COMMENT ON TABLE "public"."tb_embedding_file" IS '训练的文件';
 
 -- ----------------------------
@@ -55,7 +57,9 @@ CACHE 1
   "update_time" int8 NOT NULL,
   "status" int2 NOT NULL,
   "tokens" int8 NOT NULL DEFAULT 0,
-  "pay_tokens" int8 NOT NULL DEFAULT 0
+  "pay_tokens" int8 NOT NULL DEFAULT 0,
+  "ip" inet NOT NULL,
+  "public" bool NOT NULL DEFAULT false
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -66,6 +70,8 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."update_time" IS '更新时间
 COMMENT ON COLUMN "public"."tb_embedding_project"."status" IS '状态';
 COMMENT ON COLUMN "public"."tb_embedding_project"."tokens" IS 'Token数量';
 COMMENT ON COLUMN "public"."tb_embedding_project"."pay_tokens" IS '支付 Token 数量';
+COMMENT ON COLUMN "public"."tb_embedding_project"."ip" IS 'IP地址';
+COMMENT ON COLUMN "public"."tb_embedding_project"."public" IS '是否公开使用';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------
@@ -91,7 +97,8 @@ CACHE 1
   "status" int2 NOT NULL,
   "title" varchar(16) COLLATE "pg_catalog"."default" NOT NULL,
   "create_time" int8 NOT NULL,
-  "pay_tokens" int4 NOT NULL DEFAULT 0
+  "pay_tokens" int4 NOT NULL DEFAULT 0,
+  "ip" inet NOT NULL
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_qa"."member_id" IS '用户ID';
@@ -106,6 +113,7 @@ COMMENT ON COLUMN "public"."tb_embedding_qa"."status" IS '状态';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."title" IS '标题';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."create_time" IS '创建时间';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."pay_tokens" IS '支付 Token 数量';
+COMMENT ON COLUMN "public"."tb_embedding_qa"."ip" IS 'IP地址';
 COMMENT ON TABLE "public"."tb_embedding_qa" IS '训练文件问答';
 
 -- ----------------------------

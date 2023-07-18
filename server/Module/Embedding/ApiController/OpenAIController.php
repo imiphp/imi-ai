@@ -54,7 +54,7 @@ class OpenAIController extends HttpController
     public function getProject(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $project = $this->embeddingService->getProject($id, $memberSession->getIntMemberId());
+        $project = $this->embeddingService->getReadonlyProject($id, $memberSession->getIntMemberId());
         $project->__setSecureField(true);
 
         return [
@@ -88,10 +88,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function updateProject(string $id, string $name)
+    public function updateProject(string $id, string $name, bool $public)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->embeddingService->updateProject($id, $name, $memberSession->getIntMemberId());
+        $this->embeddingService->updateProject($id, $name, $public, $memberSession->getIntMemberId());
     }
 
     /**

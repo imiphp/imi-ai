@@ -27,6 +27,7 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null    $tokens        Token数量
  * @property int|null    $payTokens     支付 Token 数量
  * @property string|null $ip            IP地址
+ * @property bool|null   $public        是否公开使用
  */
 abstract class EmbeddingProjectBase extends Model
 {
@@ -339,6 +340,36 @@ abstract class EmbeddingProjectBase extends Model
     public function setIp(?string $ip)
     {
         $this->ip = $ip;
+
+        return $this;
+    }
+
+    /**
+     * 是否公开使用.
+     * public.
+     *
+     * @Column(name="public", type="bool", length=-1, accuracy=0, nullable=false, default="false", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?bool $public = false;
+
+    /**
+     * 获取 public - 是否公开使用.
+     */
+    public function getPublic(): ?bool
+    {
+        return $this->public;
+    }
+
+    /**
+     * 赋值 public - 是否公开使用.
+     *
+     * @param bool|null $public public
+     *
+     * @return static
+     */
+    public function setPublic(?bool $public)
+    {
+        $this->public = $public;
 
         return $this;
     }

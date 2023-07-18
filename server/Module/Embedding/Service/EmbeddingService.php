@@ -33,6 +33,18 @@ class EmbeddingService
         return $record;
     }
 
+    public function getReadonlyProject(string $id, int $memberId = 0): EmbeddingProject
+    {
+        $intId = EmbeddingProject::decodeId($id);
+        $record = EmbeddingProject::find($intId);
+        if (!$record || ($memberId && $record->memberId !== $memberId && !$record->public))
+        {
+            throw new NotFoundException(sprintf('项目 %s 不存在', $id));
+        }
+
+        return $record;
+    }
+
     public function projectList(int $memberId, int $page = 1, int $limit = 15): array
     {
         $query = EmbeddingProject::query();
@@ -58,10 +70,11 @@ class EmbeddingService
         EmbeddingSection::query()->where('project_id', '=', $record->id)->delete();
     }
 
-    public function updateProject(string $projectId, string $name, int $memberId = 0): void
+    public function updateProject(string $projectId, string $name, bool $public, int $memberId = 0): void
     {
         $record = $this->getProject($projectId, $memberId);
         $record->name = $name;
+        $record->public = $public;
         $record->update();
     }
 

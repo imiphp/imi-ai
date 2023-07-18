@@ -164,34 +164,6 @@ async function onConversation() {
       return
     }
 
-    // const currentChat = getChatByUuidAndIndex(id, dataSources.value.length - 1)
-
-    // if (currentChat?.message && currentChat.message !== '') {
-    //   updateChatSome(
-    //     id,
-    //     dataSources.value.length - 1,
-    //     {
-    //       message: `${currentChat.message}\n[${errorMessage}]`,
-    //       error: false,
-    //       loading: false,
-    //     },
-    //   )
-    //   return
-    // }
-
-    // updateChat(
-    //   id,
-    //   dataSources.value.length - 1,
-    //   {
-    //     beginTime,
-    //     completeTime: parseInt(((new Date()).getTime() / 1000).toString()),
-    //     message: errorMessage,
-    //     inversion: false,
-    //     error: true,
-    //     loading: false,
-    //     conversationOptions: null,
-    //   },
-    // )
     scrollToBottomIfAtBottom()
   }
   finally {
@@ -203,19 +175,6 @@ async function onConversation() {
 async function fetchStream() {
   try {
     loading.value = true
-    // AI 返回
-    // addChat(
-    //   id,
-    //   {
-    //     beginTime,
-    //     completeTime: 0,
-    //     message: '',
-    //     loading: true,
-    //     inversion: false,
-    //     error: false,
-    //     conversationOptions: null,
-    //   },
-    // )
     scrollToBottom()
     let lastText = ''
     let lastIndex = 0
@@ -237,16 +196,6 @@ async function fetchStream() {
                 data.content = decodeSecureField(data.content)
 
               if (!data.finishReason) {
-                // updateChatSome(
-                //   id,
-                //   dataSources.value.length - 1,
-                //   {
-                //     message: lastText += (data.content ?? ''),
-                //     inversion: false,
-                //     error: false,
-                //     loading: true,
-                //   },
-                // )
                 if (currentChatReply.value)
                   currentChatReply.value.message = lastText += (data.content ?? '')
               }
@@ -270,7 +219,6 @@ async function fetchStream() {
         currentChatReply.value.completeTime = parseInt(((new Date()).getTime() / 1000).toString())
         currentChatReply.value.loading = false
       }
-      // updateChatSome(id, dataSources.value.length - 1, { loading: false })
     }
     await fetchChatAPIOnce()
   }
@@ -279,15 +227,6 @@ async function fetchStream() {
     const errorMessage = error?.message ?? t('common.wrong')
 
     if (error.message === 'canceled') {
-      // updateChatSome(
-      //   id,
-      //   dataSources.value.length - 1,
-      //   {
-      //     message: error.message,
-      //     error: false,
-      //     loading: false,
-      //   },
-      // )
       if (currentChatReply.value) {
         currentChatReply.value.message = error.message
         currentChatReply.value.loading = false
@@ -296,33 +235,6 @@ async function fetchStream() {
       return
     }
 
-    // const currentChat = getChatByUuidAndIndex(id, dataSources.value.length - 1)
-
-    // if (currentChat?.message && currentChat.message !== '') {
-    //   updateChatSome(
-    //     id,
-    //     dataSources.value.length - 1,
-    //     {
-    //       message: `${currentChat.message}\n[${errorMessage}]`,
-    //       error: false,
-    //       loading: false,
-    //     },
-    //   )
-    //   return
-    // }
-
-    // updateChatSome(
-    //   id,
-    //   dataSources.value.length - 1,
-    //   {
-    //     completeTime: parseInt(((new Date()).getTime() / 1000).toString()),
-    //     message: errorMessage,
-    //     inversion: false,
-    //     error: true,
-    //     loading: false,
-    //     conversationOptions: null,
-    //   },
-    // )
     if (currentChatReply.value) {
       currentChatReply.value.completeTime = parseInt(((new Date()).getTime() / 1000).toString())
       currentChatReply.value.message += `\n[${errorMessage}]`
@@ -493,6 +405,9 @@ onMounted(async () => {
             </div>
             <div span="4 m:2 l:1">
               <p><b>创建时间：</b><Time :time="embeddingState.$state.currentProject?.createTime" /></p>
+            </div>
+            <div span="4 m:2 l:1">
+              <p><b>权限：</b><span v-text="embeddingState.$state.currentProject?.public ? '公开' : '私有'" /></p>
             </div>
           </div>
         </NLayoutSider>
