@@ -61,8 +61,6 @@ const onFinish = (options: { event?: ProgressEvent }) => {
   <NUpload
     v-model:file-list="fileList"
     :show-file-list="false"
-    multiple
-    directory-dnd
     :action="uploadActionUrl"
     :max="1"
     :on-finish="onFinish"

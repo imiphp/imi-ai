@@ -14,9 +14,9 @@ use Imi\Db\Annotation\Transaction;
 
 class EmbeddingService
 {
-    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip): EmbeddingProject
+    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = ''): EmbeddingProject
     {
-        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip);
+        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory);
 
         return $parser->upload();
     }
@@ -129,11 +129,15 @@ class EmbeddingService
                 // @phpstan-ignore-next-line
                 if (!isset($parent[$dir]))
                 {
-                    $itemFileName = SecureFieldUtil::encode(implode('/', $dirs));
+                    $itemFileName = implode('/', $dirs);
+                    if ($secureField)
+                    {
+                        $itemFileName = SecureFieldUtil::encode($itemFileName);
+                    }
                     $parent[$dir] = [
                         'recordId' => $itemFileName,
                         'fileName' => $itemFileName,
-                        'baseName' => SecureFieldUtil::encode($dir),
+                        'baseName' => $secureField ? SecureFieldUtil::encode($dir) : $dir,
                         'children' => [],
                     ];
                     $childrens[] = &$parent[$dir]['children'];
@@ -141,7 +145,8 @@ class EmbeddingService
                 $parent = &$parent[$dir]['children'];
             }
 
-            $item['baseName'] = SecureFieldUtil::encode(basename($fileName));
+            $baseName = basename($fileName);
+            $item['baseName'] = $secureField ? SecureFieldUtil::encode($baseName) : $baseName;
             $parent[] = $item;
         }
 
@@ -167,5 +172,13 @@ class EmbeddingService
                      ->order('id')
                      ->select()
                      ->getArray();
+    }
+
+    public function getFileByName(string $projectId, string $fileName): ?EmbeddingFile
+    {
+        return EmbeddingFile::find([
+            'project_id' => EmbeddingProject::decodeId($projectId),
+            'file_name'  => $fileName,
+        ]);
     }
 }

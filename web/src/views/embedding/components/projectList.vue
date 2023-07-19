@@ -41,8 +41,12 @@ const createColumns = ({
       },
     },
     {
-      title: 'Token 数量',
+      title: '实际 Tokens',
       key: 'tokens',
+    },
+    {
+      title: '支付 Tokens',
+      key: 'payTokens',
     },
     {
       title: '状态',

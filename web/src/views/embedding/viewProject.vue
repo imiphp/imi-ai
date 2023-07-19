@@ -1,22 +1,26 @@
 <script setup lang='ts'>
-import type { TreeOption } from 'naive-ui'
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDescriptions, NDescriptionsItem, NDivider, NEllipsis, NEmpty, NGi, NGrid, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NModal, NSpin, NTabPane, NTabs, NText, NTree } from 'naive-ui'
-import type { CSSProperties, Ref } from 'vue'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { TreeOption, UploadFileInfo, UploadInst } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDescriptions, NDescriptionsItem, NDivider, NEllipsis, NEmpty, NForm, NFormItem, NGi, NGrid, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NModal, NRadio, NRadioGroup, NSpace, NSpin, NTabPane, NTabs, NText, NTree, NUpload, useDialog } from 'naive-ui'
 
-import { useRoute } from 'vue-router'
-import { ArrowBackOutline, BookOutline } from '@vicons/ionicons5'
+import type { CSSProperties, Ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowBackOutline, BookOutline, CloudUploadOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { assocFileList, getProject, sectionList } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAppStore, useRuntimeStore } from '@/store'
+import { useAppStore, useAuthStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
 import { Time } from '@/components/common'
 import { decodeSecureField } from '@/utils/request'
+import service from '@/utils/request/axios'
 
 const appStore = useAppStore()
 const route = useRoute()
+const dialog = useDialog()
+const router = useRouter()
 const embeddingState = useEmbeddingStore()
 const runtimeStore = useRuntimeStore()
 const id = route.params.id.toString()
@@ -29,6 +33,25 @@ const showViewSection = ref(false)
 const currentSection = ref<Embedding.Section | null>(null)
 const showViewContent = ref(false)
 const showLoading = ref(false)
+const fileList = ref<UploadFileInfo[]>([])
+const uploadHeaders = ref({
+  Authorization: `Bearer ${useAuthStore().token}`,
+})
+const uploadActionUrl = service.getUri({
+  url: '/embedding/openai/upload',
+})
+const uploadData = ref<any>({
+  id,
+  override: false,
+  directory: '',
+})
+const upload = ref<UploadInst | null>(null)
+const showUploadModal = ref(false)
+watch(showUploadModal, (value) => {
+  if (!value)
+    fileList.value = []
+})
+const uploadFileName = ref('')
 
 const { isMobile } = useBasicLayout()
 
@@ -90,12 +113,72 @@ async function viewSection(section: Embedding.Section) {
   showViewSection.value = true
 }
 
+function getUploadData() {
+  const data = { ...uploadData.value }
+  data.override = data.override ? '1' : '0'
+  return data
+}
+
 function onRenderTreeLabel({ option }: any) {
   const result = decodeSecureField(option.baseName)
   return result
 }
 
-onMounted(async () => {
+function handleChange(options: { file: UploadFileInfo; fileList: Array<UploadFileInfo>; event?: Event }) {
+  uploadFileName.value = options.file.name
+  showUploadModal.value = true
+}
+
+function handleUpload() {
+  showLoading.value = true
+  upload.value?.submit()
+}
+
+const onFinish = (options: { event?: ProgressEvent }) => {
+  try {
+    const response = (options.event?.target as XMLHttpRequest)?.response
+    if (response) {
+      const data = JSON.parse(response)
+      if (data.code === 0) {
+        router.push({
+          name: 'ViewEmbeddingProject',
+          params: {
+            id: data.data.recordId,
+          },
+        })
+      }
+      else {
+        dialog.error({
+          title: '错误',
+          content: data.message || '上传失败，未知原因',
+          positiveText: '确定',
+        })
+      }
+    }
+    else {
+      dialog.error({
+        title: '错误',
+        content: '上传失败，未知原因',
+        positiveText: '确定',
+      })
+    }
+  }
+  finally {
+    nextTick(() => {
+      fileList.value = []
+      showUploadModal.value = false
+      showLoading.value = false
+      uploadData.value = {
+        id,
+        override: false,
+        directory: '',
+      }
+      loadInfo()
+    })
+  }
+}
+
+async function loadInfo() {
   try {
     showLoading.value = true
     const projectPromise = getProject(id)
@@ -105,6 +188,9 @@ onMounted(async () => {
     runtimeStore.$state.headerTitle = projectResponse.data.name
     data.value = assocFileListResponse.list
     if (projectResponse.data.status === EmbeddingStatus.EXTRACTING || projectResponse.data.status === EmbeddingStatus.TRAINING) {
+      if (timer)
+        clearInterval(timer)
+
       timer = setInterval(async () => {
         const projectResponse = (await getProject(id))
         embeddingState.$state.currentProject = projectResponse.data
@@ -118,6 +204,10 @@ onMounted(async () => {
   finally {
     showLoading.value = false
   }
+}
+
+onMounted(async () => {
+  await loadInfo()
 })
 
 onUnmounted(() => {
@@ -146,7 +236,7 @@ onUnmounted(() => {
         </NBreadcrumbItem>
         <NBreadcrumbItem>
           <span v-text="embeddingState.$state.currentProject?.name || '加载中'" />
-        </nbreadcrumbitem>
+        </NBreadcrumbItem>
       </NBreadcrumb>
       <NDivider class="!mt-[2px] !mb-[2px]" />
     </div>
@@ -162,17 +252,41 @@ onUnmounted(() => {
         :style="getMobileClass"
         @update-collapsed="handleUpdateCollapsed"
       >
-        <NTree
-          v-model:selected-keys="selectedKeys"
-          block-line
-          expand-on-click
-          :data="data"
-          key-field="recordId"
-          label-field="baseName"
-          :on-update:selected-keys="handleSelectKeys"
-          :watch-props="['defaultExpandedKeys', 'defaultCheckedKeys', 'defaultSelectedKeys']"
-          :render-label="onRenderTreeLabel"
-        />
+        <NSpace vertical :size="12">
+          <NUpload
+            ref="upload"
+            v-model:file-list="fileList"
+            trigger-style="display:block"
+            :show-file-list="false"
+            :default-upload="false"
+            :data="getUploadData()"
+            :action="uploadActionUrl"
+            :max="1"
+            :on-finish="onFinish"
+            :headers="uploadHeaders"
+            @change="handleChange"
+          >
+            <NButton block type="primary" secondary>
+              <template #icon>
+                <NIcon>
+                  <CloudUploadOutline />
+                </NIcon>
+              </template>
+              上传文件
+            </NButton>
+          </NUpload>
+          <NTree
+            v-model:selected-keys="selectedKeys"
+            block-line
+            expand-on-click
+            :data="data"
+            key-field="recordId"
+            label-field="baseName"
+            :on-update:selected-keys="handleSelectKeys"
+            :watch-props="['defaultExpandedKeys', 'defaultCheckedKeys', 'defaultSelectedKeys']"
+            :render-label="onRenderTreeLabel"
+          />
+        </NSpace>
       </NLayoutSider>
       <NLayoutContent :class="getContainerClass">
         <NCard :bordered="false">
@@ -294,5 +408,33 @@ onUnmounted(() => {
       show-count
       class="h-full"
     />
+  </NModal>
+  <!-- 上传文件模态框 -->
+  <NModal
+    v-model:show="showUploadModal"
+    preset="card"
+    title="上传文件"
+    style="width: 512px; max-width: 100vw; max-height: 100vh"
+    :mask-closable="false"
+  >
+    <NForm label-placement="left">
+      <NFormItem label="文件名：">
+        <span v-text="uploadFileName" />
+      </NFormItem>
+      <NFormItem label="目标目录：">
+        <NInput v-model:value="uploadData.directory" placeholder="留空则为根目录" />
+      </NFormItem>
+      <NFormItem label="同名文件：">
+        <NRadioGroup v-model:value="uploadData.override" name="override">
+          <NRadio :value="false" label="跳过" />
+          <NRadio :value="true" label="覆盖" />
+        </NRadioGroup>
+      </NFormItem>
+      <NFormItem>
+        <NButton type="primary" @click="handleUpload()">
+          上传
+        </NButton>
+      </NFormItem>
+    </NForm>
   </NModal>
 </template>

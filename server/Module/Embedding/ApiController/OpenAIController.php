@@ -36,10 +36,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function upload(UploadedFile $file): array
+    public function upload(UploadedFile $file, string $id = '', bool $override = true, string $directory = '/'): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $project = $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename(), IPUtil::getIP());
+        $project = $this->embeddingService->upload($memberSession->getIntMemberId(), $file->getTmpFileName(), $file->getClientFilename(), IPUtil::getIP(), $id, $override, $directory);
         $project->__setSecureField(true);
 
         return [

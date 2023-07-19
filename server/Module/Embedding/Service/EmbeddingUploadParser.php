@@ -36,12 +36,17 @@ class EmbeddingUploadParser
     #[Inject()]
     protected WalletTokensService $walletTokensService;
 
+    #[Inject()]
+    protected EmbeddingService $embeddingService;
+
     private string $extractPath = '';
 
     /**
-     * @var array<array{name: string, relativeFileName: string, size: int}>
+     * @var array<array{name:string,relativeFileName:string,size:int,file:EmbeddingFile|null}>
      */
     private array $files = [];
+
+    private int $deductFileSize = 0;
 
     private int $totalSize = 0;
 
@@ -53,7 +58,12 @@ class EmbeddingUploadParser
 
     private bool $isCompressedFile = false;
 
-    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip)
+    /**
+     * @param string $id        项目ID
+     * @param bool   $override  是否覆盖已存在文件
+     * @param string $directory 上传文件解压目标目录
+     */
+    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/')
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
@@ -65,6 +75,11 @@ class EmbeddingUploadParser
     {
         try
         {
+            if ('' !== $this->id)
+            {
+                $project = goWait(fn () => $this->embeddingService->getProject($this->id, $this->memberId), 30, true);
+            }
+
             if ($this->isCompressedFile)
             {
                 // 解压
@@ -74,13 +89,23 @@ class EmbeddingUploadParser
             // 处理文件
             $this->parseFiles();
 
-            $project = EmbeddingProject::newInstance();
-            $project->memberId = $this->memberId;
-            $project->name = mb_substr($this->clientFileName, 0, 32);
-            $project->totalFileSize = $this->totalSize;
-            $project->status = EmbeddingStatus::TRAINING;
-            $project->ip = $this->ip;
-            goWait(fn () => $project->insert(), 30, true);
+            if (isset($project))
+            {
+                $project->totalFileSize += $this->totalSize - $this->deductFileSize;
+                $project->status = EmbeddingStatus::TRAINING;
+                $project->ip = $this->ip;
+                goWait(fn () => $project->update(), 30, true);
+            }
+            else
+            {
+                $project = EmbeddingProject::newInstance();
+                $project->memberId = $this->memberId;
+                $project->name = mb_substr($this->clientFileName, 0, 32);
+                $project->totalFileSize = $this->totalSize;
+                $project->status = EmbeddingStatus::TRAINING;
+                $project->ip = $this->ip;
+                goWait(fn () => $project->insert(), 30, true);
+            }
 
             // 处理文件内容
             Coroutine::defer(fn () => Coroutine::create(fn () => $this->praseFilesContent($project)));
@@ -172,11 +197,23 @@ class EmbeddingUploadParser
             foreach (File::enumFile($this->extractPath, null, SupportFileTypes::getValues()) as $file)
             {
                 $fileName = $file->getFullPath();
-                $relativeFileName = substr($fileName, $subPathOffset);
+                $relativeFileName = ltrim(File::path($this->directory, substr($fileName, $subPathOffset)), '/');
                 // 检查单文件大小
                 if (($size = filesize($fileName)) > ($maxSingleFileSize ??= $this->config->getMaxSingleFileSize()))
                 {
                     throw new \RuntimeException(sprintf('File %s size too large. Max size: %s', $relativeFileName, Imi::formatByte($maxSingleFileSize)));
+                }
+                if ('' !== $this->id)
+                {
+                    $file = goWait(fn () => $this->embeddingService->getFileByName($this->id, $relativeFileName), 30, true);
+                    if ($file)
+                    {
+                        if (!$this->override)
+                        {
+                            continue;
+                        }
+                        $this->deductFileSize += $file->fileSize;
+                    }
                 }
                 $this->totalSize += $size;
                 // 检查文件总大小
@@ -188,16 +225,29 @@ class EmbeddingUploadParser
                     'name'             => $fileName,
                     'relativeFileName' => $relativeFileName,
                     'size'             => $size,
+                    'file'             => $file ?? null,
                 ];
             }
         }
         else
         {
+            $relativeFileName = ltrim(File::path($this->directory, $this->clientFileName), '/');
+            if ('' !== $this->id)
+            {
+                $file = goWait(fn () => $this->embeddingService->getFileByName($this->id, $relativeFileName), 30, true);
+                if ($file && !$this->override)
+                {
+                    return;
+                }
+            }
+            $newFileName = $this->fileName . '.' . $this->clientFileName;
+            rename($this->fileName, $newFileName);
             $this->files = [
                 [
-                    'name'             => $this->fileName,
-                    'relativeFileName' => $this->clientFileName,
-                    'size'             => $this->totalSize = filesize($this->fileName),
+                    'name'             => $newFileName,
+                    'relativeFileName' => $relativeFileName,
+                    'size'             => $this->totalSize = filesize($newFileName),
+                    'file'             => $file ?? null,
                 ],
             ];
         }
@@ -222,19 +272,37 @@ class EmbeddingUploadParser
             });
             foreach ($this->files as $file)
             {
-                ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size] = $file;
-                $content = file_get_contents($fileName);
-                $fileRecord = EmbeddingFile::newInstance();
-                $fileRecord->projectId = $project->id;
-                $fileRecord->status = EmbeddingStatus::TRAINING;
-                $fileRecord->fileName = $relativeFileName;
-                $fileRecord->fileSize = $size;
-                $fileRecord->content = $content;
-                $fileRecord->ip = $this->ip;
-                goWait(fn () => $fileRecord->insert(), 30, true);
-                $this->parseSections($fileRecord);
-                $projectTokens += $fileRecord->tokens;
-                $projectPayTokens += $fileRecord->payTokens;
+                ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size, 'file' => $fileRecord] = $file;
+                try
+                {
+                    $content = file_get_contents($fileName);
+                    if ($fileRecord)
+                    {
+                        $projectTokens -= $fileRecord->tokens;
+                        EmbeddingSection::query()->where('file_id', '=', $fileRecord->id)->delete();
+                    }
+                    else
+                    {
+                        $fileRecord = EmbeddingFile::newInstance();
+                        $fileRecord->projectId = $project->id;
+                        $fileRecord->fileName = $relativeFileName;
+                    }
+                    $fileRecord->status = EmbeddingStatus::TRAINING;
+                    $fileRecord->fileSize = $size;
+                    $fileRecord->content = $content;
+                    $fileRecord->ip = $this->ip;
+                    goWait(fn () => $fileRecord->save(), 30, true);
+                    $this->parseSections($fileRecord);
+                    $projectTokens += $fileRecord->tokens;
+                    $projectPayTokens += $fileRecord->payTokens;
+                }
+                finally
+                {
+                    if (!$this->isCompressedFile)
+                    {
+                        unlink($fileName);
+                    }
+                }
             }
             $this->taskChannel->close();
             $completeChannel->pop();
@@ -248,11 +316,11 @@ class EmbeddingUploadParser
             $status = isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED;
             Coroutine::create(function () use ($status, $project, $projectTokens, $projectPayTokens) {
                 // 更新项目状态
-                EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)->update([
-                    'status'     => $status,
-                    'tokens'     => $projectTokens,
-                    'pay_tokens' => $projectPayTokens,
-                ]);
+                EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)
+                                        ->setFieldInc('tokens', $projectTokens)
+                                        ->setFieldInc('pay_tokens', $projectPayTokens)
+                                        ->setField('status', $status)
+                                        ->update();
                 // 更新文件状态
                 EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
                     'status' => $status,
