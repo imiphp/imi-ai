@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Module\Wallet\Model\Redis;
+namespace app\Module\Card\Model\Redis;
 
 use app\Module\Config\Annotation\ConfigModel;
 use app\Module\Config\Model\Redis\Traits\TConfigModel;
@@ -13,27 +13,27 @@ use Imi\Model\RedisModel;
 
 #[
     Entity(),
-    RedisEntity(key: 'config:wallet', storage: 'hash_object'),
-    ConfigModel(title: '钱包设置'),
+    RedisEntity(key: 'config:card', storage: 'hash_object'),
+    ConfigModel(title: '卡设置'),
 ]
-class WalletConfig extends RedisModel
+class CardConfig extends RedisModel
 {
     use TConfigModel;
 
     /**
-     * 注册赠送 Tokens.
+     * 注册赠送余额.
      */
     #[Column]
-    public int $registerGiftTokens = 0;
+    public int $registerGiftAmount = 0;
 
     public function getRegisterGiftTokens(): int
     {
-        return $this->registerGiftTokens;
+        return $this->registerGiftAmount;
     }
 
-    public function setRegisterGiftTokens(int $registerGiftTokens): self
+    public function setRegisterGiftTokens(int $registerGiftAmount): self
     {
-        $this->registerGiftTokens = $registerGiftTokens;
+        $this->registerGiftAmount = $registerGiftAmount;
 
         return $this;
     }

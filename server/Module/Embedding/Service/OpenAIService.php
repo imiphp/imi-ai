@@ -6,6 +6,7 @@ namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
@@ -14,9 +15,7 @@ use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
-use app\Module\Wallet\Enum\OperationType;
-use app\Module\Wallet\Service\WalletTokensService;
-use app\Module\Wallet\Util\TokensUtil;
+use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Query\Interfaces\IPaginateResult;
@@ -39,7 +38,7 @@ class OpenAIService
     protected EmbeddingService $embeddingService;
 
     #[Inject()]
-    protected WalletTokensService $walletTokensService;
+    protected MemberCardService $memberCardService;
 
     #[
         Transaction(),
@@ -51,7 +50,7 @@ class OpenAIService
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($question));
 
         // 检查余额
-        $this->walletTokensService->checkBalance($memberId, $tokens + 1, 0);
+        $this->memberCardService->checkBalance($memberId, $tokens + 1);
 
         $project = $this->embeddingService->getReadonlyProject($projectId, $memberId);
 
@@ -193,7 +192,7 @@ class OpenAIService
         $record->status = EmbeddingQAStatus::SUCCESS;
         $record->completeTime = $endTime;
         $record->update();
-        $this->walletTokensService->change($memberId, OperationType::PAY, -$payTokens, BusinessType::EMBEDDING_CHAT);
+        $this->memberCardService->pay($memberId, $payTokens, BusinessType::EMBEDDING_CHAT, $record->id);
     }
 
     public function getByIdStr(string $id, int $memberId = 0): EmbeddingQa

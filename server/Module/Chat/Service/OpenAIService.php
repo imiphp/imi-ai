@@ -6,15 +6,14 @@ namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
-use app\Module\Wallet\Enum\OperationType;
-use app\Module\Wallet\Service\WalletTokensService;
-use app\Module\Wallet\Util\TokensUtil;
+use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
@@ -28,7 +27,7 @@ class OpenAIService
     public const ALLOW_PARAMS = ['temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
 
     #[Inject()]
-    protected WalletTokensService $walletTokensService;
+    protected MemberCardService $memberCardService;
 
     #[
         Transaction(),
@@ -40,7 +39,7 @@ class OpenAIService
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
 
         // 检查余额
-        $this->walletTokensService->checkBalance($memberId, $tokens + 1, 0);
+        $this->memberCardService->checkBalance($memberId, $tokens + 1);
 
         if ([] === $config)
         {
@@ -149,7 +148,7 @@ class OpenAIService
         $record->update();
 
         // 扣款
-        $this->walletTokensService->change($record->memberId, OperationType::PAY, -$payTokens, BusinessType::CHAT, time: $endTime);
+        $this->memberCardService->pay($record->memberId, $payTokens, BusinessType::CHAT, $record->id, time: $endTime);
     }
 
     public function getById(int $id, int $memberId = 0): ChatSession

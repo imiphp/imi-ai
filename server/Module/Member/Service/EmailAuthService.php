@@ -99,6 +99,7 @@ class EmailAuthService
     {
         return Member::exists([
             'email_hash' => $this->hash($email),
+            'email'      => $email,
         ]);
     }
 

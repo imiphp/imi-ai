@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Module\Wallet\Model\Base;
+namespace app\Module\Card\Model\Base;
 
 use Imi\Config\Annotation\ConfigValue;
 use Imi\Model\Annotation\Column;
@@ -12,24 +12,24 @@ use Imi\Model\Annotation\Table;
 use Imi\Model\Model;
 
 /**
- * Tokens 明细 基类.
+ * 用户卡订单 基类.
  *
  * @Entity(camel=true, bean=true, incrUpdate=true)
  *
- * @Table(name=@ConfigValue(name="@app.models.app\Module\Wallet\Model\WalletTokensDetail.name", default="tb_wallet_tokens_detail"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Wallet\Model\WalletTokensDetail.poolName"))
+ * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardOrder.name", default="tb_member_card_order"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardOrder.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_wallet_tokens_detail` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `operation_type` tinyint(3) unsigned NOT NULL COMMENT '操作类型',   `business_type` tinyint(3) unsigned NOT NULL COMMENT '业务类型',   `change_amount` bigint(20) NOT NULL COMMENT '变动余额',   `before_amount` bigint(20) NOT NULL COMMENT '变动前余额',   `after_amount` bigint(20) NOT NULL COMMENT '变动后余额',   `time` int(10) unsigned NOT NULL COMMENT '时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`time`,`business_type`,`operation_type`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='Tokens 明细'")
+ * @DDL(sql="CREATE TABLE `tb_member_card_order` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `operation_type` tinyint(3) unsigned NOT NULL COMMENT '操作类型',   `business_type` tinyint(3) unsigned NOT NULL COMMENT '业务类型',   `business_id` bigint(20) unsigned NOT NULL COMMENT '业务ID',   `change_amount` bigint(20) NOT NULL COMMENT '变动余额',   `detail_ids` json NOT NULL COMMENT '操作涉及的明细记录ID',   `time` int(10) unsigned NOT NULL COMMENT '时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`time`) USING BTREE,   KEY `business_type` (`member_id`,`business_type`,`business_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户卡订单'")
  *
- * @property int|null $id
- * @property int|null $memberId      用户ID
- * @property int|null $operationType 操作类型
- * @property int|null $businessType  业务类型
- * @property int|null $changeAmount  变动余额
- * @property int|null $beforeAmount  变动前余额
- * @property int|null $afterAmount   变动后余额
- * @property int|null $time          时间
+ * @property int|null                                    $id
+ * @property int|null                                    $memberId      用户ID
+ * @property int|null                                    $operationType 操作类型
+ * @property int|null                                    $businessType  业务类型
+ * @property int|null                                    $businessId    业务ID
+ * @property int|null                                    $changeAmount  变动余额
+ * @property \Imi\Util\LazyArrayObject|object|array|null $detailIds     操作涉及的明细记录ID
+ * @property int|null                                    $time          时间
  */
-abstract class WalletTokensDetailBase extends Model
+abstract class MemberCardOrderBase extends Model
 {
     /**
      * {@inheritdoc}
@@ -161,6 +161,36 @@ abstract class WalletTokensDetailBase extends Model
     }
 
     /**
+     * 业务ID.
+     * business_id.
+     *
+     * @Column(name="business_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $businessId = null;
+
+    /**
+     * 获取 businessId - 业务ID.
+     */
+    public function getBusinessId(): ?int
+    {
+        return $this->businessId;
+    }
+
+    /**
+     * 赋值 businessId - 业务ID.
+     *
+     * @param int|null $businessId business_id
+     *
+     * @return static
+     */
+    public function setBusinessId($businessId)
+    {
+        $this->businessId = null === $businessId ? null : (int) $businessId;
+
+        return $this;
+    }
+
+    /**
      * 变动余额.
      * change_amount.
      *
@@ -191,61 +221,35 @@ abstract class WalletTokensDetailBase extends Model
     }
 
     /**
-     * 变动前余额.
-     * before_amount.
+     * 操作涉及的明细记录ID.
+     * detail_ids.
      *
-     * @Column(name="before_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="detail_ids", type="json", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     *
+     * @var \Imi\Util\LazyArrayObject|object|array|null
      */
-    protected ?int $beforeAmount = null;
+    protected $detailIds = null;
 
     /**
-     * 获取 beforeAmount - 变动前余额.
+     * 获取 detailIds - 操作涉及的明细记录ID.
+     *
+     * @return \Imi\Util\LazyArrayObject|object|array|null
      */
-    public function getBeforeAmount(): ?int
+    public function &getDetailIds()
     {
-        return $this->beforeAmount;
+        return $this->detailIds;
     }
 
     /**
-     * 赋值 beforeAmount - 变动前余额.
+     * 赋值 detailIds - 操作涉及的明细记录ID.
      *
-     * @param int|null $beforeAmount before_amount
+     * @param \Imi\Util\LazyArrayObject|object|array|null $detailIds detail_ids
      *
      * @return static
      */
-    public function setBeforeAmount($beforeAmount)
+    public function setDetailIds($detailIds)
     {
-        $this->beforeAmount = null === $beforeAmount ? null : (int) $beforeAmount;
-
-        return $this;
-    }
-
-    /**
-     * 变动后余额.
-     * after_amount.
-     *
-     * @Column(name="after_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
-     */
-    protected ?int $afterAmount = null;
-
-    /**
-     * 获取 afterAmount - 变动后余额.
-     */
-    public function getAfterAmount(): ?int
-    {
-        return $this->afterAmount;
-    }
-
-    /**
-     * 赋值 afterAmount - 变动后余额.
-     *
-     * @param int|null $afterAmount after_amount
-     *
-     * @return static
-     */
-    public function setAfterAmount($afterAmount)
-    {
-        $this->afterAmount = null === $afterAmount ? null : (int) $afterAmount;
+        $this->detailIds = null === $detailIds ? null : $detailIds;
 
         return $this;
     }

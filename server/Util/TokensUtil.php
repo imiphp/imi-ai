@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Module\Wallet\Util;
+namespace app\Util;
 
 use Imi\Util\Traits\TStaticClass;
 

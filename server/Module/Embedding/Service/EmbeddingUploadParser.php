@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Enum\SupportFileTypes;
@@ -14,9 +15,7 @@ use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
-use app\Module\Wallet\Enum\OperationType;
-use app\Module\Wallet\Service\WalletTokensService;
-use app\Module\Wallet\Util\TokensUtil;
+use app\Util\TokensUtil;
 use Archive7z\Archive7z;
 use Imi\Aop\Annotation\Inject;
 use Imi\App;
@@ -34,7 +33,7 @@ use function Yurun\Swoole\Coroutine\goWait;
 class EmbeddingUploadParser
 {
     #[Inject()]
-    protected WalletTokensService $walletTokensService;
+    protected MemberCardService $memberCardService;
 
     #[Inject()]
     protected EmbeddingService $embeddingService;
@@ -330,7 +329,7 @@ class EmbeddingUploadParser
                     'complete_training_time' => (int) (microtime(true) * 1000),
                 ]);
                 // 扣除余额
-                $this->walletTokensService->change($this->memberId, OperationType::PAY, -$projectPayTokens, BusinessType::EMBEDDING);
+                $this->memberCardService->pay($this->memberId, $projectPayTokens, BusinessType::EMBEDDING, $project->id);
                 File::deleteDir($this->extractPath);
             });
         }

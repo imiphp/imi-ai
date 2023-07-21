@@ -136,6 +136,26 @@ return [
             'handlerClass' => \Imi\Cache\Handler\Memory::class,
             'option'       => [],
         ],
+        'redisCache'        => [
+            // 缓存驱动类
+            'handlerClass'    => \Imi\Cache\Handler\Redis::class,
+            // 驱动实例配置
+            'option'          => [
+                'poolName'              => 'redis',
+                'prefix'                => 'cache:', // 缓存键前缀
+                'formatHandlerClass'    => \Imi\Util\Format\Json::class, // 数据读写修改器
+            ],
+        ],
+        'redisCacheSerialize'        => [
+            // 缓存驱动类
+            'handlerClass'    => \Imi\Cache\Handler\Redis::class,
+            // 驱动实例配置
+            'option'          => [
+                'poolName'              => 'redis',
+                'prefix'                => 'cache:', // 缓存键前缀
+                'formatHandlerClass'    => \Imi\Util\Format\PhpSerialize::class, // 数据读写修改器
+            ],
+        ],
     ],
 
     'tools'  => [
@@ -160,10 +180,13 @@ return [
                         'tb_member',
                     ],
                 ],
-                'app\Module\Wallet\Model' => [
+                'app\Module\Card\Model' => [
                     'tables'    => [
-                        'tb_wallet',
-                        'tb_wallet_tokens_detail',
+                        'tb_card',
+                        'tb_card_type',
+                        'tb_card_detail',
+                        'tb_member_card_order',
+                        'tb_member_card_refund_order',
                     ],
                 ],
             ],
