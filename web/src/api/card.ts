@@ -1,5 +1,14 @@
 import post, { get } from '@/utils/request'
 
+export async function cardInfo(
+) {
+  const response = await get({
+    url: '/card/info',
+  })
+
+  return response
+}
+
 export async function cardList(
   expired: boolean | null = null,
   page = 1,

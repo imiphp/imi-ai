@@ -10,11 +10,14 @@ import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAuthStore, useUserStore } from '@/store'
 import type { UserInfo } from '@/store/modules/user/helper'
+import { cardInfo } from '@/api'
 
 const { isMobile } = useBasicLayout()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const router = useRouter()
+
+const balance = ref('0')
 
 const menuOptions: MenuOption[] = [
   {
@@ -91,7 +94,7 @@ const rightMenuOptions: Ref<any> = ref([
                 name: 'Card',
               },
             },
-            { default: () => '我的卡包' },
+            { default: () => `我的卡包 (${balance.value})` },
           ),
         key: 'Card',
         show: logined,
@@ -165,6 +168,11 @@ watch(() => userStore.userInfo, (newValue: UserInfo) => {
   logined.value = (undefined !== newValue.recordId && newValue.recordId.length > 0)
 },
 { immediate: true })
+
+async function updateBalance() {
+  const response = await cardInfo()
+  balance.value = response.balanceText
+}
 </script>
 
 <template>
@@ -181,7 +189,7 @@ watch(() => userStore.userInfo, (newValue: UserInfo) => {
         </NLayoutSider>
         <NLayoutContent content-style="justify-content: space-between;display: flex;">
           <NMenu v-model:value="selectedKey" class="header-menu" mode="horizontal" :options="menuOptions" />
-          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" />
+          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" @mouseenter="updateBalance" />
         </NLayoutContent>
       </nlayout>
     </NLayoutHeader>

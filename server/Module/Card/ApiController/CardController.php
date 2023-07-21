@@ -9,6 +9,7 @@ use app\Module\Card\Service\MemberCardService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Module\VCode\Service\VCodeService;
+use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Route\Annotation\Action;
@@ -27,6 +28,22 @@ class CardController extends HttpController
 
     #[Inject()]
     protected VCodeService $vCodeService;
+
+    #[
+        Action,
+        LoginRequired()
+    ]
+    public function info(): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        $balance = $this->memberCardService->getBalance($memberSession->getIntMemberId());
+
+        return [
+            'balance'     => $balance,
+            'balanceText' => TokensUtil::formatChinese($balance),
+        ];
+    }
 
     #[
         Action,
