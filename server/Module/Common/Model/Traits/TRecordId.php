@@ -25,12 +25,12 @@ trait TRecordId
 
     public static function encodeId(int $id): string
     {
-        return (new Hashids(self::__getSalt(), 8))->encode($id);
+        return (new Hashids(self::__getSalt(), 8, self::__getAlphabet()))->encode($id);
     }
 
     public static function decodeId(string $id): int
     {
-        $result = (new Hashids(self::__getSalt(), 8))->decode($id);
+        $result = (new Hashids(self::__getSalt(), 8, self::__getAlphabet()))->decode($id);
         if (!$result)
         {
             throw new \InvalidArgumentException('Invalid id');
@@ -42,5 +42,10 @@ trait TRecordId
     public static function __getSalt(): string
     {
         return static::__getRealClassName() . ':' . Config::get('@app.ai.idSalt');
+    }
+
+    public static function __getAlphabet(): string
+    {
+        return 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     }
 }

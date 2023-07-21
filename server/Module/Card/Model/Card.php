@@ -24,6 +24,11 @@ class Card extends CardBase
 {
     use TRecordId;
 
+    public static function __getAlphabet(): string
+    {
+        return 'abcdefghijklmnopqrstuvwxyz1234567890';
+    }
+
     /**
      * 创建时间.
      * create_time.

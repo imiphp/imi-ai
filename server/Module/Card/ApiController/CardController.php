@@ -52,6 +52,6 @@ class CardController extends HttpController
         $this->vCodeService->autoCheck($vcodeToken, $vcode);
 
         $memberSession = MemberUtil::getMemberSession();
-        $this->cardService->activation($cardId, $memberSession->getIntMemberId());
+        $this->cardService->activation(strtolower($cardId), $memberSession->getIntMemberId());
     }
 }
