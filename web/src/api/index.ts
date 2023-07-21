@@ -4,6 +4,7 @@ import { decodeSecureField, get, post } from '@/utils/request'
 export * from './auth'
 export * from './embedding'
 export * from './vcode'
+export * from './card'
 
 export function fetchChatAPI(
   prompt: string,

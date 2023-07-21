@@ -76,6 +76,15 @@ const routes: RouteRecordRaw[] = [
           title: '验证注册邮箱',
         },
       },
+      // 卡包
+      {
+        path: '/card/',
+        name: 'Card',
+        component: () => import('@/views/card/index.vue'),
+        meta: {
+          title: '我的卡包',
+        },
+      },
     ],
   },
 

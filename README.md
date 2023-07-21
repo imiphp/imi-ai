@@ -250,6 +250,8 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | 名称 | 默认值 | 说明 |
 |-|-|-|
 | registerGiftTokens | `0` | 注册赠送余额（Tokens） |
+| activationFailedMaxCount | `5` | 激活失败最大次数 |
+| activationFailedWaitTime | `900` | 激活失败超过最大次数的等待时间，单位：秒 |
 
 > 暂时需要手动到 Redis 中修改，后续将开发管理后台可以图形化配置。
 

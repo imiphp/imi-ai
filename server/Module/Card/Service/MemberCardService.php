@@ -37,6 +37,20 @@ class MemberCardService
                                   ->sum('amount');
     }
 
+    public function list(int $memberId, ?bool $expired = null, int $page = 1, int $limit = 15): array
+    {
+        $query = Card::query()->where('member_id', '=', $memberId);
+        if (null !== $expired)
+        {
+            $query->where('expire_time', $expired ? '<=' : '>', time());
+        }
+
+        return $query->orderRaw('expire_time = 0')
+                     ->order('expire_time')
+                     ->paginate($page, $limit)
+                     ->toArray();
+    }
+
     /**
      * @return Card[]
      */

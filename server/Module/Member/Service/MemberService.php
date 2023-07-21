@@ -9,6 +9,7 @@ use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Member;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
+use Imi\Validate\ValidatorHelper;
 
 class MemberService
 {
@@ -71,5 +72,31 @@ class MemberService
         }
 
         return $record;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function queryIdsBySearch(string $queryString): array
+    {
+        $query = Member::query();
+        if (ValidatorHelper::int($queryString))
+        {
+            if (ValidatorHelper::phone($queryString))
+            {
+                $query->where('phone', '=', (int) $queryString);
+            }
+            else
+            {
+                return [(int) $queryString];
+            }
+        }
+        elseif (ValidatorHelper::email($queryString))
+        {
+            $query->where('email_hash', '=', $this->emailAuthService->hash($queryString))
+                  ->where('email', '=', $queryString);
+        }
+
+        return $query->column('id');
     }
 }

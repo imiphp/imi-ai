@@ -8,12 +8,14 @@ use app\Module\Card\Model\Base\CardDetailBase;
 use app\Module\Common\Model\Traits\TRecordId;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\Serializables;
 
 /**
  * 卡明细.
  *
  * @Inherit
  */
+#[Serializables(mode: 'deny', fields: ['id', 'memberId'])]
 class CardDetail extends CardDetailBase
 {
     use TRecordId;

@@ -37,4 +37,42 @@ class CardConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 激活失败最大次数.
+     */
+    #[Column]
+    public int $activationFailedMaxCount = 5;
+
+    public function getActivationFailedMaxCount(): int
+    {
+        return $this->activationFailedMaxCount;
+    }
+
+    public function setActivationFailedMaxCount(int $activationFailedMaxCount): self
+    {
+        $this->activationFailedMaxCount = $activationFailedMaxCount;
+
+        return $this;
+    }
+
+    /**
+     * 激活失败超过最大次数的等待时间.
+     *
+     * 单位：秒
+     */
+    #[Column]
+    public int $activationFailedWaitTime = 900;
+
+    public function getActivationFailedWaitTime(): int
+    {
+        return $this->activationFailedWaitTime;
+    }
+
+    public function setActivationFailedWaitTime(int $activationFailedWaitTime): self
+    {
+        $this->activationFailedWaitTime = $activationFailedWaitTime;
+
+        return $this;
+    }
 }

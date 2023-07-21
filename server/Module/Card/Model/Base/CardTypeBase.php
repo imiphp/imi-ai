@@ -18,10 +18,11 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.name", default="tb_card_type"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int(20) unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `expire_seconds` int(10) unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`),   KEY `status` (`enable`,`create_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
+ * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int(20) unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `amount` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '初始余额',   `expire_seconds` int(10) unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`),   KEY `status` (`enable`,`create_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
  *
  * @property int|null    $id
  * @property string|null $name          名称
+ * @property int|null    $amount        初始余额
  * @property int|null    $expireSeconds 激活后增加的有效时长，单位：秒
  * @property bool|null   $enable        是否启用
  * @property bool|null   $system        系统内置
@@ -98,6 +99,36 @@ abstract class CardTypeBase extends Model
             throw new \InvalidArgumentException('The maximum length of $name is 32');
         }
         $this->name = null === $name ? null : (string) $name;
+
+        return $this;
+    }
+
+    /**
+     * 初始余额.
+     * amount.
+     *
+     * @Column(name="amount", type="bigint", length=20, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $amount = 0;
+
+    /**
+     * 获取 amount - 初始余额.
+     */
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    /**
+     * 赋值 amount - 初始余额.
+     *
+     * @param int|null $amount amount
+     *
+     * @return static
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = null === $amount ? null : (int) $amount;
 
         return $this;
     }

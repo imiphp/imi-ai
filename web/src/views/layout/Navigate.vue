@@ -88,6 +88,20 @@ const rightMenuOptions: Ref<any> = ref([
             RouterLink,
             {
               to: {
+                name: 'Card',
+              },
+            },
+            { default: () => '我的卡包' },
+          ),
+        key: 'Card',
+        show: logined,
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
                 name: 'Login',
               },
             },

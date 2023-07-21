@@ -24,9 +24,25 @@ class CardTypeService
     }
 
     #[Cacheable(name: 'redisCacheSerialize', key: 'card:type:{memberId}', ttl: 60)]
+    public function getArray(int $id): array
+    {
+        return $this->getNoCache($id)->toArray();
+    }
+
     public function get(int $id): CardType
     {
-        return $this->getNoCache($id);
+        return CardType::newInstance($this->getArray($id));
+    }
+
+    public function list(?bool $enable = null, int $page = 1, int $limit = 15): array
+    {
+        $query = CardType::query();
+        if (null !== $enable)
+        {
+            $query->where('enable', '=', $enable);
+        }
+
+        return $query->paginate($page, $limit)->toArray();
     }
 
     public function create(string $name, int $expireSeconds, bool $enable = true, bool $system = false, ?int $id = null): CardType

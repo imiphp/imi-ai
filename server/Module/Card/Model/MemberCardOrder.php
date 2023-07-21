@@ -15,7 +15,7 @@ use Imi\Model\Annotation\Serializables;
  *
  * @Inherit
  */
-#[Serializables(mode: 'deny', fields: ['detailIds'])]
+#[Serializables(mode: 'deny', fields: ['id', 'detailIds', 'memberId'])]
 class MemberCardOrder extends MemberCardOrderBase
 {
     use TRecordId;
