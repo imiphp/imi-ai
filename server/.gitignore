@@ -13,3 +13,4 @@ composer.lock
 /test.php.test
 /vendor
 /.env
+resource/jwt/*.pem
