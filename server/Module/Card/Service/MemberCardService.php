@@ -52,7 +52,7 @@ class MemberCardService
     }
 
     /**
-     * @return Card[]
+     * @return array<array{id:int,leftAmount:int}>
      */
     public function getMemberCardItems(int $memberId, int $amount, int $time = 0, int $limit = 10): array
     {
@@ -104,16 +104,16 @@ class MemberCardService
         {
             foreach ($items as $item)
             {
-                if ($leftAmount > $item->leftAmount)
+                if ($leftAmount > $item['leftAmount'])
                 {
-                    $deductAmount = $item->leftAmount;
+                    $deductAmount = $item['leftAmount'];
                 }
                 else
                 {
                     $deductAmount = $leftAmount;
                 }
                 $leftAmount -= $deductAmount;
-                $detail = $this->cardService->change($item->id, OperationType::PAY, -$deductAmount, $businessType, $businessId, 0, $time);
+                $detail = $this->cardService->change($item['id'], OperationType::PAY, -$deductAmount, $businessType, $businessId, 0, $time);
                 $detailIds[] = $detail->id;
             }
             if ($leftAmount < 0)
