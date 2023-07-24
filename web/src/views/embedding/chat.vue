@@ -192,20 +192,19 @@ async function fetchStream() {
             try {
               const chunk = responseText.substring(lastIndex, currentIndex)
               const data = JSON.parse(chunk.substring('data:'.length))
-              if (data.content)
+
+              if (data.content) {
                 data.content = decodeSecureField(data.content)
-
-              if (!data.finishReason) {
-                if (currentChatReply.value)
-                  currentChatReply.value.message = lastText += (data.content ?? '')
+                if (data.content) {
+                  if (currentChatReply.value)
+                    currentChatReply.value.message = lastText += (data.content ?? '')
+                }
+                if (data.finishReason === 'length') {
+                  lastText = data.content
+                  return fetchChatAPIOnce()
+                }
+                scrollToBottomIfAtBottom()
               }
-
-              if (data.finishReason === 'length') {
-                lastText = data.content
-                return fetchChatAPIOnce()
-              }
-
-              scrollToBottomIfAtBottom()
             }
             catch (error) {
             //

@@ -12,6 +12,7 @@ use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
 use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
+use Imi\Log\Log;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Message\Emitter\SseEmitter;
 use Imi\Server\Http\Message\Emitter\SseMessageEvent;
@@ -59,17 +60,28 @@ class OpenAIController extends HttpController
             protected function task(): void
             {
                 $handler = $this->getHandler();
-                foreach ($this->openAIService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
+                try
                 {
-                    if (isset($data['content']))
+                    foreach ($this->openAIService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
                     {
-                        $data['content'] = SecureFieldUtil::encode($data['content']);
+                        if (isset($data['content']))
+                        {
+                            $data['content'] = SecureFieldUtil::encode($data['content']);
+                        }
+                        // @phpstan-ignore-next-line
+                        if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
+                        {
+                            break;
+                        }
                     }
-                    // @phpstan-ignore-next-line
-                    if (!$handler->send((string) new SseMessageEvent(json_encode($data))))
-                    {
-                        break;
-                    }
+                }
+                catch (\Throwable $th)
+                {
+                    Log::error($th);
+                    $handler->send((string) new SseMessageEvent(json_encode([
+                        'content'      => SecureFieldUtil::encode('Stream ERROR'),
+                        'finishReason' => 'error',
+                    ])));
                 }
             }
         });
