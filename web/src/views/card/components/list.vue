@@ -22,6 +22,7 @@ const createColumns = (): DataTableColumns<Card.Card> => {
     {
       title: '余额/面额',
       key: 'amount',
+      minWidth: 250,
       render(row) {
         if (row.type === 1) {
           return row.leftAmountText
@@ -41,7 +42,7 @@ const createColumns = (): DataTableColumns<Card.Card> => {
           }
 
           return h(NProgress, {
-            indicatorPlacement: 'inside',
+            // indicatorPlacement: 'inside', // TODO：naive-ui bug，下个版本修复
             color,
             percentage: percent.toFixed(2),
             status,
