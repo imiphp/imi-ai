@@ -26,7 +26,13 @@ class MemberCardService
     public function getBalance(int $memberId): int
     {
         return (int) Card::query()->where('member_id', '=', $memberId)
-                                  ->sum('amount');
+                                    ->whereBrackets(function () {
+                                        return [
+                                            new Where('expire_time', '=', 0),
+                                            new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                        ];
+                                    })
+                                    ->sum('left_amount');
     }
 
     #[
@@ -35,8 +41,14 @@ class MemberCardService
     public function getBalanceWithLock(int $memberId): int
     {
         return (int) Card::query()->where('member_id', '=', $memberId)
-                                  ->lock(MysqlLock::FOR_UPDATE)
-                                  ->sum('amount');
+                                    ->whereBrackets(function () {
+                                        return [
+                                            new Where('expire_time', '=', 0),
+                                            new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                        ];
+                                    })
+                                    ->lock(MysqlLock::FOR_UPDATE)
+                                    ->sum('left_amount');
     }
 
     public function list(int $memberId, ?bool $expired = null, int $page = 1, int $limit = 15): array
