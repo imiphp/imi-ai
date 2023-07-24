@@ -14,7 +14,9 @@ use Imi\Aop\Annotation\Inject;
 use Imi\Cache\Annotation\Cacheable;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Db;
+use Imi\Db\Mysql\Consts\LogicalOperator;
 use Imi\Db\Mysql\Query\Lock\MysqlLock;
+use Imi\Db\Query\Where\Where;
 
 class MemberCardService
 {
@@ -42,12 +44,28 @@ class MemberCardService
         $query = Card::query()->where('member_id', '=', $memberId);
         if (null !== $expired)
         {
-            $query->where('expire_time', $expired ? '<=' : '>', time());
+            if ($expired)
+            {
+                $query->whereBetween('expire_time', 1, time())
+                      ->order('expire_time', 'desc');
+            }
+            else
+            {
+                $query->whereBrackets(function () {
+                    return [
+                        new Where('expire_time', '=', 0),
+                        new Where('expire_time', '>', time(), LogicalOperator::OR),
+                    ];
+                })->order('expire_time', 'asc');
+            }
+        }
+        else
+        {
+            $query->orderRaw('expire_time = 0')
+                  ->order('expire_time');
         }
 
-        return $query->orderRaw('expire_time = 0')
-                     ->order('expire_time')
-                     ->paginate($page, $limit)
+        return $query->paginate($page, $limit)
                      ->toArray();
     }
 

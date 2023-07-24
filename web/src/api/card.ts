@@ -17,7 +17,7 @@ export async function cardList(
   const response = await get({
     url: '/card/list',
     data: {
-      expired,
+      expired: expired ? 1 : 0,
       page,
       limit,
     },

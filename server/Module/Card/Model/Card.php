@@ -71,4 +71,12 @@ class Card extends CardBase
     {
         return TokensUtil::formatChinese($this->leftAmount);
     }
+
+    #[Column(virtual: true)]
+    protected ?bool $expired = null;
+
+    public function getExpired(): ?bool
+    {
+        return $this->expireTime > 0 && $this->expireTime <= time();
+    }
 }

@@ -3,6 +3,12 @@ import { NDataTable } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { onMounted, reactive, ref } from 'vue'
 import { cardList } from '@/api'
+
+interface Props {
+  expired?: boolean
+}
+const props = defineProps<Props>()
+
 const createColumns = (): DataTableColumns<Card.Card> => {
   return [
     {
@@ -14,12 +20,11 @@ const createColumns = (): DataTableColumns<Card.Card> => {
       key: 'cardType.name',
     },
     {
-      title: '初始金额',
-      key: 'amountText',
-    },
-    {
-      title: '实时余额',
-      key: 'leftAmountText',
+      title: '余额/面额',
+      key: 'amount',
+      render(row) {
+        return `${row.leftAmountText}/${row.amountText}`
+      },
     },
     {
       title: '激活时间',
@@ -32,7 +37,7 @@ const createColumns = (): DataTableColumns<Card.Card> => {
       title: '过期时间',
       key: 'expireTime',
       render(row) {
-        return row.expireTime > 0 ? new Date(row.expireTime * 1000).toLocaleString() : '永久有效'
+        return row.expireTime > 0 ? (new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')) : '永久有效'
       },
     },
   ]
@@ -40,7 +45,6 @@ const createColumns = (): DataTableColumns<Card.Card> => {
 
 const columns = createColumns()
 const tableLoading = ref(false)
-const expired = ref<boolean | null>(null)
 const data = ref<Card.Card[]>([])
 const pagination = reactive({
   page: 1,
@@ -60,7 +64,7 @@ const pagination = reactive({
 async function loadList() {
   tableLoading.value = true
   try {
-    const response = await cardList(expired.value, pagination.page, pagination.pageSize)
+    const response = await cardList(props.expired, pagination.page, pagination.pageSize)
     data.value = response.list
     pagination.pageCount = response.pageCount
     pagination.itemCount = response.total

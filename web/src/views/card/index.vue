@@ -24,10 +24,13 @@ watch(success, (val) => {
         pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
       >
         <NTabPane name="list" tab="卡包列表">
-          <CardList />
+          <CardList :expired="false" />
         </NTabPane>
         <NTabPane name="activation" tab="激活卡">
           <CardActivation v-model:success="success" />
+        </NTabPane>
+        <NTabPane name="expiredList" tab="过期卡包">
+          <CardList :expired="true" />
         </NTabPane>
       </NTabs>
     </NCard>
