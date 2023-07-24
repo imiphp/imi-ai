@@ -116,7 +116,7 @@ class EmbeddingConfig extends RedisModel
      * 模型名称 => [输入倍率, 输出倍率]
      */
     #[Column(type: 'json')]
-    public array $embeddingModelPrice = [
+    protected array $embeddingModelPrice = [
         'text-embedding-ada-002' => [0.05, 0.05],
     ];
 
@@ -138,7 +138,7 @@ class EmbeddingConfig extends RedisModel
      * 模型名称 => [输入倍率, 输出倍率]
      */
     #[Column(type: 'json')]
-    public array $chatModelPrice = [
+    protected array $chatModelPrice = [
         'gpt-3.5-turbo'     => [0.75, 1],
         'gpt-3.5-turbo-16k' => [1.5, 2],
         'gpt-4'             => [150, 3],

@@ -26,7 +26,7 @@ class MemberConfig extends RedisModel
      * 启用邮箱注册.
      */
     #[Column]
-    public bool $emailRegister = true;
+    protected bool $emailRegister = true;
 
     public function getEmailRegister(): bool
     {
@@ -46,7 +46,7 @@ class MemberConfig extends RedisModel
      * 单位：秒.
      */
     #[Column]
-    public int $registerCodeTTL = 3600;
+    protected int $registerCodeTTL = 3600;
 
     public function getRegisterCodeTTL(): int
     {
@@ -64,7 +64,7 @@ class MemberConfig extends RedisModel
      * 注册邮件标题.
      */
     #[Column]
-    public string $registerEmailTitle = 'imi AI 邮箱注册';
+    protected string $registerEmailTitle = 'imi AI 邮箱注册';
 
     public function getRegisterEmailTitle(): string
     {
@@ -82,7 +82,7 @@ class MemberConfig extends RedisModel
      * 注册邮件内容.
      */
     #[Column]
-    public string $registerEmailContent = <<<'HTML'
+    protected string $registerEmailContent = <<<'HTML'
     <p>验证码：<span style="color: #ff0000;">{code}</span></p>
     <p><a href="{url}" target="_blank">点我验证</a></p>
     HTML;
@@ -103,7 +103,7 @@ class MemberConfig extends RedisModel
      * 注册邮件是否html.
      */
     #[Column]
-    public bool $registerEmailIsHtml = true;
+    protected bool $registerEmailIsHtml = true;
 
     public function getRegisterEmailIsHtml(): bool
     {
@@ -123,7 +123,7 @@ class MemberConfig extends RedisModel
      * 单位：秒.
      */
     #[Column]
-    public int $tokenExpires = 30 * 86400;
+    protected int $tokenExpires = 30 * 86400;
 
     public function getTokenExpires(): int
     {

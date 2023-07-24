@@ -26,7 +26,7 @@ class EmailConfig extends RedisModel
      * 发信邮箱.
      */
     #[Column]
-    public string $fromAddress = '';
+    protected string $fromAddress = '';
 
     public function getFromAddress(): string
     {
@@ -44,7 +44,7 @@ class EmailConfig extends RedisModel
      * 发信人.
      */
     #[Column]
-    public string $fromName = '';
+    protected string $fromName = '';
 
     public function getFromName(): string
     {
@@ -62,7 +62,7 @@ class EmailConfig extends RedisModel
      * SMTP服务器地址.
      */
     #[Column]
-    public string $host = '';
+    protected string $host = '';
 
     public function getHost(): string
     {
@@ -80,7 +80,7 @@ class EmailConfig extends RedisModel
      * SMTP服务器端口.
      */
     #[Column]
-    public int $port = 25;
+    protected int $port = 25;
 
     public function getPort(): int
     {
@@ -98,7 +98,7 @@ class EmailConfig extends RedisModel
      * SMTP安全协议.
      */
     #[Column]
-    public string $secure = '';
+    protected string $secure = '';
 
     public function getSecure(): string
     {
@@ -116,7 +116,7 @@ class EmailConfig extends RedisModel
      * 启用验证.
      */
     #[Column]
-    public bool $auth = true;
+    protected bool $auth = true;
 
     public function getAuth(): bool
     {
@@ -134,7 +134,7 @@ class EmailConfig extends RedisModel
      * SMTP用户名.
      */
     #[Column]
-    public string $username = '';
+    protected string $username = '';
 
     public function getUsername(): string
     {
@@ -152,7 +152,7 @@ class EmailConfig extends RedisModel
      * SMTP密码.
      */
     #[Column]
-    public string $password = '';
+    protected string $password = '';
 
     public function getPassword(): string
     {

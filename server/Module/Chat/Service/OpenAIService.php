@@ -139,7 +139,7 @@ class OpenAIService
         }
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
-        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, ChatConfig::__getConfig()->modelPrice);
+        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, ChatConfig::__getConfig()->getModelPrice());
         $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;

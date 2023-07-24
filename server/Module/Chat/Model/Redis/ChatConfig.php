@@ -26,7 +26,7 @@ class ChatConfig extends RedisModel
      * 模型名称 => [输入倍率, 输出倍率]
      */
     #[Column(type: 'json')]
-    public array $modelPrice = [
+    protected array $modelPrice = [
         'gpt-3.5-turbo'     => [0.75, 1],
         'gpt-3.5-turbo-16k' => [1.5, 2],
         'gpt-4'             => [150, 3],

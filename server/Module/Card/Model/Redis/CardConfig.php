@@ -24,7 +24,7 @@ class CardConfig extends RedisModel
      * 注册赠送余额.
      */
     #[Column]
-    public int $registerGiftAmount = 0;
+    protected int $registerGiftAmount = 0;
 
     public function getRegisterGiftTokens(): int
     {
@@ -42,7 +42,7 @@ class CardConfig extends RedisModel
      * 激活失败最大次数.
      */
     #[Column]
-    public int $activationFailedMaxCount = 5;
+    protected int $activationFailedMaxCount = 5;
 
     public function getActivationFailedMaxCount(): int
     {
@@ -62,7 +62,7 @@ class CardConfig extends RedisModel
      * 单位：秒
      */
     #[Column]
-    public int $activationFailedWaitTime = 900;
+    protected int $activationFailedWaitTime = 900;
 
     public function getActivationFailedWaitTime(): int
     {

@@ -26,14 +26,14 @@ class VCodeConfig extends RedisModel
      * 单位：秒.
      */
     #[Column]
-    public int $ttl = 300;
+    protected int $ttl = 300;
 
-    public function getttl(): int
+    public function getTTL(): int
     {
         return $this->ttl;
     }
 
-    public function setttl(int $ttl): self
+    public function setTTL(int $ttl): self
     {
         $this->ttl = $ttl;
 

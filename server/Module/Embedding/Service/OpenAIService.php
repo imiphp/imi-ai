@@ -186,7 +186,7 @@ class OpenAIService
             $chatInputTokens = $chatOutputTokens = 0;
         }
         $endTime = (int) (microtime(true) * 1000);
-        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->chatModelPrice);
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->getChatModelPrice());
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
         $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;
