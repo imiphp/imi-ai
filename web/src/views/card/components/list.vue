@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { NDataTable } from 'naive-ui'
+import { NDataTable, NProgress } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { onMounted, reactive, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { cardList } from '@/api'
 
 interface Props {
@@ -23,7 +23,32 @@ const createColumns = (): DataTableColumns<Card.Card> => {
       title: '余额/面额',
       key: 'amount',
       render(row) {
-        return `${row.leftAmountText}/${row.amountText}`
+        if (row.type === 1) {
+          return row.leftAmountText
+        }
+        else {
+          const percent = row.leftAmount / row.amount * 100
+          let status = 'default'
+          let color
+          if (row.expired) {
+            color = 'gray'
+          }
+          else {
+            if (percent <= 60)
+              status = 'warning'
+            else if (percent <= 20)
+              status = 'error'
+          }
+
+          return h(NProgress, {
+            indicatorPlacement: 'inside',
+            color,
+            percentage: percent.toFixed(2),
+            status,
+          } as any, {
+            default: () => `${row.leftAmountText}/${row.amountText}`,
+          })
+        }
       },
     },
     {

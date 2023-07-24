@@ -23,7 +23,7 @@ const loading = ref(false)
             Chanzhaoyu/chatgpt-web
           </a> 开发，且本项目开源协议与原项目都是 MIT 协议，在遵循开源协议的情况下，你可以进行二开和商业应用！
         </p>
-        <p>
+        <!-- <p>
           如果你觉得此项目对你有帮助，请在 <a
             class="text-blue-600 dark:text-blue-500"
             href="https://github.com/imiphp/imi-ai"
@@ -31,7 +31,7 @@ const loading = ref(false)
           >
             Github
           </a> 帮我点个 Star 或者给予一点赞助，谢谢！
-        </p>
+        </p> -->
       </div>
     </div>
   </NSpin>

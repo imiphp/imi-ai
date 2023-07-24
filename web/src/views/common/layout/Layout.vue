@@ -20,7 +20,7 @@ const getContainerClass = computed(() => {
 </script>
 
 <template>
-  <div class="h-full dark:bg-[#24272e] transition-all" :class="[isMobile ? 'p-0' : 'p-4']">
+  <div class="h-full dark:bg-[#24272e] transition-all" :class="[isMobile ? 'p-0' : 'p-0']">
     <div class="h-full overflow-hidden" :class="getMobileClass">
       <NLayout position="absolute">
         <NLayoutHeader>

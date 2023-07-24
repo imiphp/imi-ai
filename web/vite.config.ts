@@ -3,10 +3,18 @@ import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
     vue(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          ...env,
+        },
+      },
+    }),
     env.VITE_GLOB_APP_PWA === 'true' && VitePWA({
       injectRegister: 'auto',
       manifest: {

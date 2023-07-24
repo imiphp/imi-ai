@@ -26,7 +26,7 @@ watch(success, (val) => {
         <NTabPane name="list" tab="卡包列表">
           <CardList :expired="false" />
         </NTabPane>
-        <NTabPane name="activation" tab="激活卡">
+        <NTabPane name="activation" tab="卡号激活">
           <CardActivation v-model:success="success" />
         </NTabPane>
         <NTabPane name="expiredList" tab="过期卡包">

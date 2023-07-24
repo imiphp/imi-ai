@@ -45,6 +45,8 @@ const loading = ref(false)
 const vcode = ref<Ref | null>(null)
 const inputVcode = ref<Ref | null>(null)
 
+const buyCardText = import.meta.env.VITE_BUY_CARD_TEXT
+
 async function handleActivation() {
   form.value?.validate().then(async () => {
     try {
@@ -80,5 +82,6 @@ async function handleActivation() {
         激活
       </NButton>
     </NForm>
+    <p class="leading-8" v-text="buyCardText" />
   </div>
 </template>
