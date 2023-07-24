@@ -27,7 +27,7 @@ class LoginRequiredInject
     ]
     public function inject(JoinPoint $joinPoint): void
     {
-        $loginRequired = RequestContext::getBean(MemberSessionService::class);
-        $loginRequired->checkLogin();
+        $memberSession = RequestContext::getBean(MemberSessionService::class);
+        $memberSession->checkLogin();
     }
 }

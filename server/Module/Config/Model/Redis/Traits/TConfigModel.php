@@ -7,6 +7,8 @@ namespace app\Module\Config\Model\Redis\Traits;
 use Imi\App;
 use Imi\Cache\CacheManager;
 
+use function Yurun\Swoole\Coroutine\goWait;
+
 trait TConfigModel
 {
     public static function __getConfigNoCache(): static
@@ -30,6 +32,11 @@ trait TConfigModel
         CacheManager::set($cacheName, $key, $config, static::__getCacheTtl());
 
         return $config;
+    }
+
+    public static function __getConfigAsync(): static
+    {
+        return goWait(fn () => self::__getConfig(), 30, true);
     }
 
     public static function __getCacheName(): string

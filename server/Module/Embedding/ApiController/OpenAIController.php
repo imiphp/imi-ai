@@ -6,6 +6,7 @@ namespace app\Module\Embedding\ApiController;
 
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
+use app\Module\Embedding\Model\Redis\EmbeddingConfig;
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
 use app\Module\Member\Annotation\LoginRequired;
@@ -14,6 +15,8 @@ use app\Util\IPUtil;
 use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Log\Log;
+use Imi\RateLimit\Exception\RateLimitException;
+use Imi\RateLimit\RateLimiter;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Message\Emitter\SseEmitter;
 use Imi\Server\Http\Message\Emitter\SseMessageEvent;
@@ -22,6 +25,8 @@ use Imi\Server\Http\Route\Annotation\Action;
 use Imi\Server\Http\Route\Annotation\Controller;
 use Imi\Server\Http\Route\Annotation\Route;
 use Imi\Util\Http\Consts\RequestMethod;
+
+use function Yurun\Swoole\Coroutine\goWait;
 
 #[Controller(prefix: '/embedding/openai/')]
 class OpenAIController extends HttpController
@@ -189,6 +194,13 @@ class OpenAIController extends HttpController
                 $handler = $this->getHandler();
                 try
                 {
+                    // 限流检测
+                    goWait(function () {
+                        $config = EmbeddingConfig::__getConfig();
+
+                        return RateLimiter::limit('rateLimit:embedding:chat:' . $this->memberId, $config->getChatRateLimitAmount(), unit: $config->getChatRateLimitUnit());
+                    }, 30, true);
+
                     foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
                     {
                         if (isset($data['content']))
@@ -201,6 +213,14 @@ class OpenAIController extends HttpController
                             break;
                         }
                     }
+                }
+                catch (RateLimitException $rateLimitException)
+                {
+                    Log::error($rateLimitException);
+                    $handler->send((string) new SseMessageEvent(json_encode([
+                        'content'      => SecureFieldUtil::encode('限流，请稍后再试'),
+                        'finishReason' => 'rateLimit',
+                    ])));
                 }
                 catch (\Throwable $th)
                 {

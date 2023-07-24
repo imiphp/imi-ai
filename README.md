@@ -24,11 +24,6 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 ## 功能列表
 
-### 基础
-
-* [x] 界面多语言
-* [x] 界面主题
-
 ### 用户
 
 * [x] 用户邮箱注册和登录
@@ -43,6 +38,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 * [x] 渲染 LaTeX 公式
 * [x] 保存消息到本地图片
 * [x] 提示词模型商店
+* [x] 支持限流
 
 ### 模型训练
 
@@ -56,6 +52,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 * [ ] 支持解析 doc/docx 文件
 * [ ] 支持解析 pdf 文件
 * [ ] 消息队列异步处理训练任务
+* [x] 支持对话限流
 
 ### AI 生图
 
@@ -141,6 +138,8 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 | 名称 | 默认值 | 说明 |
 |-|-|-|
 | modelPrice | 详见表格下方 | 模型定价 |
+| rateLimitUnit | `second` | 限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year |
+| rateLimitAmount | `1` | 限流数量 |
 
 **modelPrice：**
 
@@ -175,6 +174,8 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | chatStreamSections | `5` | 聊天最多携带段落数量 |
 | embeddingModelPrice | 详见表格下方 | 训练模型定价 |
 | chatModelPrice | 详见表格下方 | 聊天模型定价 |
+| chatRateLimitUnit | `second` | 对话限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year |
+| chatRateLimitAmount | `1` | 对话限流数量 |
 
 **embeddingModelPrice：**
 

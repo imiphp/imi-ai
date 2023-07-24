@@ -13,8 +13,10 @@ use Imi\Aop\Annotation\Inject;
 use Imi\JWT\Exception\InvalidAuthorizationException;
 use Imi\JWT\Exception\InvalidTokenException;
 use Imi\Log\Log;
-use Imi\RequestContext;
+use Imi\Server\Http\Message\Proxy\RequestProxyObject;
 use Imi\Util\Http\Consts\RequestHeader;
+
+use function Yurun\Swoole\Coroutine\goWait;
 
 class MemberSessionService
 {
@@ -56,36 +58,37 @@ class MemberSessionService
      */
     public function init()
     {
-        try
-        {
-            /** @var \Imi\Server\Http\Message\Request $request */
-            $request = RequestContext::get('request');
-            $authorization = $request->getHeaderLine(RequestHeader::AUTHORIZATION);
-            if (!str_contains($authorization, ' '))
+        $request = RequestProxyObject::__getProxyInstance();
+        goWait(function () use ($request) {
+            try
             {
-                throw new InvalidAuthorizationException('Invalid Authorization');
-            }
-            [$bearer, $token] = explode(' ', $authorization, 2);
-            if (!$token)
-            {
-                return;
-            }
+                $authorization = $request->getHeaderLine(RequestHeader::AUTHORIZATION);
+                if (!str_contains($authorization, ' '))
+                {
+                    throw new InvalidAuthorizationException('Invalid Authorization');
+                }
+                [$bearer, $token] = explode(' ', $authorization, 2);
+                if (!$token)
+                {
+                    return;
+                }
 
-            $data = $this->authService->verifyToken($token);
+                $data = $this->authService->verifyToken($token);
 
-            $memberId = $data->claims()->get('data')['memberId'] ?? null;
-            if (null === $memberId)
-            {
-                throw new InvalidTokenException('Invalid token memberId');
+                $memberId = $data->claims()->get('data')['memberId'] ?? null;
+                if (null === $memberId)
+                {
+                    throw new InvalidTokenException('Invalid token memberId');
+                }
+                $this->memberId = $memberId;
+                $this->isLogin = true;
             }
-            $this->memberId = $memberId;
-            $this->isLogin = true;
-        }
-        catch (InvalidAuthorizationException|InvalidTokenException $e)
-        {
-            Log::error($e);
-            throw new MemberNoLoginException();
-        }
+            catch (InvalidAuthorizationException|InvalidTokenException $e)
+            {
+                Log::error($e);
+                throw new MemberNoLoginException();
+            }
+        }, 30, true);
     }
 
     /**

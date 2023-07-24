@@ -44,4 +44,42 @@ class ChatConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 限流单位.
+     *
+     * 支持：microsecond、millisecond、second、minute、hour、day、week、month、year
+     */
+    #[Column]
+    protected string $rateLimitUnit = 'second';
+
+    public function getRateLimitUnit(): string
+    {
+        return $this->rateLimitUnit;
+    }
+
+    public function setRateLimitUnit(string $rateLimitUnit): self
+    {
+        $this->rateLimitUnit = $rateLimitUnit;
+
+        return $this;
+    }
+
+    /**
+     * 限流数量.
+     */
+    #[Column]
+    protected int $rateLimitAmount = 1;
+
+    public function getRateLimitAmount(): int
+    {
+        return $this->rateLimitAmount;
+    }
+
+    public function setRateLimitAmount(int $rateLimitAmount): self
+    {
+        $this->rateLimitAmount = $rateLimitAmount;
+
+        return $this;
+    }
 }

@@ -101,7 +101,7 @@ class OpenAIService
         {
             throw new \RuntimeException('AI 已回答完毕');
         }
-        $config = EmbeddingConfig::__getConfig();
+        $config = EmbeddingConfig::__getConfigAsync();
         $model = 'gpt-3.5-turbo';
         $embeddingTokens = $embeddingPayTokens = 0;
         $list = goWait(function () use ($record, $config) {

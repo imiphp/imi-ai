@@ -156,4 +156,41 @@ class EmbeddingConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 对话限流单位.
+     *
+     * 支持：microsecond、millisecond、second、minute、hour、day、week、month、year
+     */
+    #[Column]
+    protected string $chatRateLimitUnit = 'second';
+
+    public function getChatRateLimitUnit(): string
+    {
+        return $this->chatRateLimitUnit;
+    }
+
+    public function setChatRateLimitUnit(string $chatRateLimitUnit): self
+    {
+        $this->chatRateLimitUnit = $chatRateLimitUnit;
+
+        return $this;
+    }
+    /**
+     * 对话限流数量.
+     */
+    #[Column]
+    protected int $chatRateLimitAmount = 1;
+
+    public function getChatRateLimitAmount(): int
+    {
+        return $this->chatRateLimitAmount;
+    }
+
+    public function setChatRateLimitAmount(int $chatRateLimitAmount): self
+    {
+        $this->chatRateLimitAmount = $chatRateLimitAmount;
+
+        return $this;
+    }
 }
