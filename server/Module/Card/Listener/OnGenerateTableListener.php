@@ -13,7 +13,7 @@ use Imi\Event\IEventListener;
 use Imi\Log\Log;
 
 #[Listener(eventName: 'IMI.GENERATE_MODEL.AFTER')]
-class OnGenerateModelListener implements IEventListener
+class OnGenerateTableListener implements IEventListener
 {
     #[Inject]
     protected CardTypeService $cardTypeService;
