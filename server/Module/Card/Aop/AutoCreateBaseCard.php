@@ -38,7 +38,7 @@ class AutoCreateBaseCard
         $card = $service->create(CardTypeService::BASE_CARD_TYPE, $member->id);
         $config = CardConfig::__getConfig();
         // 注册赠送
-        if (($tokens = $config->getRegisterGiftTokens()) > 0)
+        if (($tokens = $config->getRegisterGiftAmount()) > 0)
         {
             $service = App::getBean(MemberCardService::class);
             $service->gift($service->getMemberBaseCardId($card->id), $tokens);

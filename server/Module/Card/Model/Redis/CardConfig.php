@@ -26,12 +26,12 @@ class CardConfig extends RedisModel
     #[Column]
     protected int $registerGiftAmount = 0;
 
-    public function getRegisterGiftTokens(): int
+    public function getRegisterGiftAmount(): int
     {
         return $this->registerGiftAmount;
     }
 
-    public function setRegisterGiftTokens(int $registerGiftAmount): self
+    public function setRegisterGiftAmount(int $registerGiftAmount): self
     {
         $this->registerGiftAmount = $registerGiftAmount;
 
