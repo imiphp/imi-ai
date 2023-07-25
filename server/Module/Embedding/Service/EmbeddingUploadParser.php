@@ -204,14 +204,14 @@ class EmbeddingUploadParser
                 }
                 if ('' !== $this->id)
                 {
-                    $file = goWait(fn () => $this->embeddingService->getFileByName($this->id, $relativeFileName), 30, true);
-                    if ($file)
+                    $fileRecord = goWait(fn () => $this->embeddingService->getFileByName($this->id, $relativeFileName), 30, true);
+                    if ($fileRecord)
                     {
                         if (!$this->override)
                         {
                             continue;
                         }
-                        $this->deductFileSize += $file->fileSize;
+                        $this->deductFileSize += $fileRecord->fileSize;
                     }
                 }
                 $this->totalSize += $size;
@@ -224,7 +224,7 @@ class EmbeddingUploadParser
                     'name'             => $fileName,
                     'relativeFileName' => $relativeFileName,
                     'size'             => $size,
-                    'file'             => $file ?? null,
+                    'file'             => $fileRecord ?? null,
                 ];
             }
         }
