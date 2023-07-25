@@ -19,6 +19,6 @@ class IPUtil
             $request = RequestProxy::__getProxyInstance();
         }
 
-        return $request->getHeaderLine('x-real-ip') ?: $request->getHeaderLine('X-Forwarded-For') ?: $request->getClientAddress()->getAddress();
+        return $request->getHeaderLine('CF-Connecting-IP') ?: $request->getHeaderLine('x-real-ip') ?: $request->getHeaderLine('X-Forwarded-For') ?: $request->getClientAddress()->getAddress();
     }
 }
