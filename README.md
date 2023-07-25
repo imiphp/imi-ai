@@ -103,7 +103,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 jwt 签名需要，必须生成自己的证书！
 
 ```shell
-cd resource/jwt
+cd server/resource/jwt
 openssl genrsa -out pri_key.pem 2048
 openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 ```

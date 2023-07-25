@@ -169,7 +169,9 @@ watch(() => userStore.userInfo, (newValue: UserInfo) => {
 },
 { immediate: true })
 
-async function updateBalance() {
+async function onMouseEnter() {
+  if (!logined.value)
+    return
   const response = await cardInfo()
   balance.value = response.balanceText
 }
@@ -189,7 +191,7 @@ async function updateBalance() {
         </NLayoutSider>
         <NLayoutContent content-style="justify-content: space-between;display: flex;">
           <NMenu v-model:value="selectedKey" class="header-menu" mode="horizontal" :options="menuOptions" />
-          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" @mouseenter="updateBalance" />
+          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" @mouseenter="onMouseEnter" />
         </NLayoutContent>
       </nlayout>
     </NLayoutHeader>
