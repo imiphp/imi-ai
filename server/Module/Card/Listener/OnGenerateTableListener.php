@@ -11,9 +11,8 @@ use Imi\Bean\Annotation\Listener;
 use Imi\Event\EventParam;
 use Imi\Event\IEventListener;
 use Imi\Log\Log;
-use Imi\Model\Cli\Model\Event\Param\AfterGenerateModels;
 
-#[Listener(eventName: AfterGenerateModels::class)]
+#[Listener(eventName: 'IMI.GENERATE_MODEL.AFTER')]
 class OnGenerateModelListener implements IEventListener
 {
     #[Inject]
@@ -21,8 +20,6 @@ class OnGenerateModelListener implements IEventListener
 
     /**
      * 生成模型时判断是否存在基础卡类型，不存在则创建.
-     *
-     * @param AfterGenerateModels $e
      */
     public function handle(EventParam $e): void
     {
