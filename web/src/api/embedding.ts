@@ -146,6 +146,13 @@ export function fetchEmbeddingChatAPIProcess(
   })
 }
 
+export async function embeddingFileTypes(
+) {
+  return await get({
+    url: '/embedding/config/fileTypes',
+  })
+}
+
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name)
 }

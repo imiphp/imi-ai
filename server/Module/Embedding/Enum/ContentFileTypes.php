@@ -7,7 +7,7 @@ namespace app\Module\Embedding\Enum;
 use Imi\Enum\Annotation\EnumItem;
 use Imi\Enum\BaseEnum;
 
-class SupportFileTypes extends BaseEnum
+class ContentFileTypes extends BaseEnum
 {
     #[EnumItem(text: 'txt')]
     public const TXT = 'txt';

@@ -10,6 +10,7 @@ use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Entity;
 use Imi\Model\Annotation\RedisEntity;
 use Imi\Model\RedisModel;
+use Imi\Util\Imi;
 
 #[
     Entity(),
@@ -38,6 +39,14 @@ class EmbeddingConfig extends RedisModel
         return $this;
     }
 
+    #[Column]
+    protected ?string $maxCompressedFileSizeText = null;
+
+    public function getMaxCompressedFileSizeText(): ?string
+    {
+        return Imi::formatByte($this->maxCompressedFileSize);
+    }
+
     /**
      * 单个文件最大尺寸.
      */
@@ -56,6 +65,14 @@ class EmbeddingConfig extends RedisModel
         return $this;
     }
 
+    #[Column]
+    protected ?string $maxSingleFileSizeText = null;
+
+    public function getMaxSingleFileSizeText(): ?string
+    {
+        return Imi::formatByte($this->maxSingleFileSize);
+    }
+
     /**
      * 所有文件最大尺寸.
      */
@@ -72,6 +89,14 @@ class EmbeddingConfig extends RedisModel
         $this->maxTotalFilesSize = $maxTotalFilesSize;
 
         return $this;
+    }
+
+    #[Column]
+    protected ?string $maxTotalFilesSizeText = null;
+
+    public function getMaxTotalFilesSizeText(): ?string
+    {
+        return Imi::formatByte($this->maxTotalFilesSize);
     }
 
     /**

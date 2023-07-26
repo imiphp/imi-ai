@@ -5,6 +5,7 @@ export * from './auth'
 export * from './embedding'
 export * from './vcode'
 export * from './card'
+export * from './config'
 
 export function fetchChatAPI(
   prompt: string,

@@ -7,9 +7,9 @@ namespace app\Module\Embedding\Service;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Util\OpenAI;
+use app\Module\Embedding\Enum\CompressFileTypes;
+use app\Module\Embedding\Enum\ContentFileTypes;
 use app\Module\Embedding\Enum\EmbeddingStatus;
-use app\Module\Embedding\Enum\SupportFileTypes;
-use app\Module\Embedding\Enum\UploadFileTypes;
 use app\Module\Embedding\FileHandler\IFileHandler;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
@@ -139,7 +139,7 @@ class EmbeddingUploadParser
     private function assertFileType(): string
     {
         $ext = pathinfo($this->clientFileName, \PATHINFO_EXTENSION);
-        if (!($this->isCompressedFile = UploadFileTypes::validate($ext)) && !SupportFileTypes::validate($ext))
+        if (!($this->isCompressedFile = CompressFileTypes::validate($ext)) && !ContentFileTypes::validate($ext))
         {
             throw new \RuntimeException(sprintf('Unsupport file %s', $ext));
         }
@@ -193,7 +193,7 @@ class EmbeddingUploadParser
             $this->totalSize = 0;
             $subPathOffset = \strlen($this->extractPath) + 1;
             /** @var FileEnumItem $file */
-            foreach (File::enumFile($this->extractPath, null, SupportFileTypes::getValues()) as $file)
+            foreach (File::enumFile($this->extractPath, null, ContentFileTypes::getValues()) as $file)
             {
                 $fileName = $file->getFullPath();
                 $relativeFileName = ltrim(File::path($this->directory, substr($fileName, $subPathOffset)), '/');
