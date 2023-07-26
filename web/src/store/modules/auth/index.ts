@@ -10,6 +10,7 @@ interface SessionResponse {
 export interface AuthState {
   token: string | undefined
   session: SessionResponse | null
+  loginRedirectUrl?: string
 }
 
 export const useAuthStore = defineStore('auth-store', {
@@ -48,6 +49,20 @@ export const useAuthStore = defineStore('auth-store', {
 
     hasToken() {
       return !!this.token
+    },
+
+    setLoginRedirectUrl(url: string) {
+      this.loginRedirectUrl = url
+    },
+
+    removeLoginRedirectUrl() {
+      this.loginRedirectUrl = undefined
+    },
+
+    getRemoveLoginRedirectUrl() {
+      const url = this.loginRedirectUrl
+      this.loginRedirectUrl = undefined
+      return url
     },
   },
 })

@@ -3,7 +3,8 @@ import type { Ref } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
 import type { MenuOption } from 'naive-ui'
-import { NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu } from 'naive-ui'
+import { NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, useMessage } from 'naive-ui'
+
 import { RouterLink, useRouter } from 'vue-router'
 import { MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
@@ -16,6 +17,7 @@ const { isMobile } = useBasicLayout()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const router = useRouter()
+const message = useMessage()
 
 const balance = ref('0')
 
@@ -157,6 +159,7 @@ watch(
       case 'Logout':
         authStore.removeToken()
         userStore.resetUserInfo()
+        message.success('退出成功')
         router.replace('/')
         break
     }

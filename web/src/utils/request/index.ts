@@ -36,7 +36,9 @@ function http(
       dialogApiFailHandler(res)
 
     if (res.data.code === 10001) {
-      useAuthStore().removeToken()
+      const authStore = useAuthStore()
+      authStore.removeToken()
+      authStore.setLoginRedirectUrl(location.href)
       useUserStore().resetUserInfo()
       window.$router.replace({ name: 'Login' })
     }
