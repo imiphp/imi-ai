@@ -176,13 +176,16 @@ export const useChatStore = defineStore('chat-store', {
         }
       }
 
-      const index = this.chat.findIndex(item => item.id === id)
-      if (index !== -1 && this.chat[index] && this.history[index]) {
+      let index = this.chat.findIndex(item => item.id === id)
+      if (index !== -1 && this.chat[index])
         this.chat[index].data.push(chat)
+
+      index = this.history.findIndex(item => item.id === id)
+      if (index !== -1 && this.history[index]) {
         if (this.history[index].title === 'New Chat')
           this.history[index].title = chat.message
-        this.recordState()
       }
+      this.recordState()
     },
 
     setChatsById(id: string, chats: Chat.Chat[]) {
