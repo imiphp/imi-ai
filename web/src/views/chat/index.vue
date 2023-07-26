@@ -423,6 +423,7 @@ onMounted(async () => {
   if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id) {
     await chatStore.loadChatList()
     if (hasNewSession && (!id || id.length === 0)) {
+      chatStore.deleteHistoryById('')
       chatStore.addHistory({
         id: '',
         title: 'New Chat',

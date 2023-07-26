@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getLocalState, setLocalState } from './helper'
+import { getLocalState } from './helper'
 import { router } from '@/router'
 import { deleteSession, sessionList } from '@/api'
 
@@ -268,7 +268,7 @@ export const useChatStore = defineStore('chat-store', {
     },
 
     recordState() {
-      setLocalState(this.$state)
+      // setLocalState(this.$state)
     },
   },
 })
