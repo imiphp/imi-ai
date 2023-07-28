@@ -1,9 +1,13 @@
+import type { AxiosResponse } from 'axios'
 import post, { get } from '@/utils/request'
+import type { Response } from '@/utils/request'
 
 export async function cardInfo(
+  failHandler?: (res: AxiosResponse<Response>) => void,
 ) {
   const response = await get({
     url: '/card/info',
+    failHandler,
   })
 
   return response

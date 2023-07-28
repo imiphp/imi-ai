@@ -12,6 +12,7 @@ export interface HttpOption {
   signal?: GenericAbortSignal
   beforeRequest?: () => void
   afterRequest?: () => void
+  failHandler?: (res: AxiosResponse<Response>) => void
   apiFailHandler?: (res: AxiosResponse<Response>) => void
 }
 
@@ -46,9 +47,13 @@ function http(
     return Promise.reject(res.data)
   }
 
-  const failHandler = (res: AxiosError<any>) => {
+  const failHandler = (res: AxiosError<Response>) => {
     afterRequest?.()
-    dialogFailHandler(res)
+
+    if (failHandler)
+      failHandler(res)
+    else
+      dialogFailHandler(res)
     throw new Error(res?.response?.data?.message || 'Error')
   }
 

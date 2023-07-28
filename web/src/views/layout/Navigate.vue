@@ -175,7 +175,7 @@ watch(() => userStore.userInfo, (newValue: UserInfo) => {
 async function onMouseEnter() {
   if (!logined.value)
     return
-  const response = await cardInfo()
+  const response = await cardInfo(() => {})
   balance.value = response.balanceText
 }
 </script>
