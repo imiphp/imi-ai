@@ -251,4 +251,46 @@ class OpenAIController extends HttpController
 
         return $result;
     }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action(),
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
+    public function retryProject(string $id)
+    {
+        $memberSession = MemberUtil::getMemberSession();
+        $this->embeddingService->retryProject($id, $memberSession->getIntMemberId());
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action(),
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
+    public function retryFile(string $id)
+    {
+        $memberSession = MemberUtil::getMemberSession();
+        $this->embeddingService->retryFile($id, $memberSession->getIntMemberId());
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action(),
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
+    public function retrySection(string $id)
+    {
+        $memberSession = MemberUtil::getMemberSession();
+        $this->embeddingService->retrySection($id, $memberSession->getIntMemberId());
+    }
 }

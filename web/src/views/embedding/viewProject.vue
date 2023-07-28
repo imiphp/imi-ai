@@ -6,9 +6,9 @@ import type { CSSProperties, Ref } from 'vue'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowBackOutline, BookOutline, CloudUploadOutline } from '@vicons/ionicons5'
+import { ArrowBackOutline, BookOutline, CloudUploadOutline, Refresh } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
-import { assocFileList, getProject, sectionList } from '@/api'
+import { assocFileList, getProject, retryFile, retrySection, sectionList } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useAuthStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
@@ -16,6 +16,7 @@ import { formatByte } from '@/utils/functions'
 import { Time } from '@/components/common'
 import { decodeSecureField } from '@/utils/request'
 import service from '@/utils/request/axios'
+import { t } from '@/locales'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -57,7 +58,7 @@ const { isMobile } = useBasicLayout()
 
 const collapsed = computed(() => appStore.siderCollapsed)
 
-let timer: NodeJS.Timeout | null = null
+let timer: NodeJS.Timer | null = null
 
 const getMobileClass = computed<CSSProperties>(() => {
   if (isMobile.value) {
@@ -178,32 +179,86 @@ const onFinish = (options: { event?: ProgressEvent }) => {
   }
 }
 
-async function loadInfo() {
+async function loadInfo(allowNewTimer = true) {
   try {
-    showLoading.value = true
-    const projectPromise = getProject(id)
-    const assocFileListPromise = assocFileList(id)
-    const [projectResponse, assocFileListResponse] = await Promise.all([projectPromise, assocFileListPromise])
+    if (allowNewTimer)
+      showLoading.value = true
+    const promises: any = [getProject(id), assocFileList(id)]
+    if (selectedFileId.value)
+      promises.push(sectionList(id, selectedFileId.value.toString()))
+
+    const promiseResult = await Promise.all(promises)
+    const [projectResponse, assocFileListResponse] = promiseResult
+
+    if (projectResponse.data.status === EmbeddingStatus.EXTRACTING || projectResponse.data.status === EmbeddingStatus.TRAINING) {
+      if (allowNewTimer) {
+        if (timer)
+          clearInterval(timer)
+        timer = setInterval(async () => {
+          loadInfo(false)
+        }, 1500)
+      }
+    }
+    else {
+      if (timer)
+        clearInterval(timer)
+    }
+
     embeddingState.$state.currentProject = projectResponse.data
     runtimeStore.$state.headerTitle = projectResponse.data.name
     data.value = assocFileListResponse.list
-    if (projectResponse.data.status === EmbeddingStatus.EXTRACTING || projectResponse.data.status === EmbeddingStatus.TRAINING) {
-      if (timer)
-        clearInterval(timer)
 
-      timer = setInterval(async () => {
-        const projectResponse = (await getProject(id))
-        embeddingState.$state.currentProject = projectResponse.data
-        if (timer && (projectResponse.data.status === EmbeddingStatus.COMPLETED || projectResponse.data.status === EmbeddingStatus.FAILED)) {
-          clearInterval(timer)
-          timer = null
+    if (selectedFileId.value) {
+      sectionListData.value = promiseResult[2].list
+      for (const item of assocFileListResponse.list) {
+        if (selectedFileId.value === item.recordId) {
+          selectedFile.value = item
+          break
         }
-      }, 1500)
+      }
     }
   }
   finally {
-    showLoading.value = false
+    if (allowNewTimer)
+      showLoading.value = false
   }
+}
+
+async function handleRetryFile() {
+  if (!selectedFile.value) {
+    dialog.error({
+      title: '错误',
+      content: '未选择文件',
+      positiveText: '确定',
+    })
+    return
+  }
+  dialog.warning({
+    title: '重试',
+    content: '是否重试训练该文件？',
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: async () => {
+      if (!selectedFile.value)
+        return
+
+      await retryFile(selectedFile.value.recordId)
+      await loadInfo()
+    },
+  })
+}
+
+async function handleRetrySection(id: string) {
+  dialog.warning({
+    title: '重试',
+    content: '是否重试训练该段落？',
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: async () => {
+      await retrySection(id)
+      await loadInfo()
+    },
+  })
 }
 
 onMounted(async () => {
@@ -301,7 +356,16 @@ onUnmounted(() => {
             </template>
             <NGrid x-gap="12" y-gap="16" :cols="4" item-responsive responsive="screen">
               <NGi span="4 m:2 l:1">
-                <p><b>状态：</b><span v-text="selectedFile.statusText" /></p>
+                <p>
+                  <b>状态：</b>
+                  <span v-text="selectedFile.statusText" />
+                  <NButton v-if="EmbeddingStatus.FAILED === selectedFile.status" size="tiny" class="!ml-[1em] align-middle" @click="handleRetryFile()">
+                    <template #icon>
+                      <NIcon><Refresh /></NIcon>
+                    </template>
+                    重试
+                  </NButton>
+                </p>
               </NGi>
               <NGi span="4 m:2 l:1">
                 <p><b>创建时间：</b><Time :time="selectedFile.createTime" /></p>
@@ -325,7 +389,18 @@ onUnmounted(() => {
           </NCard>
           <NGrid v-if="selectedFile" class="mt-2" x-gap="12" y-gap="16" :cols="4" item-responsive responsive="screen">
             <NGi v-for="(item, index) of sectionListData" :key="index" span="4 m:2 l:1">
-              <NCard :title="(index + 1).toString()" embedded>
+              <NCard embedded>
+                <template #header>
+                  <span :style="EmbeddingStatus.FAILED === item.status ? 'color:red' : ''" v-text="(index + 1).toString()" />
+                </template>
+                <template #header-extra>
+                  <NButton v-if="EmbeddingStatus.FAILED === item.status" size="tiny" @click="handleRetrySection(item.recordId)">
+                    <template #icon>
+                      <NIcon><Refresh /></NIcon>
+                    </template>
+                    重试
+                  </NButton>
+                </template>
                 <a href="javascript:;" @click="viewSection(item)">
                   <NEllipsis :line-clamp="8" :tooltip="false" class="hover:text-gray-500">
                     <p v-text="item.content" />

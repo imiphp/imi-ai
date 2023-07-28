@@ -153,6 +153,39 @@ export async function embeddingFileTypes(
   })
 }
 
+export function retryProject(
+  id: string,
+) {
+  return post({
+    url: '/embedding/openai/retryProject',
+    data: {
+      id,
+    },
+  })
+}
+
+export function retryFile(
+  id: string,
+) {
+  return post({
+    url: '/embedding/openai/retryFile',
+    data: {
+      id,
+    },
+  })
+}
+
+export function retrySection(
+  id: string,
+) {
+  return post({
+    url: '/embedding/openai/retrySection',
+    data: {
+      id,
+    },
+  })
+}
+
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name)
 }

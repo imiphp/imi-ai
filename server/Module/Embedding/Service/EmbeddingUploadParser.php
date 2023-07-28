@@ -20,6 +20,7 @@ use Archive7z\Archive7z;
 use Imi\Aop\Annotation\Inject;
 use Imi\App;
 use Imi\Db\Annotation\Transaction;
+use Imi\Db\Db;
 use Imi\Log\Log;
 use Imi\Swoole\Util\Coroutine;
 use Imi\Util\File;
@@ -56,6 +57,18 @@ class EmbeddingUploadParser
     private string $model = 'text-embedding-ada-002';
 
     private bool $isCompressedFile = false;
+
+    private bool $projectFailedUpdated = false;
+
+    private array $failedFiles = [];
+
+    private int $projectTokens = 0;
+
+    private int $projectPayTokens = 0;
+
+    private array $fileTokens = [];
+
+    private array $filePayTokens = [];
 
     /**
      * @param string $id        项目ID
@@ -255,7 +268,6 @@ class EmbeddingUploadParser
     #[Transaction()]
     private function praseFilesContent(EmbeddingProject $project): void
     {
-        $projectTokens = $projectPayTokens = 0;
         try
         {
             $completeChannel = new Channel();
@@ -277,7 +289,6 @@ class EmbeddingUploadParser
                     $content = file_get_contents($fileName);
                     if ($fileRecord)
                     {
-                        $projectTokens -= $fileRecord->tokens;
                         EmbeddingSection::query()->where('file_id', '=', $fileRecord->id)->delete();
                     }
                     else
@@ -292,8 +303,6 @@ class EmbeddingUploadParser
                     $fileRecord->ip = $this->ip;
                     goWait(fn () => $fileRecord->save(), 30, true);
                     $this->parseSections($fileRecord);
-                    $projectTokens += $fileRecord->tokens;
-                    $projectPayTokens += $fileRecord->payTokens;
                 }
                 finally
                 {
@@ -313,12 +322,15 @@ class EmbeddingUploadParser
         finally
         {
             $status = isset($th) ? EmbeddingStatus::FAILED : EmbeddingStatus::COMPLETED;
-            Coroutine::create(function () use ($status, $project, $projectTokens, $projectPayTokens) {
+            Coroutine::create(fn () => Db::transUse(function () use ($status, $project) {
                 // 更新项目状态
                 EmbeddingProject::query()->where('id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->limit(1)
-                                        ->setFieldInc('tokens', $projectTokens)
-                                        ->setFieldInc('pay_tokens', $projectPayTokens)
                                         ->setField('status', $status)
+                                        ->update();
+                // 更新 Tokens
+                EmbeddingProject::query()->where('id', '=', $project->id)->limit(1)
+                                        ->setFieldInc('tokens', $this->projectTokens)
+                                        ->setFieldInc('pay_tokens', $this->projectPayTokens)
                                         ->update();
                 // 更新文件状态
                 EmbeddingFile::query()->where('project_id', '=', $project->id)->where('status', '=', EmbeddingStatus::TRAINING)->update([
@@ -328,22 +340,28 @@ class EmbeddingUploadParser
                 EmbeddingFile::query()->where('project_id', '=', $project->id)->update([
                     'complete_training_time' => (int) (microtime(true) * 1000),
                 ]);
+                foreach ($this->fileTokens as $fileId => $tokens)
+                {
+                    EmbeddingFile::query()->where('id', '=', $fileId)
+                                          ->setFieldInc('tokens', $tokens)
+                                          ->setFieldInc('pay_tokens', $this->filePayTokens[$fileId] ?? 0)
+                                          ->update();
+                }
                 // 扣除余额
-                $this->memberCardService->pay($this->memberId, $projectPayTokens, BusinessType::EMBEDDING, $project->id);
+                $this->memberCardService->pay($this->memberId, $this->projectPayTokens, BusinessType::EMBEDDING, $project->id);
                 File::deleteDir($this->extractPath);
-            });
+            }));
         }
     }
 
     private function training(): void
     {
-        $projectFailedUpdated = false;
         $fileUpdateMap = [];
         $client = OpenAI::makeClient();
         /** @var EmbeddingSection[] $sectionRecords */
         $sectionRecords = [];
         $sectionRecordCount = 0;
-        $embedding = function () use ($client, &$sectionRecords, &$sectionRecordCount, &$projectFailedUpdated, &$fileUpdateMap) {
+        $embedding = function () use ($client, &$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
             $updateFileIds = [];
             $input = array_map(function ($sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
                 if (!isset($fileUpdateMap[$sectionRecord->fileId]))
@@ -378,6 +396,11 @@ class EmbeddingUploadParser
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
+                    [$payTokens] = TokensUtil::calcDeductToken($this->model, $sectionRecord->tokens, 0, $this->config->getEmbeddingModelPrice());
+                    $sectionRecord->payTokens = $payTokens;
+                    $this->projectPayTokens += $payTokens;
+                    $this->filePayTokens[$sectionRecord->fileId] ??= 0;
+                    $this->filePayTokens[$sectionRecord->fileId] += $payTokens;
                     goWait(fn () => $sectionRecord->update(), 30, true);
                 }
             }
@@ -393,12 +416,22 @@ class EmbeddingUploadParser
                     $sectionRecord->reason = $th->getMessage();
                     goWait(fn () => $sectionRecord->update(), 30, true);
                 }
-                if (!$projectFailedUpdated)
+                if (!$this->projectFailedUpdated)
                 {
-                    $projectFailedUpdated = true;
+                    $this->projectFailedUpdated = true;
                     goWait(fn () => EmbeddingProject::query()->where('id', '=', $sectionRecords[0]->projectId)->limit(1)->update([
                         'status' => EmbeddingStatus::FAILED,
                     ]), 30, true);
+                }
+                foreach ($sectionRecords as $sectionRecord)
+                {
+                    if (!isset($this->failedFiles[$sectionRecord->fileId]))
+                    {
+                        $this->failedFiles[$sectionRecord->fileId] = true;
+                        goWait(fn () => EmbeddingFile::query()->where('id', '=', $sectionRecord->fileId)->limit(1)->update([
+                            'status' => EmbeddingStatus::FAILED,
+                        ]), 30, true);
+                    }
                 }
             }
             finally
@@ -431,7 +464,7 @@ class EmbeddingUploadParser
 
         $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
 
-        $fileTokens = $filePayTokens = 0;
+        // $fileTokens = $filePayTokens = 0;
         foreach ($generator as $item)
         {
             [$chunk, $tokens] = $item;
@@ -442,15 +475,18 @@ class EmbeddingUploadParser
             $sectionRecord->content = $chunk;
             $sectionRecord->vector = '[0]';
             $sectionRecord->tokens = $tokens;
-            $fileTokens += $tokens;
-            [$payTokens] = TokensUtil::calcDeductToken($this->model, $tokens, 0, $this->config->getEmbeddingModelPrice());
-            $sectionRecord->payTokens = $payTokens;
-            $filePayTokens += $payTokens;
+            // $fileTokens += $tokens;
+            $this->projectTokens += $tokens;
+            $this->fileTokens[$file->id] ??= 0;
+            $this->fileTokens[$file->id] += $tokens;
+            // [$payTokens] = TokensUtil::calcDeductToken($this->model, $tokens, 0, $this->config->getEmbeddingModelPrice());
+            // $sectionRecord->payTokens = $payTokens;
+            // $filePayTokens += $payTokens;
             goWait(fn () => $sectionRecord->insert(), 30, true);
             $this->taskChannel->push($sectionRecord);
         }
-        $file->tokens = $fileTokens;
-        $file->payTokens = $filePayTokens;
-        goWait(fn () => $file->update(), 30, true);
+        // $file->tokens = $fileTokens;
+        // $file->payTokens = $filePayTokens;
+        // goWait(fn () => $file->update(), 30, true);
     }
 }

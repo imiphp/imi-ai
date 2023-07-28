@@ -2,12 +2,13 @@
 import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
-import { h, onMounted, reactive, ref } from 'vue'
+import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, TrashOutline } from '@vicons/ionicons5'
-import { deleteProject, projectList, updateProject } from '@/api'
-import { useEmbeddingStore } from '@/store/modules/embedding'
+import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, Refresh, TrashOutline } from '@vicons/ionicons5'
+import { deleteProject, projectList, retryProject, updateProject } from '@/api'
+import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
+import { t } from '@/locales'
 
 const router = useRouter()
 const dialog = useDialog()
@@ -51,6 +52,21 @@ const createColumns = ({
     {
       title: '状态',
       key: 'statusText',
+      render(row) {
+        if (row.status === EmbeddingStatus.FAILED) {
+          return [row.statusText, h(
+            NButton,
+            {
+              strong: true,
+              size: 'tiny',
+              style: 'margin-left: 4px; vertical-align: bottom;',
+              renderIcon: () => h(NIcon, null, { default: () => h(Refresh) }),
+              onClick: () => retry(row),
+            },
+          )]
+        }
+        else { return row.statusText }
+      },
     },
     {
       title: '权限',
@@ -127,6 +143,7 @@ const createColumns = ({
   ]
 }
 
+let loadProjectListTimer: NodeJS.Timeout | null = null
 const tableLoading = ref(false)
 const data = ref<Embedding.Project[]>([])
 const editLoading = ref(false)
@@ -190,16 +207,28 @@ const pagination = reactive({
   },
 })
 
-async function loadProjectList() {
-  tableLoading.value = true
+async function loadProjectList(loading = true) {
+  if (loadProjectListTimer) {
+    clearTimeout(loadProjectListTimer)
+    loadProjectListTimer = null
+  }
+  if (loading)
+    tableLoading.value = true
   try {
     const response = await projectList(pagination.page, pagination.pageSize)
     data.value = response.list
     pagination.pageCount = response.pageCount
     pagination.itemCount = response.total
+    for (const item of data.value) {
+      if (!loadProjectListTimer && (item.status === EmbeddingStatus.EXTRACTING || item.status === EmbeddingStatus.TRAINING)) {
+        loadProjectListTimeout()
+        return
+      }
+    }
   }
   finally {
-    tableLoading.value = false
+    if (loading)
+      tableLoading.value = false
   }
 }
 
@@ -216,8 +245,38 @@ async function handleSaveButtonClient() {
   }
 }
 
+function loadProjectListTimeout() {
+  if (loadProjectListTimer)
+    clearTimeout(loadProjectListTimer)
+
+  loadProjectListTimer = setTimeout(async () => {
+    loadProjectListTimer = null
+    await loadProjectList(false)
+  }, 1500)
+}
+
+async function retry(row: Embedding.Project) {
+  dialog.warning({
+    title: '重试',
+    content: '是否重试训练该项目？',
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: async () => {
+      await retryProject(row.recordId)
+      await loadProjectList(false)
+    },
+  })
+}
+
 onMounted(async () => {
   await loadProjectList()
+})
+
+onUnmounted(() => {
+  if (loadProjectListTimer) {
+    clearTimeout(loadProjectListTimer)
+    loadProjectListTimer = null
+  }
 })
 </script>
 

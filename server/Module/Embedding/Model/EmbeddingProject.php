@@ -42,7 +42,7 @@ class EmbeddingProject extends EmbeddingProjectBase
      * 更新时间.
      * update_time.
      *
-     * @Column(name="update_time", type="int8", length=-1, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false, createTime=true, updateTime=true)
+     * @Column(name="update_time", type="int8", length=-1, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false, createTime=true)
      */
     protected ?int $updateTime = null;
 
