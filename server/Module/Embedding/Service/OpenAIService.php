@@ -83,7 +83,7 @@ class OpenAIService
 
         $tokens = Gpt3Tokenizer::getInstance()->count($q);
         $config = EmbeddingConfig::__getConfig();
-        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelPrice());
+        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelConfig());
 
         return EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
                                                 ->where('status', '=', EmbeddingStatus::COMPLETED)
@@ -186,7 +186,7 @@ class OpenAIService
             $chatInputTokens = $chatOutputTokens = 0;
         }
         $endTime = (int) (microtime(true) * 1000);
-        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->getChatModelPrice());
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->getChatModelConfig());
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
         $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;

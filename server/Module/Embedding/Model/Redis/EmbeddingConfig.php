@@ -6,8 +6,10 @@ namespace app\Module\Embedding\Model\Redis;
 
 use app\Module\Config\Annotation\ConfigModel;
 use app\Module\Config\Model\Redis\Traits\TConfigModel;
+use app\Module\OpenAI\Model\Redis\ModelConfig;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Entity;
+use Imi\Model\Annotation\JsonDecode;
 use Imi\Model\Annotation\RedisEntity;
 use Imi\Model\RedisModel;
 use Imi\Util\Imi;
@@ -136,23 +138,37 @@ class EmbeddingConfig extends RedisModel
     }
 
     /**
-     * 训练模型定价.
+     * 训练模型配置.
      *
-     * 模型名称 => [输入倍率, 输出倍率]
+     * @var ModelConfig[]
      */
-    #[Column(type: 'json')]
-    protected array $embeddingModelPrice = [
-        'text-embedding-ada-002' => [0.05, 0.05],
-    ];
+    #[
+        Column(type: 'json'),
+        JsonDecode(wrap: ModelConfig::class, arrayWrap: true),
+    ]
+    protected ?array $embeddingModelConfig = null;
 
-    public function getEmbeddingModelPrice(): array
+    /**
+     * @return ModelConfig[]
+     */
+    public function getEmbeddingModelConfig(): array
     {
-        return $this->embeddingModelPrice;
+        if (null === $this->embeddingModelConfig)
+        {
+            return $this->embeddingModelConfig = [
+                'text-embedding-ada-002' => new ModelConfig(['inputTokenMultiple' => '0.05', 'outputTokenMultiple' => '0.05']),
+            ];
+        }
+
+        return $this->embeddingModelConfig;
     }
 
-    public function setEmbeddingModelPrice(array $embeddingModelPrice): self
+    /**
+     * @param ModelConfig[] $embeddingModelConfig
+     */
+    public function setEmbeddingModelConfig(array $embeddingModelConfig): self
     {
-        $this->embeddingModelPrice = $embeddingModelPrice;
+        $this->embeddingModelConfig = $embeddingModelConfig;
 
         return $this;
     }
@@ -160,24 +176,38 @@ class EmbeddingConfig extends RedisModel
     /**
      * 聊天模型定价.
      *
-     * 模型名称 => [输入倍率, 输出倍率]
+     * @var ModelConfig[]
      */
-    #[Column(type: 'json')]
-    protected array $chatModelPrice = [
-        'gpt-3.5-turbo'     => [0.75, 1],
-        'gpt-3.5-turbo-16k' => [1.5, 2],
-        'gpt-4'             => [150, 3],
-        'gpt-4-32k'         => [300, 6],
-    ];
+    #[
+        Column(type: 'json'),
+        JsonDecode(wrap: ModelConfig::class, arrayWrap: true),
+    ]
+    protected ?array $chatModelConfig = null;
 
-    public function getChatModelPrice(): array
+    /**
+     * @return ModelConfig[]
+     */
+    public function getChatModelConfig(): ?array
     {
-        return $this->chatModelPrice;
+        if (null === $this->chatModelConfig)
+        {
+            return $this->chatModelConfig = [
+                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0']),
+                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0']),
+                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0']),
+                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0']),
+            ];
+        }
+
+        return $this->chatModelConfig;
     }
 
-    public function setChatModelPrice(array $chatModelPrice): self
+    /**
+     * @param ModelConfig[] $chatModelConfig
+     */
+    public function setChatModelConfig(?array $chatModelConfig): self
     {
-        $this->chatModelPrice = $chatModelPrice;
+        $this->chatModelConfig = $chatModelConfig;
 
         return $this;
     }
