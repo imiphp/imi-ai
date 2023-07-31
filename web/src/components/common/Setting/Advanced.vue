@@ -1,66 +1,90 @@
 <script lang="ts" setup>
+import { NButton, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
 import { ref } from 'vue'
-import { NButton, NInput, NSlider, useMessage } from 'naive-ui'
-import { useSettingStore } from '@/store'
-import type { SettingsState } from '@/store/modules/settings/helper'
-import { t } from '@/locales'
+import type { ChatSetting, ModelConfig } from '@/store'
+import { defaultChatSetting } from '@/store'
 
-const settingStore = useSettingStore()
+interface Props {
+  setting: ChatSetting
+  models: { [key: string]: ModelConfig }
+}
 
-const ms = useMessage()
+interface Emit {
+  (e: 'update:setting', setting: ChatSetting): void
+  (e: 'ok'): void
+}
 
-const systemMessage = ref(settingStore.systemMessage ?? '')
+const props = defineProps<Props>()
+const emit = defineEmits<Emit>()
 
-const temperature = ref(settingStore.temperature ?? 0.5)
+const setting = ref({ ...props.setting })
 
-const top_p = ref(settingStore.top_p ?? 1)
-
-function updateSettings(options: Partial<SettingsState>) {
-  settingStore.updateSetting(options)
-  ms.success(t('common.success'))
+function ok() {
+  emit('update:setting', setting.value)
+  emit('ok')
 }
 
 function handleReset() {
-  settingStore.resetSetting()
-  ms.success(t('common.success'))
-  window.location.reload()
+  setting.value = defaultChatSetting()
 }
 </script>
 
 <template>
   <div class="p-4 space-y-5 min-h-[200px]">
     <div class="space-y-6">
-      <div class="flex items-center space-x-4">
+      <!-- <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[120px]">{{ $t('setting.role') }}</span>
         <div class="flex-1">
           <NInput v-model:value="systemMessage" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" />
         </div>
-        <NButton size="tiny" text type="primary" @click="updateSettings({ systemMessage })">
-          {{ $t('common.save') }}
-        </NButton>
-      </div>
+      </div> -->
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[120px]">{{ $t('setting.temperature') }} </span>
+        <span class="flex-shrink-0 w-[130px]">{{ $t('setting.model') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="temperature" :max="1" :min="0" :step="0.1" />
+          <NRadioGroup v-model:value="setting.model" name="model">
+            <NRadioButton
+              v-for="(model, key) of models"
+              :key="key"
+              :value="key"
+              :label="key.toString()"
+              :disabled="!model.enable"
+            />
+          </NRadioGroup>
         </div>
-        <span>{{ temperature }}</span>
-        <NButton size="tiny" text type="primary" @click="updateSettings({ temperature })">
-          {{ $t('common.save') }}
-        </NButton>
       </div>
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[120px]">{{ $t('setting.top_p') }} </span>
+        <span class="flex-shrink-0 w-[130px]">{{ $t('setting.temperature') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="top_p" :max="1" :min="0" :step="0.1" />
+          <NSlider v-model:value="setting.temperature" :max="2" :min="0" :step="0.1" />
         </div>
-        <span>{{ top_p }}</span>
-        <NButton size="tiny" text type="primary" @click="updateSettings({ top_p })">
-          {{ $t('common.save') }}
-        </NButton>
+        <span>{{ setting.temperature }}</span>
       </div>
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[120px]">&nbsp;</span>
+        <span class="flex-shrink-0 w-[130px]">{{ $t('setting.top_p') }} </span>
+        <div class="flex-1">
+          <NSlider v-model:value="setting.top_p" :max="1" :min="0" :step="0.1" />
+        </div>
+        <span>{{ setting.top_p }}</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="flex-shrink-0 w-[130px]">{{ $t('setting.presence_penalty') }} </span>
+        <div class="flex-1">
+          <NSlider v-model:value="setting.presence_penalty" :max="2" :min="-2" :step="0.1" />
+        </div>
+        <span>{{ setting.presence_penalty }}</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="flex-shrink-0 w-[130px]">{{ $t('setting.frequency_penalty') }} </span>
+        <div class="flex-1">
+          <NSlider v-model:value="setting.frequency_penalty" :max="2" :min="-2" :step="0.1" />
+        </div>
+        <span>{{ setting.frequency_penalty }}</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="flex-shrink-0 w-[130px]">&nbsp;</span>
+        <NButton size="small" type="primary" @click="ok()">
+          {{ $t('common.save') }}
+        </NButton>
         <NButton size="small" @click="handleReset">
           {{ $t('common.reset') }}
         </NButton>

@@ -8,6 +8,30 @@ export const enum QAStatus {
   ANSWER = 2,
 }
 
+export interface ChatSetting {
+  model: string
+  temperature: number
+  top_p: number
+  presence_penalty: number
+  frequency_penalty: number
+}
+
+export interface ModelConfig {
+  enable: boolean
+  inputTokenMultiple: string
+  outputTokenMultiple: string
+}
+
+export function defaultChatSetting(): ChatSetting {
+  return {
+    model: 'gpt-3.5-turbo',
+    temperature: 1,
+    top_p: 1,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+  }
+}
+
 export const useChatStore = defineStore('chat-store', {
   state: (): Chat.ChatState => getLocalState(),
 

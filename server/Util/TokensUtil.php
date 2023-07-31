@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Util;
 
+use app\Module\OpenAI\Model\Redis\ModelConfig;
 use Imi\Util\Traits\TStaticClass;
 
 class TokensUtil
@@ -32,20 +33,21 @@ class TokensUtil
         return $result . (self::BYTE_UNITS[$i] ?? '');
     }
 
+    /**
+     * @param ModelConfig[] $config
+     */
     public static function calcDeductToken(string $model, int $inputTokens, int $outputTokens, array $config): array
     {
-        if (empty($config[$model]))
+        if (empty($config[$model]) || !$config[$model]->enable)
         {
             // 没有配置，直接返回
             return [$inputTokens, $outputTokens];
         }
 
-        [$inputMultiple, $outputMultiple] = $config[$model];
-
         // 按最大倍率计算返回
         return [
-            (int) ceil($inputTokens * $inputMultiple),
-            (int) ceil($outputTokens * $outputMultiple),
+            (int) ceil($inputTokens * (float) $config[$model]->inputTokenMultiple),
+            (int) ceil($outputTokens * (float) $config[$model]->outputTokenMultiple),
         ];
     }
 }

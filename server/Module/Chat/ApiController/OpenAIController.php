@@ -133,10 +133,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function edit(string $id, string $title)
+    public function edit(string $id, ?string $title = null, array|object|null $config = null)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->openAIService->edit($id, $title, $memberSession->getIntMemberId());
+        $this->openAIService->edit($id, $title, $config, $memberSession->getIntMemberId());
     }
 
     /**

@@ -6,8 +6,10 @@ namespace app\Module\Chat\Model\Redis;
 
 use app\Module\Config\Annotation\ConfigModel;
 use app\Module\Config\Model\Redis\Traits\TConfigModel;
+use app\Module\OpenAI\Model\Redis\ModelConfig;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Entity;
+use Imi\Model\Annotation\JsonDecode;
 use Imi\Model\Annotation\RedisEntity;
 use Imi\Model\RedisModel;
 
@@ -21,26 +23,40 @@ class ChatConfig extends RedisModel
     use TConfigModel;
 
     /**
-     * 模型定价.
+     * 模型配置.
      *
-     * 模型名称 => [输入倍率, 输出倍率]
+     * @var ModelConfig[]
      */
-    #[Column(type: 'json')]
-    protected array $modelPrice = [
-        'gpt-3.5-turbo'     => [0.75, 1],
-        'gpt-3.5-turbo-16k' => [1.5, 2],
-        'gpt-4'             => [150, 3],
-        'gpt-4-32k'         => [300, 6],
-    ];
+    #[
+        Column(type: 'json'),
+        JsonDecode(wrap: ModelConfig::class, arrayWrap: true),
+    ]
+    protected ?array $modelConfig = null;
 
-    public function getModelPrice(): array
+    /**
+     * @return ModelConfig[]
+     */
+    public function getModelConfig(): array
     {
-        return $this->modelPrice;
+        if (null === $this->modelConfig)
+        {
+            return $this->modelConfig = [
+                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0']),
+                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0']),
+                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0']),
+                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0']),
+            ];
+        }
+
+        return $this->modelConfig;
     }
 
-    public function setModelPrice(array $modelPrice): self
+    /**
+     * @param ModelConfig[] $modelConfig
+     */
+    public function setModelConfig(array $modelConfig): self
     {
-        $this->modelPrice = $modelPrice;
+        $this->modelConfig = $modelConfig;
 
         return $this;
     }

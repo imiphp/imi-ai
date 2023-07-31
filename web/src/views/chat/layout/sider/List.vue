@@ -58,7 +58,7 @@ async function handleEdit({ id }: Chat.History, isEdit: boolean, event?: MouseEv
     }
     if (beforeEditHistory.title !== history.title) {
       // 更新接口
-      await editSession(history.id, history.title)
+      await editSession({ id: history.id, title: history.title })
     }
     beforeEditHistory = null
   }

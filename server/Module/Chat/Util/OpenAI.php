@@ -20,7 +20,7 @@ class OpenAI
     // @phpstan-ignore-next-line
     public static function makeClient(): Client
     {
-        $openaiConfig = OpenAIConfig::__getConfig();
+        $openaiConfig = OpenAIConfig::__getConfigAsync();
         $config = Config::get('@app.openai.http', []);
         $api = $openaiConfig->getRandomApi();
         if ($proxy = $api->getProxy())

@@ -172,7 +172,7 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| modelPrice | 详见表格下方 | 模型定价 |
+| modelConfig | 详见表格下方 | 模型配置 |
 | rateLimitUnit | `second` | 限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year |
 | rateLimitAmount | `1` | 限流数量 |
 
@@ -180,12 +180,26 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 
 ```js
 {
-    // 模型名称 => [输入倍率, 输出倍率]
-    {
-        "gpt-3.5-turbo": [0.75, 1],
-        "gpt-3.5-turbo-16k": [1.5, 2],
-        "gpt-4": [150, 3],
-        "gpt-4-32k": [300, 6]
+    // 模型名称 => {模型配置}
+    "gpt-3.5-turbo": {
+        "enable": true, // 是否启用
+        "inputTokenMultiple": "0.75", // 输入Token倍率
+        "outputTokenMultiple": "1.0" // 输出Token倍率
+    },
+    "gpt-3.5-turbo-16k": {
+        "enable": true,
+        "inputTokenMultiple": "1.5",
+        "outputTokenMultiple": "2.0"
+    },
+    "gpt-4": {
+        "enable": false,
+        "inputTokenMultiple": "150",
+        "outputTokenMultiple": "3.0"
+    },
+    "gpt-4-32k": {
+        "enable": false,
+        "inputTokenMultiple": "300",
+        "outputTokenMultiple": "6.0"
     }
 }
 ```

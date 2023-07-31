@@ -9,10 +9,10 @@ import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
-import { HoverButton, SvgIcon } from '@/components/common'
+import { HoverButton, Setting, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { QAStatus, useChatStore, usePromptStore, useRuntimeStore } from '@/store'
-import { fetchChatAPIProcess, getSession, sendMessage } from '@/api'
+import { QAStatus, defaultChatSetting, useChatStore, usePromptStore, useRuntimeStore } from '@/store'
+import { config, editSession, fetchChatAPIProcess, getSession, sendMessage } from '@/api'
 import { t } from '@/locales'
 import { ChatLayout } from '@/views/chat/layout'
 import { decodeSecureField } from '@/utils/request'
@@ -38,6 +38,10 @@ const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActiv
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
+
+const models = ref({})
+const setting = ref(defaultChatSetting())
+const showSetting = ref(false)
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -79,7 +83,7 @@ async function onConversation() {
   const newSession = !id || id.length === 0
   try {
     // sendMessage
-    const sendMessageResponse = await sendMessage(id, message)
+    const sendMessageResponse = await sendMessage(id, message, setting.value)
 
     if (newSession) {
       chatStore.deleteHistoryById('')
@@ -336,6 +340,10 @@ function handleDelete(index: number) {
   })
 }
 
+function handleConfig() {
+  showSetting.value = true
+}
+
 async function handleDeleteSession() {
   if (loading.value)
     return
@@ -418,7 +426,20 @@ const footerClass = computed(() => {
   return classes
 })
 
+async function saveSetting() {
+  if (!id || id.length === 0)
+    return
+
+  await editSession({ id, config: setting.value })
+}
+
+async function loadConfig() {
+  const response = await config()
+  models.value = response.data['config:chat'].config.modelConfig ?? []
+}
+
 onMounted(async () => {
+  await loadConfig()
   const hasNewSession = chatStore.history && chatStore.history.length > 1 && chatStore.history[0].id.length === 0
   if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id) {
     await chatStore.loadChatList()
@@ -447,6 +468,7 @@ onMounted(async () => {
     chatStore.updateHistory(id, { ...response.data })
     chatStore.setChatsById(id, result)
     chatStore.setActive(id)
+    setting.value = { ...setting.value, ...response.data.config }
   }
 
   scrollToBottom()
@@ -520,6 +542,11 @@ onUnmounted(() => {
                 <SvgIcon icon="ri:download-2-line" />
               </span>
             </HoverButton>
+            <HoverButton @click="handleConfig">
+              <span class="text-xl text-[#4f555e] dark:text-white">
+                <SvgIcon icon="icon-park-outline:config" />
+              </span>
+            </HoverButton>
             <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
               <template #default="{ handleInput, handleBlur, handleFocus }">
                 <NInput
@@ -546,5 +573,6 @@ onUnmounted(() => {
         </div>
       </footer>
     </div>
+    <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" @update:setting="saveSetting" />
   </ChatLayout>
 </template>

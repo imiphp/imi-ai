@@ -1,29 +1,28 @@
 <script setup lang='ts'>
-import { computed, ref } from 'vue'
-import { NModal, NTabPane, NTabs } from 'naive-ui'
-import General from './General.vue'
+import { computed } from 'vue'
+import { NModal } from 'naive-ui'
 import Advanced from './Advanced.vue'
-import About from './About.vue'
-import { useAuthStore } from '@/store'
-import { SvgIcon } from '@/components/common'
+import type { ChatSetting, ModelConfig } from '@/store'
 
 interface Props {
   visible: boolean
+  setting: ChatSetting
+  models: { [key: string]: ModelConfig }
 }
 
 interface Emit {
   (e: 'update:visible', visible: boolean): void
+  (e: 'update:setting', setting: ChatSetting): void
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<Emit>()
 
-const authStore = useAuthStore()
-
-const isChatGPTAPI = computed<boolean>(() => !!authStore.isChatGPTAPI)
-
-const active = ref('General')
+const setting = computed({
+  get: () => props.setting,
+  set: (setting: ChatSetting) => emit('update:setting', setting),
+})
 
 const show = computed({
   get() {
@@ -36,35 +35,9 @@ const show = computed({
 </script>
 
 <template>
-  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 640px">
-    <div>
-      <NTabs v-model:value="active" type="line" animated>
-        <NTabPane name="General" tab="General">
-          <template #tab>
-            <SvgIcon class="text-lg" icon="ri:file-user-line" />
-            <span class="ml-2">{{ $t('setting.general') }}</span>
-          </template>
-          <div class="min-h-[100px]">
-            <General />
-          </div>
-        </NTabPane>
-        <NTabPane v-if="isChatGPTAPI" name="Advanced" tab="Advanced">
-          <template #tab>
-            <SvgIcon class="text-lg" icon="ri:equalizer-line" />
-            <span class="ml-2">{{ $t('setting.advanced') }}</span>
-          </template>
-          <div class="min-h-[100px]">
-            <Advanced />
-          </div>
-        </NTabPane>
-        <NTabPane name="About" tab="About">
-          <template #tab>
-            <SvgIcon class="text-lg" icon="ri:list-settings-line" />
-            <span class="ml-2">{{ $t('setting.about') }}</span>
-          </template>
-          <About />
-        </NTabPane>
-      </NTabs>
+  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 640px" title="聊天设置">
+    <div class="min-h-[100px]">
+      <Advanced v-model:setting="setting" :models="props.models" @ok="show = false" />
     </div>
   </NModal>
 </template>

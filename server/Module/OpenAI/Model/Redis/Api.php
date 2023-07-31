@@ -16,7 +16,7 @@ class Api
 
     public array $proxys = [];
 
-    public bool $enable = false;
+    public bool $enable = true;
 
     public function getApiKey(): string
     {

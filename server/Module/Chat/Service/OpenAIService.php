@@ -24,7 +24,7 @@ use function Yurun\Swoole\Coroutine\goWait;
 
 class OpenAIService
 {
-    public const ALLOW_PARAMS = ['temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
+    public const ALLOW_PARAMS = ['model', 'temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
 
     #[Inject()]
     protected MemberCardService $memberCardService;
@@ -63,7 +63,7 @@ class OpenAIService
             $record->update();
         }
 
-        $this->appendMessage($record->id, 'user', $config, $tokens, $message, $record->updateTime, $record->updateTime, $ip);
+        $this->appendMessage($record->id, 'user', [], $tokens, $message, $record->updateTime, $record->updateTime, $ip);
 
         return $record;
     }
@@ -90,18 +90,24 @@ class OpenAIService
             throw new \RuntimeException('没有消息');
         }
         $record->tokens += $inputTokens;
-
+        $config = ChatConfig::__getConfigAsync();
         $client = OpenAI::makeClient();
         $beginTime = time();
         $params = [];
         foreach (self::ALLOW_PARAMS as $name)
         {
-            if (isset($message->config[$name]))
+            if (isset($record->config[$name]))
             {
-                $params[$name] = $message->config[$name];
+                $params[$name] = $record->config[$name];
             }
         }
-        $model = $params['model'] = 'gpt-3.5-turbo';
+        $params['model'] ??= 'gpt-3.5-turbo';
+        $priceConfig = $config->getModelConfig()[$params['model']] ?? null;
+        if (!$priceConfig || !$priceConfig->enable)
+        {
+            throw new \RuntimeException('不允许使用模型：' . $params['model']);
+        }
+        $model = $params['model'];
         $params['messages'] = $messages;
         // @phpstan-ignore-next-line
         $stream = $client->chat()->createStreamed($params);
@@ -139,8 +145,8 @@ class OpenAIService
         }
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
-        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, ChatConfig::__getConfig()->getModelPrice());
-        $this->appendMessage($record->id, $role, $message->config, $outputTokens, $content, $beginTime, $endTime, $ip);
+        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfig());
+        $this->appendMessage($record->id, $role, $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
         $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
@@ -200,10 +206,17 @@ class OpenAIService
                      ->toArray();
     }
 
-    public function edit(string $id, string $title, int $memberId): void
+    public function edit(string $id, ?string $title, array|object|null $config, int $memberId): void
     {
         $record = $this->getByIdStr($id, $memberId);
-        $record->title = $title;
+        if (null !== $title)
+        {
+            $record->title = $title;
+        }
+        if (null !== $config)
+        {
+            $record->config = [] === $config ? new \stdClass() : $config;
+        }
         $record->update();
     }
 
@@ -218,7 +231,7 @@ class OpenAIService
         $record = ChatMessage::newInstance();
         $record->sessionId = $sessionId;
         $record->role = $role;
-        $record->config = $config;
+        $record->config = [] === $config ? new \stdClass() : $config;
         $record->tokens = $tokens;
         $record->message = $message;
         $record->beginTime = $beginTime;
