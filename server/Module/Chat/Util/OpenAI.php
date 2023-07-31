@@ -22,18 +22,19 @@ class OpenAI
     {
         $openaiConfig = OpenAIConfig::__getConfig();
         $config = Config::get('@app.openai.http', []);
-        if ($proxy = $openaiConfig->getProxy())
+        $api = $openaiConfig->getRandomApi();
+        if ($proxy = $api->getProxy())
         {
             $config['proxy'] = $proxy;
         }
         $factory = \OpenAI::factory()
-            ->withApiKey($openaiConfig->getApiKey())
+            ->withApiKey($api->getApiKey())
             ->withHttpClient($client = new \GuzzleHttp\Client($config))
             ->withStreamHandler(fn (RequestInterface $request): ResponseInterface => $client->send($request, [
                 'stream' => true,
             ]));
 
-        $baseUrl = $openaiConfig->getBaseUrl();
+        $baseUrl = $api->getBaseUrl();
         if (!Text::isEmpty($baseUrl))
         {
             $factory->withBaseUri($baseUrl);

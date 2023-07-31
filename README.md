@@ -131,6 +131,41 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 | apiUrl | 空字符串 | 接口地址 |
 | webUrl | 空字符串 | 前端地址 |
 
+* OpenAI 设置
+
+键名：`imi_ai:config:openai`
+
+| 名称 | 默认值 | 说明 |
+|-|-|-|
+| apis | `[]` | API 接口配置，详见表格下方说明 |
+
+**apis：**
+
+```js
+[
+    {
+        // 接口地址，配置多个使用时随机，默认可不配置
+        "baseUrls": [
+            "api.openai.com/v1"
+        ],
+        // API Key，配置多个使用时随机，必须配置否则无法使用
+        "apiKeys": [
+            "sk-xxx"
+        ],
+        // HTTP 请求代理，配置多个使用时随机，机器网络能访问外网就可不配置
+        "proxys": [
+            "http://127.0.0.1:10808"
+        ],
+        // 是否启用
+        "enable": true
+    }
+]
+```
+
+> 手动写入时请去除注释。
+
+数组中的成员支持配置多个，使用时会随机选择一个。
+
 * AI聊天设置
 
 键名：`imi_ai:config:chat`

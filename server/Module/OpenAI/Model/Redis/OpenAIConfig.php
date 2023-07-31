@@ -8,6 +8,7 @@ use app\Module\Config\Annotation\ConfigModel;
 use app\Module\Config\Model\Redis\Traits\TConfigModel;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Entity;
+use Imi\Model\Annotation\JsonDecode;
 use Imi\Model\Annotation\RedisEntity;
 use Imi\Model\Annotation\Serializables;
 use Imi\Model\RedisModel;
@@ -23,90 +24,47 @@ class OpenAIConfig extends RedisModel
     use TConfigModel;
 
     /**
-     * OpenAI API Key.
+     * @var Api[]
      */
-    #[Column(type: 'json')]
-    protected array $apiKeys = [];
+    #[
+        Column(type: 'json'),
+        JsonDecode(wrap: Api::class, arrayWrap: true),
+    ]
+    protected array $apis = [];
 
-    public function getApiKeys(): array
+    /**
+     * @return Api[]
+     */
+    public function getApis(): array
     {
-        return $this->apiKeys;
-    }
-
-    public function setApiKeys(array $apiKeys): self
-    {
-        $this->apiKeys = $apiKeys;
-
-        return $this;
+        return $this->apis;
     }
 
     /**
-     * 代理.
-     *
-     * 例：http://127.0.0.1:10809
+     * @param Api[] $apis
      */
-    #[Column(type: 'json')]
-    protected array $proxys = [];
-
-    public function getProxys(): array
+    public function setApis(array $apis): self
     {
-        return $this->proxys;
-    }
-
-    public function setProxys(array $proxys): self
-    {
-        $this->proxys = $proxys;
+        $this->apis = $apis;
 
         return $this;
     }
 
-    /**
-     * 接口地址.
-     *
-     * 例：api.openai.com/v1
-     */
-    #[Column(type: 'json')]
-    protected array $baseUrls = [];
-
-    public function getBaseUrls(): array
+    public function getRandomApi(): Api
     {
-        return $this->baseUrls;
-    }
-
-    public function setBaseUrls(array $baseUrls): self
-    {
-        $this->baseUrls = $baseUrls;
-
-        return $this;
-    }
-
-    public function getApiKey(): string
-    {
-        if (!$this->apiKeys)
+        $apis = $this->apis;
+        foreach ($apis as $i => $api)
         {
-            throw new \RuntimeException('请配置 openai api key');
+            if (!$api->enable)
+            {
+                unset($apis[$i]);
+            }
+        }
+        if (!$apis)
+        {
+            throw new \RuntimeException('请配置 openai api');
         }
 
-        return $this->apiKeys[array_rand($this->apiKeys)];
-    }
-
-    public function getProxy(): ?string
-    {
-        if (!$this->proxys)
-        {
-            return null;
-        }
-
-        return $this->proxys[array_rand($this->proxys)];
-    }
-
-    public function getBaseUrl(): ?string
-    {
-        if (!$this->baseUrls)
-        {
-            return null;
-        }
-
-        return $this->baseUrls[array_rand($this->baseUrls)];
+        return $apis[array_rand($apis)];
     }
 }
