@@ -20,6 +20,7 @@ use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Query\Interfaces\IPaginateResult;
 use Imi\Log\Log;
+use Imi\Util\ObjectArrayHelper;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
 use Pgvector\Vector;
@@ -28,7 +29,7 @@ use function Yurun\Swoole\Coroutine\goWait;
 
 class OpenAIService
 {
-    public const ALLOW_PARAMS = ['temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
+    public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 
     // public const SYSTEM_CONTENT = '我是一个非常有帮助的QA机器人，能准确地使用现有文档回答用户的问题。我只使用所提供的资料来形成我的答案，在可能的情况下，尽量使用自己的话而不是逐字逐句地抄袭原文。我的回答是准确、有帮助、简明、清晰且严格的。资料里没有请回答不知道，不要使用公共数据。';
 
@@ -57,6 +58,14 @@ class OpenAIService
         if ([] === $config)
         {
             $config = new \stdClass();
+        }
+
+        $embeddingConfig = EmbeddingConfig::__getConfigAsync();
+        $model = ObjectArrayHelper::get($config, 'model', 'gpt-3.5-turbo');
+        $modelConfig = $embeddingConfig->getChatModelConfig()[$model] ?? null;
+        if (!$modelConfig || !$modelConfig->enable)
+        {
+            throw new \RuntimeException('不允许使用模型：' . $model);
         }
 
         $record = EmbeddingQa::newInstance();
@@ -136,8 +145,12 @@ class OpenAIService
                     $params[$name] = $record->config[$name];
                 }
             }
-            $params['temperature'] = 0;
-            $params['model'] = $model;
+            $params['model'] ??= 'gpt-3.5-turbo';
+            $modelConfig = $config->getChatModelConfig()[$params['model']] ?? null;
+            if (!$modelConfig || !$modelConfig->enable)
+            {
+                throw new \RuntimeException('不允许使用模型：' . $params['model']);
+            }
             $params['messages'] = $messages;
             $record->beginTime = (int) (microtime(true) * 1000);
             // @phpstan-ignore-next-line

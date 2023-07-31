@@ -17,6 +17,7 @@ use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
+use Imi\Util\ObjectArrayHelper;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
 
@@ -24,7 +25,7 @@ use function Yurun\Swoole\Coroutine\goWait;
 
 class OpenAIService
 {
-    public const ALLOW_PARAMS = ['model', 'temperature', 'top_p', 'max_tokens', 'presence_penalty', 'frequency_penalty'];
+    public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 
     #[Inject()]
     protected MemberCardService $memberCardService;
@@ -44,6 +45,14 @@ class OpenAIService
         if ([] === $config)
         {
             $config = new \stdClass();
+        }
+
+        $chatConfig = ChatConfig::__getConfigAsync();
+        $model = ObjectArrayHelper::get($config, 'model', 'gpt-3.5-turbo');
+        $modelConfig = $chatConfig->getModelConfig()[$model] ?? null;
+        if (!$modelConfig || !$modelConfig->enable)
+        {
+            throw new \RuntimeException('不允许使用模型：' . $model);
         }
 
         if ('' === $id)
@@ -102,8 +111,8 @@ class OpenAIService
             }
         }
         $params['model'] ??= 'gpt-3.5-turbo';
-        $priceConfig = $config->getModelConfig()[$params['model']] ?? null;
-        if (!$priceConfig || !$priceConfig->enable)
+        $modelConfig = $config->getModelConfig()[$params['model']] ?? null;
+        if (!$modelConfig || !$modelConfig->enable)
         {
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
         }

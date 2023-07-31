@@ -8,12 +8,12 @@ import html2canvas from 'html2canvas'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from '../chat/components'
 import { useScroll } from '../chat/hooks/useScroll'
-import { chatList, fetchEmbeddingChatAPIProcess, getProject, sectionList, sendEmbeddingMessage } from '@/api'
+import { chatList, config, fetchEmbeddingChatAPIProcess, getProject, sectionList, sendEmbeddingMessage } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAppStore, useRuntimeStore } from '@/store'
+import { defaultChatSetting, useAppStore, useRuntimeStore } from '@/store'
 import { useEmbeddingStore } from '@/store/modules/embedding'
 import { t } from '@/locales'
-import { HoverButton, SvgIcon, Time } from '@/components/common'
+import { HoverButton, Setting, SvgIcon, Time } from '@/components/common'
 import { decodeSecureField } from '@/utils/request'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
@@ -36,6 +36,10 @@ const buttonDisabled = computed(() => {
 const prompt = ref<string>('')
 const currentChatReply = ref<Chat.Chat | null>(null)
 let qaId = ''
+
+const models = ref({})
+const setting = ref(defaultChatSetting())
+const showSetting = ref(false)
 
 const { isMobile } = useBasicLayout()
 
@@ -120,7 +124,7 @@ async function onConversation() {
   const beginTime = parseInt(((new Date()).getTime() / 1000).toString())
   try {
     // sendMessage
-    const sendMessageResponse = await sendEmbeddingMessage(id, message)
+    const sendMessageResponse = await sendEmbeddingMessage(id, message, setting.value)
     qaId = sendMessageResponse.data.recordId
 
     const beginTime = parseInt((sendMessageResponse.data.createTime / 1000).toString())
@@ -304,13 +308,21 @@ function handleExport() {
   })
 }
 
+function handleConfig() {
+  showSetting.value = true
+}
+
+async function loadConfig() {
+  const response = await config()
+  models.value = response.data['config:embedding'].config.chatModelConfig ?? []
+}
+
 onMounted(async () => {
   let item
   try {
     showLoading.value = true
-    const projectPromise = getProject(id)
-    const chatListPromise = chatList(id, 1, 99999)
-    const [projectResponse, chatListPromiseResponse] = await Promise.all([projectPromise, chatListPromise])
+    await loadConfig()
+    const [projectResponse, chatListPromiseResponse] = await Promise.all([getProject(id), chatList(id, 1, 99999)])
     embeddingState.$state.currentProject = projectResponse.data
     runtimeStore.$state.headerTitle = projectResponse.data.name
     const _dataSources: Array<Chat.Chat> = []
@@ -337,6 +349,8 @@ onMounted(async () => {
       _dataSources.push(currentChatReply.value)
       qaId = item.recordId
     }
+    if (item)
+      setting.value = { ...setting.value, ...item.config }
     dataSources.value = _dataSources
     scrollToBottom()
   }
@@ -460,6 +474,11 @@ onMounted(async () => {
                       <SvgIcon icon="ri:download-2-line" />
                     </span>
                   </HoverButton>
+                  <HoverButton @click="handleConfig">
+                    <span class="text-xl text-[#4f555e] dark:text-white">
+                      <SvgIcon icon="icon-park-outline:config" />
+                    </span>
+                  </HoverButton>
                   <NInput
                     ref="inputRef"
                     v-model:value="prompt"
@@ -486,4 +505,5 @@ onMounted(async () => {
   <template v-if="isMobile">
     <div v-show="!collapsed" class="fixed inset-0 z-40 w-full h-full bg-black/40" @click="handleUpdateCollapsed" />
   </template>
+  <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" />
 </template>

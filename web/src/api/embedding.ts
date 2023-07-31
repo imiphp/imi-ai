@@ -1,5 +1,6 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { decodeSecureField, get, post } from '@/utils/request'
+import type { ChatSetting } from '@/store'
 
 export async function projectList(
   page = 1,
@@ -112,7 +113,7 @@ export async function chatList(
 export async function sendEmbeddingMessage(
   projectId: string,
   question: string,
-  config?: any,
+  config?: ChatSetting,
 ) {
   const response = await post({
     url: '/embedding/openai/sendMessage',
