@@ -28,7 +28,7 @@ class EmbeddingQa extends EmbeddingQaBase
     /**
      * 安全处理字段.
      */
-    protected static array $__secureFields = ['question', 'answer', 'title'];
+    protected static array $__secureFields = ['question', 'answer', 'title', 'prompt'];
 
     /**
      * 创建时间.

@@ -205,4 +205,5 @@ function decodeEmbeddingQASecureFields(data: any) {
   data.question = decodeSecureField(data.question)
   data.answer = decodeSecureField(data.answer)
   data.title = decodeSecureField(data.title)
+  data.prompt = decodeSecureField(data.prompt)
 }
