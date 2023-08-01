@@ -120,19 +120,37 @@ class EmbeddingConfig extends RedisModel
     }
 
     /**
+     * 匹配相似度.
+     */
+    #[Column]
+    protected float $similarity = 0;
+
+    public function getSimilarity(): float
+    {
+        return $this->similarity;
+    }
+
+    public function setSimilarity(float $similarity): self
+    {
+        $this->similarity = $similarity;
+
+        return $this;
+    }
+
+    /**
      * 聊天最多携带段落数量.
      */
     #[Column]
-    protected int $chatStreamSections = 5;
+    protected int $chatTopSections = 5;
 
-    public function getChatStreamSections(): int
+    public function getChatTopSections(): int
     {
-        return $this->chatStreamSections;
+        return $this->chatTopSections;
     }
 
-    public function setChatStreamSections(int $chatStreamSections): self
+    public function setChatTopSections(int $chatTopSections): self
     {
-        $this->chatStreamSections = $chatStreamSections;
+        $this->chatTopSections = $chatTopSections;
 
         return $this;
     }
@@ -245,6 +263,21 @@ class EmbeddingConfig extends RedisModel
     public function setChatRateLimitAmount(int $chatRateLimitAmount): self
     {
         $this->chatRateLimitAmount = $chatRateLimitAmount;
+
+        return $this;
+    }
+
+    #[Column]
+    protected string $chatPrompt = '我是问答机器人，只根据提供的资料回答问题，优先用代码回答问题。我的回答严谨且准确，资料中没有的就回答不知道，不使用公共数据。';
+
+    public function getChatPrompt(): string
+    {
+        return $this->chatPrompt;
+    }
+
+    public function setChatPrompt(string $chatPrompt): self
+    {
+        $this->chatPrompt = $chatPrompt;
 
         return $this;
     }

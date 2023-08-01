@@ -176,7 +176,7 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 | rateLimitUnit | `second` | 限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year |
 | rateLimitAmount | `1` | 限流数量 |
 
-**modelPrice：**
+**modelConfig：**
 
 ```js
 {
@@ -220,33 +220,51 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | maxSingleFileSize | `2097152` | 单个文件最大尺寸，单位：字节，默认：2MB |
 | maxTotalFilesSize | `4194304` | 所有文件最大尺寸，单位：字节，默认：4MB |
 | maxSectionTokens | `512` | 段落最大Token数量 |
-| chatStreamSections | `5` | 聊天最多携带段落数量 |
-| embeddingModelPrice | 详见表格下方 | 训练模型定价 |
-| chatModelPrice | 详见表格下方 | 聊天模型定价 |
+| chatTopSections | `5` | 聊天最多携带段落数量 |
+| embeddingModelConfig | 详见表格下方 | 训练模型配置 |
+| chatModelConfig | 详见表格下方 | 聊天模型配置 |
 | chatRateLimitUnit | `second` | 对话限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year |
 | chatRateLimitAmount | `1` | 对话限流数量 |
+| similarity | `0` | 匹配相似度 |
+| chatPrompt | `我是问答机器人，只根据提供的资料回答问题，优先用代码回答问题。我的回答严谨且准确，资料中没有的就回答不知道，不使用公共数据。` | 对话提示语 |
 
-**embeddingModelPrice：**
+**embeddingModelConfig：**
 
 ```js
 {
-    // 模型名称 => [输入倍率, 输出倍率]
-    {
-        "text-embedding-ada-002": [0.05, 0.05],
+    // 模型名称 => {模型配置}
+    "text-embedding-ada-002": {
+        "enable": true, // 是否启用
+        "inputTokenMultiple": "0.05", // 输入Token倍率
+        "outputTokenMultiple": "0.05" // 输出Token倍率
     }
 }
 ```
 
-**chatModelPrice：**
+**chatModelConfig：**
 
 ```js
 {
-    // 模型名称 => [输入倍率, 输出倍率]
-    {
-        "gpt-3.5-turbo": [0.75, 1],
-        "gpt-3.5-turbo-16k": [1.5, 2],
-        "gpt-4": [150, 3],
-        "gpt-4-32k": [300, 6]
+    // 模型名称 => {模型配置}
+    "gpt-3.5-turbo": {
+        "enable": true, // 是否启用
+        "inputTokenMultiple": "0.75", // 输入Token倍率
+        "outputTokenMultiple": "1.0" // 输出Token倍率
+    },
+    "gpt-3.5-turbo-16k": {
+        "enable": true,
+        "inputTokenMultiple": "1.5",
+        "outputTokenMultiple": "2.0"
+    },
+    "gpt-4": {
+        "enable": false,
+        "inputTokenMultiple": "150",
+        "outputTokenMultiple": "3.0"
+    },
+    "gpt-4-32k": {
+        "enable": false,
+        "inputTokenMultiple": "300",
+        "outputTokenMultiple": "6.0"
     }
 }
 ```

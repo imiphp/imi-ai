@@ -8,12 +8,13 @@ import html2canvas from 'html2canvas'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from '../chat/components'
 import { useScroll } from '../chat/hooks/useScroll'
+import { Setting } from './components'
 import { chatList, config, fetchEmbeddingChatAPIProcess, getProject, sectionList, sendEmbeddingMessage } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { defaultChatSetting, useAppStore, useRuntimeStore } from '@/store'
-import { useEmbeddingStore } from '@/store/modules/embedding'
+import { defaultEmbeddingSetting, useEmbeddingStore } from '@/store/modules/embedding'
 import { t } from '@/locales'
-import { HoverButton, Setting, SvgIcon, Time } from '@/components/common'
+import { HoverButton, SvgIcon, Time } from '@/components/common'
 import { decodeSecureField } from '@/utils/request'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
@@ -38,6 +39,7 @@ const currentChatReply = ref<Chat.Chat | null>(null)
 let qaId = ''
 
 const models = ref({})
+const embeddingSetting = ref(defaultEmbeddingSetting())
 const setting = ref(defaultChatSetting())
 const showSetting = ref(false)
 
@@ -124,7 +126,7 @@ async function onConversation() {
   const beginTime = parseInt(((new Date()).getTime() / 1000).toString())
   try {
     // sendMessage
-    const sendMessageResponse = await sendEmbeddingMessage(id, message, setting.value)
+    const sendMessageResponse = await sendEmbeddingMessage(id, message, setting.value, embeddingSetting.value.similarity, embeddingSetting.value.topSections, embeddingSetting.value.prompt)
     qaId = sendMessageResponse.data.recordId
 
     const beginTime = parseInt((sendMessageResponse.data.createTime / 1000).toString())
@@ -315,6 +317,7 @@ function handleConfig() {
 async function loadConfig() {
   const response = await config()
   models.value = response.data['config:embedding'].config.chatModelConfig ?? []
+  embeddingSetting.value.prompt = response.data['config:embedding'].config.chatPrompt
 }
 
 onMounted(async () => {
@@ -349,8 +352,10 @@ onMounted(async () => {
       _dataSources.push(currentChatReply.value)
       qaId = item.recordId
     }
-    if (item)
+    if (item) {
       setting.value = { ...setting.value, ...item.config }
+      embeddingSetting.value = { ...embeddingSetting.value, topSections: item.topSections, similarity: item.similarity, prompt: item.prompt }
+    }
     dataSources.value = _dataSources
     scrollToBottom()
   }
@@ -443,7 +448,7 @@ onMounted(async () => {
                     <Message
                       v-for="(item, index) of dataSources"
                       :key="index"
-                      :date-time="item.completeTime"
+                      :date-time="item.completeTime > 0 ? item.completeTime : item.beginTime"
                       :text="item.message"
                       :inversion="item.inversion"
                       :error="item.error"
@@ -505,5 +510,5 @@ onMounted(async () => {
   <template v-if="isMobile">
     <div v-show="!collapsed" class="fixed inset-0 z-40 w-full h-full bg-black/40" @click="handleUpdateCollapsed" />
   </template>
-  <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" />
+  <Setting v-if="showSetting" v-model:setting="setting" v-model:embedding-setting="embeddingSetting" v-model:visible="showSetting" :models="models" />
 </template>

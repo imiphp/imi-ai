@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { NButton, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { ChatSetting, ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
 
 interface Props {
   setting: ChatSetting
   models: { [key: string]: ModelConfig }
+  showConfirm?: boolean
 }
 
 interface Emit {
@@ -17,7 +18,16 @@ interface Emit {
 const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
 
-const setting = ref({ ...props.setting })
+const setting = props.showConfirm
+  ? ref({ ...props.setting })
+  : computed({
+    get() {
+      return props.setting
+    },
+    set(setting: ChatSetting) {
+      emit('update:setting', setting)
+    },
+  })
 
 function ok() {
   emit('update:setting', setting.value)
@@ -40,7 +50,7 @@ function handleReset() {
       </div> -->
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.model') }} </span>
-        <div class="flex-1">
+        <div class="flex-1 overflow-x-auto overflow-y-hidden">
           <NRadioGroup v-model:value="setting.model" name="model">
             <NRadioButton
               v-for="(model, key) of models"
@@ -82,7 +92,7 @@ function handleReset() {
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">&nbsp;</span>
-        <NButton size="small" type="primary" @click="ok()">
+        <NButton v-show="props.showConfirm" size="small" type="primary" @click="ok()">
           {{ $t('common.save') }}
         </NButton>
         <NButton size="small" @click="handleReset">

@@ -168,10 +168,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function sendMessage(string $question, string $projectId, array|object $config = []): array
+    public function sendMessage(string $question, string $projectId, array|object $config = [], ?float $similarity = null, ?int $topSections = null, ?string $prompt = null): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $qa = $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config);
+        $qa = $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config, $similarity, $topSections, $prompt);
         $qa->__setSecureField(true);
 
         return [

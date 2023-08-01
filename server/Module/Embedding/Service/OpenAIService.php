@@ -31,10 +31,6 @@ class OpenAIService
 {
     public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 
-    // public const SYSTEM_CONTENT = '我是一个非常有帮助的QA机器人，能准确地使用现有文档回答用户的问题。我只使用所提供的资料来形成我的答案，在可能的情况下，尽量使用自己的话而不是逐字逐句地抄袭原文。我的回答是准确、有帮助、简明、清晰且严格的。资料里没有请回答不知道，不要使用公共数据。';
-
-    public const SYSTEM_CONTENT = '我是问答机器人，只根据提供的资料回答问题，优先用代码回答问题。我的回答严谨且准确，资料中没有的就回答不知道，不使用公共数据。';
-
     #[Inject()]
     protected EmbeddingService $embeddingService;
 
@@ -46,7 +42,7 @@ class OpenAIService
         AutoValidation(),
         Text(name: 'question', min: 1, message: '内容不能为空'),
     ]
-    public function sendMessage(string $question, string $projectId, int $memberId, string $ip = '', array|object $config = []): EmbeddingQa
+    public function sendMessage(string $question, string $projectId, int $memberId, string $ip = '', array|object $config = [], ?float $similarity = null, ?int $topSections = null, ?string $prompt = null): EmbeddingQa
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($question));
 
@@ -76,12 +72,15 @@ class OpenAIService
         $record->status = EmbeddingQAStatus::ANSWERING;
         $record->title = mb_substr($question, 0, 16);
         $record->ip = $ip;
+        $record->similarity = $similarity ?? $embeddingConfig->getSimilarity();
+        $record->topSections = $topSections ?? $embeddingConfig->getChatTopSections();
+        $record->prompt = $prompt ?? $embeddingConfig->getChatPrompt();
         $record->insert();
 
         return $record;
     }
 
-    public function search(int $projectId, string $q = '', int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
+    public function search(int $projectId, string $q = '', float $similarity = 0, int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
         $client = OpenAI::makeClient();
         $response = $client->embeddings()->create([
@@ -94,12 +93,17 @@ class OpenAIService
         $config = EmbeddingConfig::__getConfig();
         [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelConfig());
 
-        return EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
-                                                ->where('status', '=', EmbeddingStatus::COMPLETED)
-                                                ->order('distance')
-                                                ->order('update_time', 'desc')
-                                                ->bindValue(':keyword', (string) $vector)
-                                                ->paginate($page, $limit);
+        $query = EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
+                                                    ->where('status', '=', EmbeddingStatus::COMPLETED)
+                                                    ->order('distance')
+                                                    ->order('update_time', 'desc');
+        if ($similarity > 0)
+        {
+            $query->whereRaw('cosine_distance("vector", :keyword)>=:similarity', binds: [':similarity' => $similarity]);
+        }
+
+        return $query->bindValue(':keyword', (string) $vector)
+                     ->paginate($page, $limit);
     }
 
     public function chatStream(string $id, int $memberId): \Iterator
@@ -113,8 +117,8 @@ class OpenAIService
         $config = EmbeddingConfig::__getConfigAsync();
         $model = 'gpt-3.5-turbo';
         $embeddingTokens = $embeddingPayTokens = 0;
-        $list = goWait(function () use ($record, $config) {
-            return $this->search($record->projectId, $record->question, 1, $config->getChatStreamSections(), $embeddingTokens, $embeddingPayTokens)->getList();
+        $list = goWait(function () use ($record) {
+            return $this->search($record->projectId, $record->question, $record->similarity, 1, $record->topSections, $embeddingTokens, $embeddingPayTokens)->getList();
         }, 30, true);
         /** @var EmbeddingSectionSearched[] $list */
         if ($list)
@@ -128,7 +132,7 @@ class OpenAIService
             $messages = [
                 [
                     'role'    => 'system',
-                    'content' => self::SYSTEM_CONTENT,
+                    'content' => $record->prompt,
                 ],
                 [
                     'role'    => 'user',
@@ -184,7 +188,7 @@ class OpenAIService
                 yield $yieldData;
             }
             $tokenizer = Gpt3Tokenizer::getInstance();
-            $chatInputTokens = $tokenizer->count(self::SYSTEM_CONTENT) // 系统提示语
+            $chatInputTokens = $tokenizer->count($record->prompt) // 系统提示语
             + $tokenizer->count($question) // 问题提示语
             + $tokenizer->count($content) // 内容提示语
             ;

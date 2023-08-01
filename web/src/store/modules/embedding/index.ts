@@ -40,6 +40,20 @@ export const enum EmbeddingQAStatus {
   FAILED = 3,
 }
 
+export interface EmbeddingChatSetting {
+  topSections: number
+  similarity: number
+  prompt: string
+}
+
+export function defaultEmbeddingSetting(): EmbeddingChatSetting {
+  return {
+    topSections: 5,
+    similarity: 0,
+    prompt: '',
+  }
+}
+
 export const useEmbeddingStore = defineStore('embedding-store', {
   state: (): Embedding.State => getLocalState(),
 })

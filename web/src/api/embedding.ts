@@ -114,6 +114,9 @@ export async function sendEmbeddingMessage(
   projectId: string,
   question: string,
   config?: ChatSetting,
+  similarity?: number,
+  topSections?: number,
+  prompt?: string,
 ) {
   const response = await post({
     url: '/embedding/openai/sendMessage',
@@ -121,6 +124,9 @@ export async function sendEmbeddingMessage(
       projectId,
       question,
       config,
+      similarity,
+      topSections,
+      prompt,
     },
   })
 
