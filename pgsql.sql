@@ -98,7 +98,10 @@ CACHE 1
   "title" varchar(16) COLLATE "pg_catalog"."default" NOT NULL,
   "create_time" int8 NOT NULL,
   "pay_tokens" int4 NOT NULL DEFAULT 0,
-  "ip" inet NOT NULL
+  "ip" inet NOT NULL,
+  "similarity" float4 NOT NULL DEFAULT 0,
+  "top_sections" int2 NOT NULL DEFAULT 0,
+  "prompt" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_qa"."member_id" IS '用户ID';
@@ -114,6 +117,9 @@ COMMENT ON COLUMN "public"."tb_embedding_qa"."title" IS '标题';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."create_time" IS '创建时间';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON COLUMN "public"."tb_embedding_qa"."ip" IS 'IP地址';
+COMMENT ON COLUMN "public"."tb_embedding_qa"."similarity" IS '相似度';
+COMMENT ON COLUMN "public"."tb_embedding_qa"."top_sections" IS '使用最匹配的段落数量';
+COMMENT ON COLUMN "public"."tb_embedding_qa"."prompt" IS '提示语';
 COMMENT ON TABLE "public"."tb_embedding_qa" IS '训练文件问答';
 
 -- ----------------------------
