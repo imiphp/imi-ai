@@ -75,6 +75,23 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."public" IS '是否公开使�
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------
+-- Table structure for tb_embedding_public_project
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."tb_embedding_public_project";
+CREATE TABLE "public"."tb_embedding_public_project" (
+  "project_id" int8 NOT NULL,
+  "status" int2 NOT NULL DEFAULT 0,
+  "time" int8 NOT NULL DEFAULT 0,
+  "index" int2 NOT NULL
+)
+;
+COMMENT ON COLUMN "public"."tb_embedding_public_project"."project_id" IS '项目ID';
+COMMENT ON COLUMN "public"."tb_embedding_public_project"."status" IS '状态';
+COMMENT ON COLUMN "public"."tb_embedding_public_project"."time" IS '时间';
+COMMENT ON COLUMN "public"."tb_embedding_public_project"."index" IS '排序，越小越靠前';
+COMMENT ON TABLE "public"."tb_embedding_public_project" IS '公共项目';
+
+-- ----------------------------
 -- Table structure for tb_embedding_qa
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."tb_embedding_qa";
@@ -187,6 +204,20 @@ CREATE INDEX "tb_embedding_project_member_id_idx" ON "public"."tb_embedding_proj
 -- Primary Key structure for table tb_embedding_project
 -- ----------------------------
 ALTER TABLE "public"."tb_embedding_project" ADD CONSTRAINT "tb_embedding_project_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Indexes structure for table tb_embedding_public_project
+-- ----------------------------
+CREATE INDEX "tb_embedding_public_project_status_index_time_idx" ON "public"."tb_embedding_public_project" USING btree (
+  "status" "pg_catalog"."int2_ops" ASC NULLS LAST,
+  "index" "pg_catalog"."int2_ops" ASC NULLS LAST,
+  "time" "pg_catalog"."int8_ops" DESC NULLS LAST
+);
+
+-- ----------------------------
+-- Primary Key structure for table tb_embedding_public_project
+-- ----------------------------
+ALTER TABLE "public"."tb_embedding_public_project" ADD CONSTRAINT "tb_embedding_public_project_pkey" PRIMARY KEY ("project_id");
 
 -- ----------------------------
 -- Indexes structure for table tb_embedding_qa

@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { NCard, NTabPane, NTabs } from 'naive-ui'
-import { ProjectList, Upload } from './components'
+import { ProjectList, PublicProjectList, Upload } from './components'
 </script>
 
 <template>
@@ -8,12 +8,15 @@ import { ProjectList, Upload } from './components'
     <NCard :bordered="false" content-style="padding:0">
       <NTabs
         class="card-tabs"
-        default-value="projectList"
+        default-value="publicProjectList"
         size="large"
         animated
         pane-wrapper-style="margin: 0 -4px"
         pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
       >
+        <NTabPane name="publicProjectList" tab="项目广场">
+          <PublicProjectList />
+        </NTabPane>
         <NTabPane name="projectList" tab="我的项目">
           <ProjectList />
         </NTabPane>

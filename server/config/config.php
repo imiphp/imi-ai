@@ -173,6 +173,7 @@ return [
                         'tb_embedding_file',
                         'tb_embedding_section',
                         'tb_embedding_qa',
+                        'tb_embedding_public_project',
                     ],
                 ],
                 'app\Module\Member\Model' => [

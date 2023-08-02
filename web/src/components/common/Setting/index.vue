@@ -37,7 +37,7 @@ const show = computed({
 <template>
   <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 640px" title="聊天设置">
     <div class="min-h-[100px]">
-      <Advanced v-model:setting="setting" :models="props.models" @ok="show = false" />
+      <Advanced v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
     </div>
   </NModal>
 </template>

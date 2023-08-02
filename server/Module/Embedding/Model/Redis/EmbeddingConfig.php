@@ -281,4 +281,22 @@ class EmbeddingConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 开启公共项目列表审核.
+     */
+    #[Column]
+    protected bool $enablePublicListReview = true;
+
+    public function getEnablePublicListReview(): bool
+    {
+        return $this->enablePublicListReview;
+    }
+
+    public function setEnablePublicListReview(bool $enablePublicListReview): self
+    {
+        $this->enablePublicListReview = $enablePublicListReview;
+
+        return $this;
+    }
 }

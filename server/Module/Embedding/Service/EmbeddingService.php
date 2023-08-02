@@ -10,11 +10,15 @@ use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Util\SecureFieldUtil;
+use Imi\Aop\Annotation\Inject;
 use Imi\App;
 use Imi\Db\Annotation\Transaction;
 
 class EmbeddingService
 {
+    #[Inject()]
+    protected EmbeddingPublicProjectService $embeddingPublicProjectService;
+
     public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = ''): EmbeddingProject
     {
         $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory);
@@ -78,13 +82,35 @@ class EmbeddingService
         EmbeddingSection::query()->where('project_id', '=', $record->id)->delete();
     }
 
-    public function updateProject(string $projectId, string $name, bool $public, int $memberId = 0): void
+    #[Transaction()]
+    public function updateProject(string $projectId, ?string $name = null, ?bool $public = null, ?bool $publicList = null, int $memberId = 0): void
     {
         $record = $this->getProject($projectId, $memberId);
-        $record->name = $name;
-        $record->public = $public;
-        $record->updateTime = time();
+        if (null !== $name)
+        {
+            $record->name = $name;
+            $record->updateTime = (int) (microtime(true) * 1000);
+        }
+        if (null !== $public)
+        {
+            $record->public = $public;
+        }
         $record->update();
+        if (false === $public)
+        {
+            $publicList = false;
+        }
+        if (null !== $publicList)
+        {
+            if ($publicList)
+            {
+                $this->embeddingPublicProjectService->openPublic($record->getPublicProject() ?? $record->id);
+            }
+            else
+            {
+                $this->embeddingPublicProjectService->closePublic($record->getPublicProject() ?? $record->id);
+            }
+        }
     }
 
     public function getFile(string|int $fileId, int $projectId = 0, int $memberId = 0): EmbeddingFile

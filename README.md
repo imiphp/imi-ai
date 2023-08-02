@@ -227,6 +227,7 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | chatRateLimitAmount | `1` | 对话限流数量 |
 | similarity | `0` | 匹配相似度 |
 | chatPrompt | `我是问答机器人，只根据提供的资料回答问题，优先用代码回答问题。我的回答严谨且准确，资料中没有的就回答不知道，不使用公共数据。` | 对话提示语 |
+| enablePublicListReview | `true` | 开启公共项目列表审核 |
 
 **embeddingModelConfig：**
 

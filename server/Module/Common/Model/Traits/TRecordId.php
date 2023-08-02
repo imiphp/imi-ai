@@ -13,6 +13,8 @@ trait TRecordId
     #[Column(virtual: true)]
     protected ?string $recordId = null;
 
+    protected static ?string $saltClass = null;
+
     public function getRecordId(): ?string
     {
         if (null === $this->recordId && null !== $this->id)
@@ -41,7 +43,7 @@ trait TRecordId
 
     public static function __getSalt(): string
     {
-        return static::__getRealClassName() . ':' . Config::get('@app.ai.idSalt');
+        return (static::$saltClass ?? static::__getRealClassName()) . ':' . Config::get('@app.ai.idSalt');
     }
 
     public static function __getAlphabet(): string

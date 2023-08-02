@@ -10,6 +10,9 @@ use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\Base\EmbeddingProjectBase;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\Relation\JoinFrom;
+use Imi\Model\Annotation\Relation\JoinTo;
+use Imi\Model\Annotation\Relation\OneToOne;
 use Imi\Model\Annotation\Serializables;
 
 /**
@@ -18,7 +21,7 @@ use Imi\Model\Annotation\Serializables;
  * @Inherit
  */
 #[
-    Serializables(mode: 'deny', fields: ['id']),
+    Serializables(mode: 'deny', fields: ['id', 'memberId']),
 ]
 class EmbeddingProject extends EmbeddingProjectBase
 {
@@ -29,6 +32,25 @@ class EmbeddingProject extends EmbeddingProjectBase
      * 安全处理字段.
      */
     protected static array $__secureFields = ['name'];
+
+    #[
+        OneToOne(model: EmbeddingPublicProject::class, with: true),
+        JoinFrom(field: 'id'),
+        JoinTo(field: 'project_id')
+    ]
+    protected ?EmbeddingPublicProject $publicProject = null;
+
+    public function getPublicProject(): ?EmbeddingPublicProject
+    {
+        return $this->publicProject;
+    }
+
+    public function setPublicProject(?EmbeddingPublicProject $publicProject): self
+    {
+        $this->publicProject = $publicProject;
+
+        return $this;
+    }
 
     /**
      * 创建时间.

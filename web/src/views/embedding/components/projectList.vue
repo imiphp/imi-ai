@@ -1,12 +1,12 @@
 <script setup lang='ts'>
-import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, useDialog } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NSwitch, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, Refresh, TrashOutline } from '@vicons/ionicons5'
 import { deleteProject, projectList, retryProject, updateProject } from '@/api'
-import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
+import { EmbeddingStatus, PublicProjectStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
 import { t } from '@/locales'
 
@@ -42,19 +42,18 @@ const createColumns = ({
       },
     },
     {
-      title: '实际 Tokens',
+      title: 'Tokens（实际/支付）',
       key: 'tokens',
-    },
-    {
-      title: '支付 Tokens',
-      key: 'payTokens',
+      render(row) {
+        return `${row.tokens}/${row.payTokens}`
+      },
     },
     {
       title: '状态',
       key: 'statusText',
       render(row) {
         if (row.status === EmbeddingStatus.FAILED) {
-          return [row.statusText, h(
+          return [h('span', { style: 'color:#d03050' }, row.statusText), h(
             NButton,
             {
               strong: true,
@@ -72,7 +71,73 @@ const createColumns = ({
       title: '权限',
       key: 'public',
       render(row) {
-        return row.public ? '公开' : '私有'
+        const nswitch = h(NSwitch, {
+          value: row.public,
+          onUpdateValue: (value: boolean) => {
+            dialog.warning({
+              title: '询问',
+              content: `是否将该项目设为${value ? '公开' : '私有'}？`,
+              positiveText: t('common.yes'),
+              negativeText: t('common.no'),
+              onPositiveClick: async () => {
+                (async () => {
+                  try {
+                    if (nswitch.component)
+                      nswitch.component.props.loading = true
+                    await updateProject(row.recordId, { public: value })
+                    row.public = value
+                  }
+                  finally {
+                    if (nswitch.component)
+                      nswitch.component.props.loading = false
+                  }
+                })()
+              },
+            })
+          },
+        }, {
+          checked: () => '公开',
+          unchecked: () => '私有',
+        })
+        return nswitch
+      },
+    },
+    {
+      title: '列表公开',
+      key: 'publicList',
+      render(row) {
+        const nswitch = h(NSwitch, {
+          value: row.publicList || PublicProjectStatus.WAIT_FOR_REVIEW === row.publicProject?.status,
+          onUpdateValue: (value: boolean) => {
+            dialog.warning({
+              title: '询问',
+              content: value ? '是否将该项目设为列表公开？' : '是否将该项目从公开列表删除？',
+              positiveText: t('common.yes'),
+              negativeText: t('common.no'),
+              onPositiveClick: async () => {
+                (async () => {
+                  try {
+                    if (nswitch.component)
+                      nswitch.component.props.loading = true
+                    await updateProject(row.recordId, { publicList: value })
+                    row.publicList = value
+                  }
+                  finally {
+                    if (nswitch.component)
+                      nswitch.component.props.loading = false
+                  }
+                  await loadProjectList()
+                })()
+              },
+            })
+          },
+        }, {
+          checked: () => {
+            return PublicProjectStatus.WAIT_FOR_REVIEW === row.publicProject?.status ? '等待审核' : '公开'
+          },
+          unchecked: () => '私有',
+        })
+        return nswitch
       },
     },
     {
@@ -149,6 +214,8 @@ const data = ref<Embedding.Project[]>([])
 const editLoading = ref(false)
 const showEditModal = ref(false)
 const editData = ref<any>({})
+const editProject = ref<Embedding.Project | null>(null)
+const indeterminate = ref(false)
 
 const columns = createColumns({
   chat(row: Embedding.Project) {
@@ -169,7 +236,8 @@ const columns = createColumns({
     })
   },
   update(row: Embedding.Project) {
-    editData.value = { ...row }
+    editProject.value = editData.value = { ...row }
+    indeterminate.value = PublicProjectStatus.WAIT_FOR_REVIEW === editData.value.publicProject?.status
     showEditModal.value = true
   },
   del(row: Embedding.Project) {
@@ -268,6 +336,11 @@ async function retry(row: Embedding.Project) {
   })
 }
 
+function handleClickPublicProject() {
+  if (indeterminate.value)
+    editData.value.publicList = indeterminate.value = false
+}
+
 onMounted(async () => {
   await loadProjectList()
 })
@@ -312,6 +385,10 @@ onUnmounted(() => {
         </NFormItem>
         <NFormItem label="权限" path="name">
           <NCheckbox v-model:checked="editData.public" label="公开" />
+        </NFormItem>
+        <NFormItem label="在列表公开" path="name">
+          <NCheckbox v-model:checked="editData.publicList" :disabled="!editData.public" :indeterminate="indeterminate" label="公开" @click="handleClickPublicProject" />
+          <span v-if="PublicProjectStatus.WAIT_FOR_REVIEW === editProject?.publicProject?.status">（等待审核）</span>
         </NFormItem>
         <div style="display: flex; justify-content: flex-end">
           <NButton round type="primary" @click="handleSaveButtonClient">

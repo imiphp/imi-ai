@@ -40,6 +40,28 @@ export const enum EmbeddingQAStatus {
   FAILED = 3,
 }
 
+export const enum PublicProjectStatus {
+  /**
+   * 已开放
+   */
+  OPEN = 1,
+
+  /**
+   * 已关闭
+   */
+  CLOSED = 2,
+
+  /**
+   * 等待审核
+   */
+  WAIT_FOR_REVIEW = 3,
+
+  /**
+   * 审核失败
+   */
+  REVIEW_FAILED = 4,
+}
+
 export interface EmbeddingChatSetting {
   topSections: number
   similarity: number

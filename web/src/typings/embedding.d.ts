@@ -12,8 +12,19 @@ declare namespace Embedding {
         status: EmbeddingStatus
         statusText: string
         tokens: number
+        payTokens: number
         recordId: string
         public: boolean
+        publicProject: PublicProject | null
+        publicList: boolean
+    }
+
+    interface PublicProject {
+        index: number
+        projectId: number
+        status: number
+        statusText: string
+        time: number
     }
 
     interface File {

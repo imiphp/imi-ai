@@ -1,6 +1,7 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { decodeSecureField, get, post } from '@/utils/request'
 import type { ChatSetting } from '@/store'
+import { PublicProjectStatus } from '@/store/modules/embedding'
 
 export async function projectList(
   page = 1,
@@ -8,6 +9,24 @@ export async function projectList(
 ) {
   const response = await get({
     url: '/embedding/openai/projectList',
+    data: {
+      page,
+      limit,
+    },
+  })
+
+  for (const project of response.list)
+    decodeEmbeddingProjectSecureFields(project)
+
+  return response
+}
+
+export async function publicProjectList(
+  page = 1,
+  limit = 15,
+) {
+  const response = await get({
+    url: '/embedding/openai/publicProjectList',
     data: {
       page,
       limit,
@@ -34,14 +53,18 @@ export function deleteProject(
 export function updateProject(
   id: string,
   data: {
-    name: string
+    name?: string
+    public?: boolean
+    publicList?: boolean
   },
 ) {
   return post({
     url: '/embedding/openai/updateProject',
     data: {
       id,
-      ...data,
+      name: data.name,
+      public: data.public,
+      publicList: data.publicList,
     },
   })
 }
@@ -195,6 +218,7 @@ export function retrySection(
 
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name)
+  data.publicList = PublicProjectStatus.OPEN === data.publicProject?.status
 }
 
 function decodeEmbeddingSectionSecureFields(data: any) {

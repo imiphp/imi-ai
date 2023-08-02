@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\ApiController;
 
+use app\Module\Embedding\Enum\PublicProjectStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\Embedding\Service\EmbeddingPublicProjectService;
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
 use app\Module\Member\Annotation\LoginRequired;
@@ -33,6 +35,9 @@ class OpenAIController extends HttpController
 {
     #[Inject()]
     protected EmbeddingService $embeddingService;
+
+    #[Inject()]
+    protected EmbeddingPublicProjectService $embeddingPublicProjectService;
 
     #[Inject()]
     protected OpenAIService $openAIService;
@@ -94,10 +99,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function updateProject(string $id, string $name, bool $public)
+    public function updateProject(string $id, ?string $name = null, ?bool $public = null, ?bool $publicList = null)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->embeddingService->updateProject($id, $name, $public, $memberSession->getIntMemberId());
+        $this->embeddingService->updateProject($id, $name, $public, $publicList, $memberSession->getIntMemberId());
     }
 
     /**
@@ -292,5 +297,20 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
         $this->embeddingService->retrySection($id, $memberSession->getIntMemberId());
+    }
+
+    #[
+        Action(),
+    ]
+    public function publicProjectList(int $page = 1, int $limit = 15): array
+    {
+        $result = $this->embeddingPublicProjectService->list(PublicProjectStatus::OPEN, $page, $limit);
+        /** @var EmbeddingProject $project */
+        foreach ($result['list'] as $project)
+        {
+            $project->__setSecureField(true);
+        }
+
+        return $result;
     }
 }

@@ -30,7 +30,7 @@ class OnGenerateTableListener implements IEventListener
         catch (NotFoundException $_)
         {
             $record = $this->cardTypeService->create('用户基础卡', 0, true, true, CardTypeService::BASE_CARD_TYPE);
-            Log::info('创建基础卡类型：' . \PHP_EOL . json_encode($record, \JSON_PRETTY_PRINT));
+            Log::info('创建基础卡类型：' . \PHP_EOL . json_encode($record, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE));
         }
     }
 }
