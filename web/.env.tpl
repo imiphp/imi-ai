@@ -17,3 +17,6 @@ VITE_APP_TITLE="imi AI"
 
 # 应用子标题
 VITE_APP_SUB_TITLE="你的专属 AI 人工智能助理！"
+
+# 统计代码
+TONGJI_CODE=""
