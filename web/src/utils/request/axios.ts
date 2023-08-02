@@ -1,12 +1,15 @@
 import axios, { type AxiosResponse } from 'axios'
 import { useAuthStore } from '@/store'
 
+let source = axios.CancelToken.source()
+
 const service = axios.create({
   baseURL: import.meta.env.VITE_GLOB_API_URL,
 })
 
 service.interceptors.request.use(
   (config) => {
+    config.cancelToken = source.token
     const token = useAuthStore().token
     if (token)
       config.headers.Authorization = `Bearer ${token}`
@@ -28,5 +31,10 @@ service.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+export function cancelAll() {
+  source.cancel()
+  source = axios.CancelToken.source()
+}
 
 export default service

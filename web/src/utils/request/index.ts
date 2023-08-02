@@ -1,6 +1,7 @@
 import pako from 'pako'
 import type { AxiosError, AxiosProgressEvent, AxiosResponse, GenericAbortSignal } from 'axios'
-import service from './axios'
+import axios from 'axios'
+import service, { cancelAll } from './axios'
 import { useAuthStore, useUserStore } from '@/store'
 
 export interface HttpOption {
@@ -37,6 +38,7 @@ function http(
       dialogApiFailHandler(res)
 
     if (res.data.code === 10001) {
+      cancelAll()
       const authStore = useAuthStore()
       authStore.removeToken()
       authStore.setLoginRedirectUrl(location.href)
@@ -47,14 +49,12 @@ function http(
     return Promise.reject(res.data)
   }
 
-  const failHandler = (res: AxiosError<Response>) => {
+  const failHandler = (error: AxiosError<any>) => {
     afterRequest?.()
 
-    if (failHandler)
-      failHandler(res)
-    else
-      dialogFailHandler(res)
-    throw new Error(res?.response?.data?.message || 'Error')
+    if (!axios.isCancel(error))
+      dialogFailHandler(error)
+    throw new Error(error?.response?.data?.message || 'Network Error')
   }
 
   beforeRequest?.()
