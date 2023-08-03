@@ -59,7 +59,10 @@ CACHE 1
   "tokens" int8 NOT NULL DEFAULT 0,
   "pay_tokens" int8 NOT NULL DEFAULT 0,
   "ip" inet NOT NULL,
-  "public" bool NOT NULL DEFAULT false
+  "public" bool NOT NULL DEFAULT false,
+  "section_separator" varchar(16) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "section_split_length" int4 NOT NULL DEFAULT 512,
+  "section_split_by_title" bool NOT NULL DEFAULT true
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -72,6 +75,9 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."tokens" IS 'Token数量';
 COMMENT ON COLUMN "public"."tb_embedding_project"."pay_tokens" IS '支付 Token 数量';
 COMMENT ON COLUMN "public"."tb_embedding_project"."ip" IS 'IP地址';
 COMMENT ON COLUMN "public"."tb_embedding_project"."public" IS '是否公开使用';
+COMMENT ON COLUMN "public"."tb_embedding_project"."section_separator" IS '段落分隔符';
+COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_length" IS '段落分割长度';
+COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_by_title" IS '使用标题分割段落';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------
