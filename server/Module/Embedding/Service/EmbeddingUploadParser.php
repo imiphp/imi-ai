@@ -70,17 +70,21 @@ class EmbeddingUploadParser
 
     private array $filePayTokens = [];
 
+    private int $sectionSplitLength = 0;
+
     /**
      * @param string $id        项目ID
      * @param bool   $override  是否覆盖已存在文件
      * @param string $directory 上传文件解压目标目录
      */
-    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/')
+    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/', private string $sectionSeparator = '', ?int $sectionSplitLength = null, private bool $sectionSplitByTitle = true)
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
         $this->taskChannel = new Channel(\PHP_INT_MAX);
         $this->config = goWait(fn () => EmbeddingConfig::__getConfig(), 30, true);
+        $maxSectionTokens = $this->config->getMaxSectionTokens();
+        $this->sectionSplitLength = max($sectionSplitLength ?? $maxSectionTokens, $maxSectionTokens);
     }
 
     public function upload(): EmbeddingProject
@@ -89,7 +93,12 @@ class EmbeddingUploadParser
         {
             if ('' !== $this->id)
             {
+                /** @var EmbeddingProject $project */
                 $project = goWait(fn () => $this->embeddingService->getProject($this->id, $this->memberId), 30, true);
+                // 追加文件使用项目配置
+                $this->sectionSeparator = $project->sectionSeparator;
+                $this->sectionSplitLength = $project->sectionSplitLength;
+                $this->sectionSplitByTitle = $project->sectionSplitByTitle;
             }
 
             if ($this->isCompressedFile)
@@ -283,7 +292,7 @@ class EmbeddingUploadParser
             });
             foreach ($this->files as $file)
             {
-                /** @var EmbeddingFile $fileRecord */
+                /** @var EmbeddingFile|null $fileRecord */
                 ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size, 'file' => $fileRecord] = $file;
                 try
                 {
@@ -467,7 +476,7 @@ class EmbeddingUploadParser
         /** @var IFileHandler $handler */
         $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
 
-        $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
+        $generator = $handler->parseSections($file->content, $this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle);
 
         foreach ($generator as $item)
         {

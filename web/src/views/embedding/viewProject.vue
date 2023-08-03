@@ -403,7 +403,7 @@ onUnmounted(() => {
                     重试
                   </NButton>
                 </template>
-                <a href="javascript:;" @click="viewSection(item)">
+                <a class="block" href="javascript:;" @click="viewSection(item)">
                   <NEllipsis :line-clamp="8" :tooltip="false" class="hover:text-gray-500">
                     <p v-text="item.content" />
                   </NEllipsis>

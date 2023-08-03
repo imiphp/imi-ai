@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import type { UploadFileInfo } from 'naive-ui'
-import { NIcon, NP, NText, NUpload, NUploadDragger, useDialog } from 'naive-ui'
+import type { UploadFileInfo, UploadInst } from 'naive-ui'
+import { NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NP, NText, NUpload, NUploadDragger, useDialog } from 'naive-ui'
 
 import { ArchiveOutline as ArchiveIcon } from '@vicons/ionicons5'
 import { nextTick, onMounted, ref } from 'vue'
@@ -60,6 +60,8 @@ const onFinish = (options: { event?: ProgressEvent }) => {
 const compressFileTypes = ref([])
 const contentFileTypes = ref([])
 const publicConfig = ref<any>(null)
+const showUploadSetting = ref(false)
+const showUploadSettingByUpload = ref(false)
 
 async function loadFileTypes() {
   const response = await embeddingFileTypes()
@@ -67,9 +69,41 @@ async function loadFileTypes() {
   contentFileTypes.value = response.contentFileTypes
 }
 
+const uploadData = ref({
+  sectionSeparator: '',
+  sectionSplitLength: 512,
+  sectionSplitByTitle: true,
+})
+
+const uploadRef = ref<UploadInst | null>(null)
+
 async function loadConfig() {
   const response = await config()
   publicConfig.value = response.data
+  uploadData.value.sectionSplitLength = response.data['config:embedding'].config.maxSectionTokens
+}
+
+function getUploadData(): any {
+  return uploadData.value
+}
+
+function handleUpload() {
+  showUploadSettingByUpload.value = true
+  showUploadSetting.value = false
+  uploadRef.value?.submit()
+}
+
+function onUploadChanged(options: { file: UploadFileInfo; fileList: Array<UploadFileInfo>; event?: Event }) {
+  if (options.fileList.length > 0) {
+    showUploadSettingByUpload.value = false
+    showUploadSetting.value = true
+  }
+}
+
+function onUploadSettingClose() {
+  if (!showUploadSettingByUpload.value)
+    fileList.value = []
+    // uploadRef.value?.clear()
 }
 
 onMounted(async () => {
@@ -79,12 +113,16 @@ onMounted(async () => {
 
 <template>
   <NUpload
+    ref="uploadRef"
     v-model:file-list="fileList"
     :show-file-list="false"
     :action="uploadActionUrl"
+    :data="getUploadData()"
     :max="1"
     :on-finish="onFinish"
     :headers="uploadHeaders"
+    :default-upload="false"
+    @change="onUploadChanged"
   >
     <NUploadDragger>
       <div style="margin-bottom: 12px">
@@ -106,4 +144,35 @@ onMounted(async () => {
       </NP>
     </NUploadDragger>
   </NUpload>
+  <NModal
+    v-model:show="showUploadSetting"
+    :mask-closable="false"
+    preset="card"
+    title="上传参数"
+    style="width: 95%; max-width: 480px"
+    @close="onUploadSettingClose"
+  >
+    <NForm
+      ref="formRef"
+      :model="uploadData"
+      label-placement="left"
+      label-width="auto"
+      require-mark-placement="right-hanging"
+    >
+      <NFormItem label="分隔符">
+        <NInput v-model:value="uploadData.sectionSeparator" placeholder="留空则不使用分隔符分割段落" />
+      </NFormItem>
+      <NFormItem label="段落最大长度">
+        <NInputNumber v-model:value="uploadData.sectionSplitLength" :max="publicConfig['config:embedding'].config.maxSectionTokens" />
+      </NFormItem>
+      <NFormItem label="按标题分割段落">
+        <NCheckbox v-model:checked="uploadData.sectionSplitByTitle" />
+      </NFormItem>
+      <div style="display: flex; justify-content: flex-end">
+        <NButton round type="primary" @click="handleUpload">
+          上传
+        </NButton>
+      </div>
+    </NForm>
+  </NModal>
 </template>

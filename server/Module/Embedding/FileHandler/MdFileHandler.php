@@ -22,18 +22,58 @@ class MdFileHandler implements IFileHandler
 {
     private array $headingStack = [];
 
-    public function parseSections(string $content, int $maxSectionTokens): \Generator
+    public function parseSections(string $content, int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle): \Generator
     {
         $tokenizer = Gpt3Tokenizer::getInstance();
-        foreach ($this->parseMarkdownSections($content) as $item)
+        if ($splitByTitle)
         {
-            [$heading, $section] = $item;
-            $heading .= "\n";
-            $headingTokens = $tokenizer->count($heading);
-            foreach ($tokenizer->chunk($section, $maxSectionTokens - $headingTokens) as $chunk)
+            foreach ($this->parseMarkdownSections($content) as $item)
             {
-                $tokens = $headingTokens + $tokenizer->count($chunk);
-                yield [$heading . $chunk, $tokens];
+                [$heading, $section] = $item;
+                $heading = trim($heading);
+                $section = trim($section);
+                $heading .= "\n";
+                $headingTokens = $tokenizer->count($heading);
+                // 分隔符分割
+                if ('' === $sectionSeparator)
+                {
+                    $items = (array) $section;
+                }
+                else
+                {
+                    $items = explode($sectionSeparator, $section);
+                }
+                foreach ($items as $splitItem)
+                {
+                    // 长度
+                    foreach ($tokenizer->chunk($splitItem, $sectionSplitLength - $headingTokens) as $chunk)
+                    {
+                        $tokens = $headingTokens + $tokenizer->count($chunk);
+                        yield [$heading . $chunk, $tokens];
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 分隔符分割
+            if ('' === $sectionSeparator)
+            {
+                $items = (array) $content;
+            }
+            else
+            {
+                $items = explode($sectionSeparator, $content);
+            }
+            foreach ($items as $splitItem)
+            {
+                $splitItem = trim($splitItem);
+                // 长度
+                foreach ($tokenizer->chunk($splitItem, $sectionSplitLength) as $chunk)
+                {
+                    $tokens = $tokenizer->count($chunk);
+                    yield [$chunk, $tokens];
+                }
             }
         }
     }

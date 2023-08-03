@@ -19,9 +19,9 @@ class EmbeddingService
     #[Inject()]
     protected EmbeddingPublicProjectService $embeddingPublicProjectService;
 
-    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = ''): EmbeddingProject
+    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = '', string $sectionSeparator = '', ?int $sectionSplitLength = null, bool $sectionSplitByTitle = true): EmbeddingProject
     {
-        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory);
+        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle);
 
         return $parser->upload();
     }
@@ -201,6 +201,7 @@ class EmbeddingService
             $item['baseName'] = $secureField ? SecureFieldUtil::encode($baseName) : $baseName;
             if ($secureField)
             {
+                $item['fileName'] = SecureFieldUtil::encode($item['fileName']);
                 $item['content'] = SecureFieldUtil::encode($item['content']);
             }
             $parent[] = $item;
