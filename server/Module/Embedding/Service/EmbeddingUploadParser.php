@@ -283,12 +283,17 @@ class EmbeddingUploadParser
             });
             foreach ($this->files as $file)
             {
+                /** @var EmbeddingFile $fileRecord */
                 ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size, 'file' => $fileRecord] = $file;
                 try
                 {
                     $content = file_get_contents($fileName);
                     if ($fileRecord)
                     {
+                        if ($fileRecord->content === $content)
+                        {
+                            continue; // 内容相同，不需要更新
+                        }
                         EmbeddingSection::query()->where('file_id', '=', $fileRecord->id)->delete();
                     }
                     else
@@ -464,7 +469,6 @@ class EmbeddingUploadParser
 
         $generator = $handler->parseSections($file->content, $this->config->getMaxSectionTokens());
 
-        // $fileTokens = $filePayTokens = 0;
         foreach ($generator as $item)
         {
             [$chunk, $tokens] = $item;
@@ -475,18 +479,11 @@ class EmbeddingUploadParser
             $sectionRecord->content = $chunk;
             $sectionRecord->vector = '[0]';
             $sectionRecord->tokens = $tokens;
-            // $fileTokens += $tokens;
             $this->projectTokens += $tokens;
             $this->fileTokens[$file->id] ??= 0;
             $this->fileTokens[$file->id] += $tokens;
-            // [$payTokens] = TokensUtil::calcDeductToken($this->model, $tokens, 0, $this->config->getEmbeddingModelPrice());
-            // $sectionRecord->payTokens = $payTokens;
-            // $filePayTokens += $payTokens;
             goWait(fn () => $sectionRecord->insert(), 30, true);
             $this->taskChannel->push($sectionRecord);
         }
-        // $file->tokens = $fileTokens;
-        // $file->payTokens = $filePayTokens;
-        // goWait(fn () => $file->update(), 30, true);
     }
 }
