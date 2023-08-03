@@ -36,7 +36,7 @@ class OpenAIService
         AutoValidation(),
         Text(name: 'message', min: 1, message: '内容不能为空'),
     ]
-    public function sendMessage(string $message, string $id, int $memberId, string $ip = '', array|object $config = []): ChatSession
+    public function sendMessage(string $message, string $id, int $memberId, string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
 
@@ -58,24 +58,22 @@ class OpenAIService
 
         if ('' === $id)
         {
-            $record = $this->create($memberId, mb_substr($message, 0, 16), $config, $ip);
+            $session = $this->create($memberId, mb_substr($message, 0, 16), $config, $ip);
         }
         else
         {
-            $record = $this->getByIdStr($id, $memberId);
-            if (QAStatus::ASK !== $record->qaStatus)
+            $session = $this->getByIdStr($id, $memberId);
+            if (QAStatus::ASK !== $session->qaStatus)
             {
                 throw new \RuntimeException('当前状态不允许提问');
             }
             // 更新记录
-            $record->config = $config;
-            $record->qaStatus = QAStatus::ANSWER;
-            $record->update();
+            $session->config = $config;
+            $session->qaStatus = QAStatus::ANSWER;
+            $session->update();
         }
 
-        $this->appendMessage($record->id, 'user', [], $tokens, $message, $record->updateTime, $record->updateTime, $ip);
-
-        return $record;
+        return $this->appendMessage($session->id, 'user', [], $tokens, $message, $session->updateTime, $session->updateTime, $ip);
     }
 
     public function chatStream(string $id, int $memberId, string $ip): \Iterator
@@ -170,7 +168,7 @@ class OpenAIService
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
         [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfig());
-        $this->appendMessage($record->id, $role, $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
+        $messageRecord = $this->appendMessage($record->id, $role, $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
         $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
@@ -179,6 +177,8 @@ class OpenAIService
 
         // 扣款
         $this->memberCardService->pay($record->memberId, $payTokens, BusinessType::CHAT, $record->id, time: $endTime);
+        $messageRecord->__setSecureField(true);
+        yield ['message' => $messageRecord];
     }
 
     public function getById(int $id, int $memberId = 0): ChatSession

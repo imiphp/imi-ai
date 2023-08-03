@@ -8,6 +8,8 @@ interface Props {
   visible: boolean
   setting: ChatSetting
   models: { [key: string]: ModelConfig }
+  tokens?: number
+  payTokens?: number
 }
 
 interface Emit {
@@ -36,8 +38,22 @@ const show = computed({
 
 <template>
   <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 640px" title="聊天设置">
-    <div class="min-h-[100px]">
-      <Advanced v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
+    <div v-if="undefined !== props.tokens && undefined !== props.payTokens" class="px-4 space-y-5">
+      <div class="flex font-bold">
+        <div class="flex flex-1 items-center space-x-4">
+          <span class="flex-shrink-0 w-[130px]">累计 Tokens </span>
+          <div class="flex-1 text-[#f0a020]">
+            {{ props.tokens }}
+          </div>
+        </div>
+        <div class="flex flex-1 items-center space-x-4">
+          <span class="flex-shrink-0 w-[130px]">支付 Tokens </span>
+          <div class="flex-1 text-[#f0a020]">
+            {{ props.payTokens }}
+          </div>
+        </div>
+      </div>
     </div>
+    <Advanced v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
   </NModal>
 </template>

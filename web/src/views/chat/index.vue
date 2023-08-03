@@ -104,6 +104,7 @@ async function onConversation() {
         inversion: true,
         error: false,
         conversationOptions: null,
+        tokens: sendMessageResponse.chatMessage.tokens,
       },
     )
   }
@@ -218,6 +219,19 @@ async function fetchStream() {
 
                 scrollToBottomIfAtBottom()
               }
+              else if (data.message) {
+                updateChatSome(
+                  id,
+                  dataSources.value.length - 1,
+                  {
+                    message: decodeSecureField(data.message.message),
+                    inversion: false,
+                    error: false,
+                    loading: true,
+                    tokens: data.message.tokens,
+                  },
+                )
+              }
             }
             catch (error) {
             //
@@ -230,6 +244,9 @@ async function fetchStream() {
       updateChatSome(id, dataSources.value.length - 1, { loading: false })
     }
     await fetchChatAPIOnce()
+
+    const response = await getSession(id, false)
+    chatStore.updateHistory(id, { ...response.data })
   }
   catch (error: any) {
     console.error(error)
@@ -514,6 +531,7 @@ onUnmounted(() => {
                   :inversion="item.inversion"
                   :error="item.error"
                   :loading="item.loading"
+                  :tokens="item.tokens"
                   @delete="handleDelete(index)"
                 />
                 <div class="sticky bottom-0 left-0 flex justify-center">
@@ -573,6 +591,6 @@ onUnmounted(() => {
         </div>
       </footer>
     </div>
-    <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" @update:setting="saveSetting" />
+    <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" :tokens="currentChatHistory?.tokens" :pay-tokens="currentChatHistory?.payTokens" @update:setting="saveSetting" />
   </ChatLayout>
 </template>

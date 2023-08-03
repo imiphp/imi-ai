@@ -40,17 +40,21 @@ export function fetchChatAPIProcess(
 
 export async function getSession(
   id: string,
+  withMessages = true,
 ) {
   const response = await get({
     url: '/chat/openai/get',
     data: {
       id,
+      withMessages: withMessages ? 1 : 0,
     },
   })
 
   decodeChatSessionSecureFields(response.data)
-  for (const message of response.messages)
-    decodeChatMessageSecureFields(message)
+  if (response.messages) {
+    for (const message of response.messages)
+      decodeChatMessageSecureFields(message)
+  }
 
   return response
 }
@@ -90,6 +94,7 @@ export async function sendMessage(
   })
 
   decodeChatSessionSecureFields(response.data)
+  decodeChatMessageSecureFields(response.chatMessage)
 
   return response
 }

@@ -41,11 +41,13 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $session = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP(), $config);
+        $message = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), IPUtil::getIP(), $config, $session);
         $session->__setSecureField(true);
+        $message->__setSecureField(true);
 
         return [
-            'data' => $session,
+            'data'        => $session,
+            'chatMessage' => $message,
         ];
     }
 
@@ -157,21 +159,28 @@ class OpenAIController extends HttpController
         Action,
         LoginRequired()
     ]
-    public function get(string $id): array
+    public function get(string $id, bool $withMessages = true): array
     {
         $memberSession = MemberUtil::getMemberSession();
         $session = $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId());
         $session->__setSecureField(true);
-        $messages = $this->openAIService->selectMessagesIdStr($id, 'asc', limit: \PHP_INT_MAX);
-        /** @var ChatMessage $message */
-        foreach ($messages as $message)
+
+        $result = [
+            'data'     => $session,
+        ];
+
+        if ($withMessages)
         {
-            $message->__setSecureField(true);
+            $messages = $this->openAIService->selectMessagesIdStr($id, 'asc', limit: \PHP_INT_MAX);
+            /** @var ChatMessage $message */
+            foreach ($messages as $message)
+            {
+                $message->__setSecureField(true);
+            }
+
+            $result['messages'] = $messages;
         }
 
-        return [
-            'data'     => $session,
-            'messages' => $messages,
-        ];
+        return $result;
     }
 }

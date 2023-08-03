@@ -8,6 +8,7 @@ declare namespace Chat {
 		error?: boolean
 		loading?: boolean
 		conversationOptions?: ConversationRequest | null
+		tokens?: number
 	}
 
 	interface History {
@@ -17,7 +18,8 @@ declare namespace Chat {
 		createTime: number
 		updateTime: number
 		qaStatus: QAStatus
-		tokens: number
+		tokens?: number
+		payTokens?: number
 	}
 
 	interface ChatState {
