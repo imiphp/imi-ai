@@ -199,6 +199,10 @@ class EmbeddingService
 
             $baseName = basename($fileName);
             $item['baseName'] = $secureField ? SecureFieldUtil::encode($baseName) : $baseName;
+            if ($secureField)
+            {
+                $item['content'] = SecureFieldUtil::encode($item['content']);
+            }
             $parent[] = $item;
         }
 

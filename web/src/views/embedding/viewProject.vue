@@ -91,6 +91,7 @@ function handleSelectKeys(keys: Array<string & number>, option: Array<TreeOption
   if (!meta.node?.children) {
     selectedKeys.value = keys
     selectedFile.value = { ...meta.node } as unknown as Embedding.File
+    selectedFile.value.content = decodeSecureField(selectedFile.value.content)
   }
 }
 
@@ -212,7 +213,8 @@ async function loadInfo(allowNewTimer = true) {
       sectionListData.value = promiseResult[2].list
       for (const item of assocFileListResponse.list) {
         if (selectedFileId.value === item.recordId) {
-          selectedFile.value = item
+          selectedFile.value = { ...item } as unknown as Embedding.File
+          selectedFile.value.content = decodeSecureField(selectedFile.value.content)
           break
         }
       }
