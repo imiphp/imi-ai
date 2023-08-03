@@ -13,6 +13,7 @@ use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
 use app\Module\Chat\Util\Gpt3Tokenizer;
 use app\Module\Chat\Util\OpenAI;
+use app\Module\OpenAI\Model\Redis\ModelConfig;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
@@ -85,23 +86,6 @@ class OpenAIService
         {
             throw new \RuntimeException('AI 已回答完毕');
         }
-        $gpt3Tokenizer = Gpt3Tokenizer::getInstance();
-        $inputTokens = 0;
-        $messages = [];
-        foreach (goWait(fn () => $this->selectMessages($record->id, 'asc'), 30, true) as $message)
-        {
-            /** @var ChatMessage $message */
-            $messages[] = ['role' => $message->role, 'content' => $message->message];
-            $inputTokens += $gpt3Tokenizer->count($message->message);
-        }
-        if (!$messages)
-        {
-            throw new \RuntimeException('没有消息');
-        }
-        $record->tokens += $inputTokens;
-        $config = ChatConfig::__getConfigAsync();
-        $client = OpenAI::makeClient();
-        $beginTime = time();
         $params = [];
         foreach (self::ALLOW_PARAMS as $name)
         {
@@ -111,12 +95,43 @@ class OpenAIService
             }
         }
         $params['model'] ??= 'gpt-3.5-turbo';
+        $config = ChatConfig::__getConfigAsync();
+        /** @var ModelConfig|null $modelConfig */
         $modelConfig = $config->getModelConfig()[$params['model']] ?? null;
         if (!$modelConfig || !$modelConfig->enable)
         {
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
+        $gpt3Tokenizer = Gpt3Tokenizer::getInstance();
+        $inputTokens = 0;
+        $messages = [];
+        $historyMessages = goWait(fn () => $this->selectMessages($record->id, 'desc', limit: $config->getTopConversations() * 2 + 1), 30, true);
+        $modelMaxTokens = $modelConfig->maxTokens;
+        foreach ($historyMessages as $message)
+        {
+            /** @var ChatMessage $message */
+            $inputTokens += $gpt3Tokenizer->count($message->message);
+            if ($inputTokens > $modelMaxTokens)
+            {
+                $messages[] = ['role' => $message->role, 'content' => $gpt3Tokenizer->chunk($message->message, $inputTokens - $modelMaxTokens)[0]];
+                break;
+            }
+            $messages[] = ['role' => $message->role, 'content' => $message->message];
+            if ($inputTokens === $modelMaxTokens)
+            {
+                break;
+            }
+        }
+        $inputTokens = min($inputTokens, $modelMaxTokens);
+        $messages = array_reverse($messages);
+        if (!$messages)
+        {
+            throw new \RuntimeException('没有消息');
+        }
+        $record->tokens += $inputTokens;
+        $client = OpenAI::makeClient();
+        $beginTime = time();
         $params['messages'] = $messages;
         // @phpstan-ignore-next-line
         $stream = $client->chat()->createStreamed($params);
@@ -254,21 +269,27 @@ class OpenAIService
     /**
      * @return ChatMessage[]
      */
-    public function selectMessagesIdStr(string $sessionId, string $sort = 'asc'): array
+    public function selectMessagesIdStr(string $sessionId, string $sort = 'asc', string $lastId = '', int $limit = 15): array
     {
         $id = ChatSession::decodeId($sessionId);
 
-        return $this->selectMessages($id, $sort);
+        return $this->selectMessages($id, $sort, $lastId, $limit);
     }
 
     /**
      * @return ChatMessage[]
      */
-    public function selectMessages(int $sessionId, string $sort = 'asc'): array
+    public function selectMessages(int $sessionId, string $sort = 'asc', string $lastId = '', int $limit = 15): array
     {
-        return ChatMessage::query()->where('session_id', '=', $sessionId)
-                                   ->order('id', $sort)
-                                   ->select()
-                                   ->getArray();
+        $query = ChatMessage::query()->where('session_id', '=', $sessionId);
+        if ('' !== $lastId)
+        {
+            $query->where('id', 'asc' === $sort ? '>' : '<', ChatMessage::decodeId($lastId));
+        }
+
+        return $query->order('id', $sort)
+                     ->limit($limit)
+                     ->select()
+                     ->getArray();
     }
 }

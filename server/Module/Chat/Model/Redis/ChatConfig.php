@@ -41,10 +41,10 @@ class ChatConfig extends RedisModel
         if (null === $this->modelConfig)
         {
             return $this->modelConfig = [
-                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0']),
-                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0']),
-                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0']),
-                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0']),
+                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
+                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
+                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
+                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
             ];
         }
 
@@ -95,6 +95,24 @@ class ChatConfig extends RedisModel
     public function setRateLimitAmount(int $rateLimitAmount): self
     {
         $this->rateLimitAmount = $rateLimitAmount;
+
+        return $this;
+    }
+
+    /**
+     * 携带对话的数量.
+     */
+    #[Column]
+    protected int $topConversations = 5;
+
+    public function getTopConversations(): int
+    {
+        return $this->topConversations;
+    }
+
+    public function setTopConversations(int $topConversations): self
+    {
+        $this->topConversations = $topConversations;
 
         return $this;
     }

@@ -21,4 +21,9 @@ class ModelConfig
      * 输出Token倍数，字符串小数.
      */
     public string $outputTokenMultiple = '1.0';
+
+    /**
+     * 最大Token数.
+     */
+    public int $maxTokens = 0;
 }

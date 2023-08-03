@@ -162,7 +162,7 @@ class OpenAIController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
         $session = $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId());
         $session->__setSecureField(true);
-        $messages = $this->openAIService->selectMessagesIdStr($id, 'asc');
+        $messages = $this->openAIService->selectMessagesIdStr($id, 'asc', limit: \PHP_INT_MAX);
         /** @var ChatMessage $message */
         foreach ($messages as $message)
         {

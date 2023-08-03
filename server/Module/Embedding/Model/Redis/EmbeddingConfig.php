@@ -174,7 +174,7 @@ class EmbeddingConfig extends RedisModel
         if (null === $this->embeddingModelConfig)
         {
             return $this->embeddingModelConfig = [
-                'text-embedding-ada-002' => new ModelConfig(['inputTokenMultiple' => '0.05', 'outputTokenMultiple' => '0.05']),
+                'text-embedding-ada-002' => new ModelConfig(['inputTokenMultiple' => '0.05', 'outputTokenMultiple' => '0.05', 'maxTokens' => 8191]),
             ];
         }
 
@@ -210,10 +210,10 @@ class EmbeddingConfig extends RedisModel
         if (null === $this->chatModelConfig)
         {
             return $this->chatModelConfig = [
-                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0']),
-                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0']),
-                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0']),
-                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0']),
+                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
+                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
+                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
+                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
             ];
         }
 
