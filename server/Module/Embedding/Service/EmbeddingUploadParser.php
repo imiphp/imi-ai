@@ -297,6 +297,12 @@ class EmbeddingUploadParser
                 try
                 {
                     $content = file_get_contents($fileName);
+                    // 统一转为 UTF-8 编码
+                    $content = mb_convert_encoding($content, 'UTF-8', ['EUC-CN', 'GB18030', 'HZ', 'EUC-TW', 'BIG-5', 'EUC-JP', 'JIS', 'JIS-ms', 'EUC-KR', 'ASCII', 'UTF-8']);
+                    if (false === $content)
+                    {
+                        $content = ''; // 转换失败，内容为空
+                    }
                     if ($fileRecord)
                     {
                         if ($fileRecord->content === $content)
@@ -472,15 +478,24 @@ class EmbeddingUploadParser
 
     private function parseSections(EmbeddingFile $file): void
     {
+        if ('' === $file->content)
+        {
+            return;
+        }
+
         $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
+
         /** @var IFileHandler $handler */
         $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
-
         $generator = $handler->parseSections($file->content, $this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle);
 
         foreach ($generator as $item)
         {
             [$chunk, $tokens] = $item;
+            if ('' === $chunk)
+            {
+                continue;
+            }
             $sectionRecord = EmbeddingSection::newInstance();
             $sectionRecord->projectId = $file->projectId;
             $sectionRecord->fileId = $file->id;

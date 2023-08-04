@@ -92,6 +92,8 @@ function handleSelectKeys(keys: Array<string & number>, option: Array<TreeOption
     selectedKeys.value = keys
     selectedFile.value = { ...meta.node } as unknown as Embedding.File
     selectedFile.value.content = decodeSecureField(selectedFile.value.content)
+    selectedFile.value.baseName = decodeSecureField(selectedFile.value.baseName)
+    selectedFile.value.fileName = decodeSecureField(selectedFile.value.fileName)
   }
 }
 
