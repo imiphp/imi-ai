@@ -16,6 +16,7 @@ interface Props {
   error?: boolean
   loading?: boolean
   tokens?: number
+  tokenPrefix?: string
 }
 
 interface Emit {
@@ -104,7 +105,7 @@ async function handleCopy() {
       <p class="text-xs text-[#b4bbc4]" :class="[inversion ? 'text-right' : 'text-left']">
         {{ (new Date((dateTime ?? 0) * 1000)).toLocaleString() }}
         <template v-if="undefined !== tokens">
-          | Tokens：{{ tokens }}
+          | {{ tokenPrefix }}Tokens：{{ tokens }}
         </template>
       </p>
       <div

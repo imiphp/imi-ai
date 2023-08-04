@@ -339,6 +339,7 @@ onMounted(async () => {
         error: false,
         loading: false,
         conversationOptions: null,
+        tokens: item.tokens,
       })
       currentChatReply.value = {
         beginTime: item.createTime / 1000,
@@ -348,6 +349,7 @@ onMounted(async () => {
         error: false,
         loading: false,
         conversationOptions: null,
+        tokens: item.tokens,
       }
       _dataSources.push(currentChatReply.value)
       qaId = item.recordId
@@ -453,6 +455,8 @@ onMounted(async () => {
                       :inversion="item.inversion"
                       :error="item.error"
                       :loading="item.loading"
+                      :tokens="item.inversion ? undefined : item.tokens"
+                      token-prefix="消耗"
                     />
                     <div class="sticky bottom-0 left-0 flex justify-center">
                       <NButton v-if="loading" type="warning" @click="handleStop">
