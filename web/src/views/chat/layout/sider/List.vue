@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { computed } from 'vue'
-import { NInput, NPopconfirm, NScrollbar } from 'naive-ui'
-import { SvgIcon } from '@/components/common'
+import { NIcon, NInput, NPopconfirm, NScrollbar } from 'naive-ui'
+import { ChatboxEllipsesOutline, ChatbubblesSharp, PencilOutline, SaveOutline, TrashOutline } from '@vicons/ionicons5'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { debounce } from '@/utils/functions/debounce'
@@ -89,7 +89,7 @@ function isActive(id: string) {
     <div class="flex flex-col gap-2 text-sm">
       <template v-if="!dataSources.length">
         <div class="flex flex-col items-center mt-4 text-center text-neutral-300">
-          <SvgIcon icon="ri:inbox-line" class="mb-2 text-3xl" />
+          <NIcon class="mb-2" :component="ChatbubblesSharp" size="30" />
           <span>{{ $t('common.noData') }}</span>
         </div>
       </template>
@@ -100,9 +100,7 @@ function isActive(id: string) {
             :class="isActive(item.id) && ['border-[#4b9e5f]', 'bg-neutral-100', 'text-[#4b9e5f]', 'dark:bg-[#24272e]', 'dark:border-[#4b9e5f]', 'pr-14']"
             @click="handleSelect(item)"
           >
-            <span>
-              <SvgIcon icon="ri:message-3-line" />
-            </span>
+            <NIcon class="!scale-x-[-1]" :component="ChatboxEllipsesOutline" size="14" />
             <div class="relative flex-1 overflow-hidden break-all text-ellipsis whitespace-nowrap">
               <NInput
                 v-if="item.isEdit"
@@ -114,17 +112,18 @@ function isActive(id: string) {
             <div v-if="isActive(item.id)" class="absolute z-10 flex visible right-1">
               <template v-if="item.isEdit">
                 <button class="p-1" @click="handleEdit(item, false, $event)">
-                  <SvgIcon icon="ri:save-line" />
+                  <NIcon class="align-middle" :component="SaveOutline" size="14" />
                 </button>
               </template>
               <template v-else>
-                <button class="p-1">
-                  <SvgIcon icon="ri:edit-line" @click="handleEdit(item, true, $event)" />
+                <button class="p-1" @click="handleEdit(item, true, $event)">
+                  <!-- border-bottom: 1px solid rgb(75, 158, 95); -->
+                  <NIcon class="align-middle border-b-[1px] border-b-[#4b9e5f] top-[-1px]" :component="PencilOutline" size="14" />
                 </button>
                 <NPopconfirm placement="bottom" @positive-click="handleDeleteDebounce(index, $event)">
                   <template #trigger>
                     <button class="p-1">
-                      <SvgIcon icon="ri:delete-bin-line" />
+                      <NIcon class="align-middle" :component="TrashOutline" size="14" />
                     </button>
                   </template>
                   {{ $t('chat.deleteHistoryConfirm') }}

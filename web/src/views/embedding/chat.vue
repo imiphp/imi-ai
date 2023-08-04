@@ -1,10 +1,10 @@
 <script setup lang='ts'>
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, useDialog, useMessage } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, useDialog, useMessage } from 'naive-ui'
 import type { CSSProperties } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
-
 import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
+import { DownloadOutline, PaperPlaneSharp, SettingsOutline, Sparkles, StopCircleOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from '../chat/components'
 import { useScroll } from '../chat/hooks/useScroll'
@@ -14,7 +14,7 @@ import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { defaultChatSetting, useAppStore, useRuntimeStore } from '@/store'
 import { defaultEmbeddingSetting, useEmbeddingStore } from '@/store/modules/embedding'
 import { t } from '@/locales'
-import { HoverButton, SvgIcon, Time } from '@/components/common'
+import { HoverButton, Time } from '@/components/common'
 import { decodeSecureField } from '@/utils/request'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
@@ -440,7 +440,7 @@ onMounted(async () => {
                 >
                   <template v-if="!dataSources.length">
                     <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-                      <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
+                      <NIcon :component="Sparkles" size="30" class="mr-2" />
                       <span>imi</span>
                     </div>
                   </template>
@@ -457,7 +457,7 @@ onMounted(async () => {
                     <div class="sticky bottom-0 left-0 flex justify-center">
                       <NButton v-if="loading" type="warning" @click="handleStop">
                         <template #icon>
-                          <SvgIcon icon="ri:stop-circle-line" />
+                          <NIcon :component="StopCircleOutline" size="28" />
                         </template>
                         {{ t('common.stopResponding') }}
                       </NButton>
@@ -475,14 +475,10 @@ onMounted(async () => {
                     </span>
                   </HoverButton> -->
                   <HoverButton @click="handleExport">
-                    <span class="text-xl text-[#4f555e] dark:text-white">
-                      <SvgIcon icon="ri:download-2-line" />
-                    </span>
+                    <NIcon class="text-[#4f555e] dark:text-white" :component="DownloadOutline" size="20" />
                   </HoverButton>
                   <HoverButton @click="handleConfig">
-                    <span class="text-xl text-[#4f555e] dark:text-white">
-                      <SvgIcon icon="icon-park-outline:config" />
-                    </span>
+                    <NIcon class="text-[#4f555e] dark:text-white" :component="SettingsOutline" size="20" />
                   </HoverButton>
                   <NInput
                     ref="inputRef"
@@ -494,9 +490,7 @@ onMounted(async () => {
                   />
                   <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
                     <template #icon>
-                      <span class="dark:text-black">
-                        <SvgIcon icon="ri:send-plane-fill" />
-                      </span>
+                      <NIcon class="dark:text-black" :component="PaperPlaneSharp" size="18" />
                     </template>
                   </NButton>
                 </div>

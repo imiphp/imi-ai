@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
-import { NDropdown, useMessage } from 'naive-ui'
+import { NDropdown, NIcon, useMessage } from 'naive-ui'
+import { MdMore } from '@vicons/ionicons4'
 import AvatarComponent from './Avatar.vue'
 import TextComponent from './Text.vue'
-import { SvgIcon } from '@/components/common'
 import { useIconRender } from '@/hooks/useIconRender'
 import { t } from '@/locales'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -134,7 +134,7 @@ async function handleCopy() {
             @select="handleSelect"
           >
             <button class="transition text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-200">
-              <SvgIcon icon="ri:more-2-fill" />
+              <NIcon :component="MdMore" />
             </button>
           </NDropdown>
         </div>

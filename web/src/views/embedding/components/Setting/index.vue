@@ -1,11 +1,11 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
-import { NButton, NModal, NTabPane, NTabs } from 'naive-ui'
+import { NButton, NIcon, NModal, NTabPane, NTabs } from 'naive-ui'
+import { BuildOutline, SettingsOutline } from '@vicons/ionicons5'
 import General from './General.vue'
 import Advanced from '@/components/common/Setting/Advanced.vue'
 import type { ChatSetting, ModelConfig } from '@/store'
 import type { EmbeddingChatSetting } from '@/store/modules/embedding'
-import { SvgIcon } from '@/components/common'
 
 interface Props {
   visible: boolean
@@ -52,7 +52,7 @@ function ok() {
       <NTabs v-model:value="active" type="line" animated>
         <NTabPane name="General" tab="General">
           <template #tab>
-            <SvgIcon class="text-lg" icon="ri:file-user-line" />
+            <NIcon :component="SettingsOutline" size="18" />
             <span class="ml-2">{{ $t('setting.general') }}</span>
           </template>
           <div class="min-h-[100px]">
@@ -61,7 +61,7 @@ function ok() {
         </NTabPane>
         <NTabPane name="Advanced" tab="Advanced">
           <template #tab>
-            <SvgIcon class="text-lg" icon="ri:equalizer-line" />
+            <NIcon :component="BuildOutline" size="18" />
             <span class="ml-2">{{ $t('setting.advanced') }}</span>
           </template>
           <div class="min-h-[100px]">

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, nextTick } from 'vue'
-import { SvgIcon } from '@/components/common'
+import { ListSharp, MenuSharp } from '@vicons/ionicons5'
+import { NIcon } from 'naive-ui'
 import { useAppStore, useRuntimeStore } from '@/store'
 
 const appStore = useAppStore()
@@ -29,8 +30,7 @@ function onScrollToTop() {
           class="flex items-center justify-center w-11 h-11"
           @click="handleUpdateCollapsed"
         >
-          <SvgIcon v-if="collapsed" class="text-2xl" icon="ri:align-justify" />
-          <SvgIcon v-else class="text-2xl" icon="ri:align-right" />
+          <NIcon size="30" :component="collapsed ? MenuSharp : ListSharp" />
         </button>
       </div>
       <h1

@@ -3,13 +3,14 @@ import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
+import { DownloadOutline, PaperPlaneSharp, SettingsOutline, Sparkles, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
-import { HoverButton, Setting, SvgIcon } from '@/components/common'
+import { HoverButton, Setting } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { QAStatus, defaultChatSetting, useChatStore, usePromptStore, useRuntimeStore } from '@/store'
 import { config, editSession, fetchChatAPIProcess, getSession, sendMessage } from '@/api'
@@ -517,7 +518,7 @@ onUnmounted(() => {
           >
             <template v-if="!dataSources.length">
               <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-                <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
+                <NIcon :component="Sparkles" size="30" class="mr-2" />
                 <span>imi</span>
               </div>
             </template>
@@ -537,7 +538,7 @@ onUnmounted(() => {
                 <div class="sticky bottom-0 left-0 flex justify-center">
                   <NButton v-if="loading" type="warning" @click="handleStop">
                     <template #icon>
-                      <SvgIcon icon="ri:stop-circle-line" />
+                      <NIcon :component="StopCircleOutline" size="28" />
                     </template>
                     {{ t('common.stopResponding') }}
                   </NButton>
@@ -551,19 +552,13 @@ onUnmounted(() => {
         <div class="w-full max-w-screen-xl m-auto">
           <div class="flex items-center justify-between space-x-2">
             <HoverButton @click="handleDeleteSession">
-              <span class="text-xl text-[#4f555e] dark:text-white">
-                <SvgIcon icon="ri:delete-bin-line" />
-              </span>
+              <NIcon class="text-[#4f555e] dark:text-white" :component="TrashOutline" size="20" />
             </HoverButton>
             <HoverButton v-if="!isMobile" @click="handleExport">
-              <span class="text-xl text-[#4f555e] dark:text-white">
-                <SvgIcon icon="ri:download-2-line" />
-              </span>
+              <NIcon class="text-[#4f555e] dark:text-white" :component="DownloadOutline" size="20" />
             </HoverButton>
             <HoverButton @click="handleConfig">
-              <span class="text-xl text-[#4f555e] dark:text-white">
-                <SvgIcon icon="icon-park-outline:config" />
-              </span>
+              <NIcon class="text-[#4f555e] dark:text-white" :component="SettingsOutline" size="20" />
             </HoverButton>
             <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
               <template #default="{ handleInput, handleBlur, handleFocus }">
@@ -582,9 +577,7 @@ onUnmounted(() => {
             </NAutoComplete>
             <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
               <template #icon>
-                <span class="dark:text-black">
-                  <SvgIcon icon="ri:send-plane-fill" />
-                </span>
+                <NIcon class="dark:text-black" :component="PaperPlaneSharp" size="18" />
               </template>
             </NButton>
           </div>

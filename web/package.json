@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@traptitech/markdown-it-katex": "^3.6.0",
+    "@vicons/ionicons4": "^0.12.0",
     "@vicons/ionicons5": "^0.12.0",
     "@vueuse/core": "^9.13.0",
     "highlight.js": "^11.8.0",
@@ -46,7 +47,7 @@
     "@types/katex": "^0.16.2",
     "@types/markdown-it": "^12.2.3",
     "@types/markdown-it-link-attributes": "^3.0.1",
-    "@types/node": "^18.17.1",
+    "@types/node": "^18.17.2",
     "@types/pako": "^2.0.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.14",
