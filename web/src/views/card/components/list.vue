@@ -44,7 +44,7 @@ const createColumns = (): DataTableColumns<Card.Card> => {
           return h(NProgress, {
             // indicatorPlacement: 'inside', // TODO：naive-ui bug，下个版本修复
             color,
-            percentage: percent.toFixed(2),
+            percentage: parseFloat(percent.toFixed(2)),
             status,
           } as any, {
             default: () => `${row.leftAmountText}/${row.amountText}`,

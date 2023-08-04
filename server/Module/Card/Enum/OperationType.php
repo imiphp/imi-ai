@@ -9,12 +9,12 @@ use Imi\Enum\BaseEnum;
 
 class OperationType extends BaseEnum
 {
-    #[EnumItem(text: '消费')]
+    #[EnumItem(__data: ['deduct' => true], text: '消费')]
     public const PAY = 1;
 
-    #[EnumItem(text: '退款')]
+    #[EnumItem(__data: ['deduct' => false], text: '退款')]
     public const REFUND = 2;
 
-    #[EnumItem(text: '系统赠送')]
+    #[EnumItem(__data: ['deduct' => false], text: '系统赠送')]
     public const GIFT = 3;
 }

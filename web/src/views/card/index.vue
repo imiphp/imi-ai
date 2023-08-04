@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { NCard, NTabPane, NTabs } from 'naive-ui'
 import { ref, watch } from 'vue'
-import { CardActivation, CardList } from './components'
+import { CardActivation, CardList, MemberCardDetails } from './components'
 
 const tab = ref('list')
 const success = ref(false)
@@ -25,6 +25,9 @@ watch(success, (val) => {
       >
         <NTabPane name="list" tab="卡包列表">
           <CardList :expired="false" />
+        </NTabPane>
+        <NTabPane name="details" tab="交易明细">
+          <MemberCardDetails />
         </NTabPane>
         <NTabPane name="activation" tab="卡号激活">
           <CardActivation v-model:success="success" />

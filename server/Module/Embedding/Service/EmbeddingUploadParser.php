@@ -298,10 +298,13 @@ class EmbeddingUploadParser
                 {
                     $content = file_get_contents($fileName);
                     // 统一转为 UTF-8 编码
-                    $content = mb_convert_encoding($content, 'UTF-8', ['EUC-CN', 'GB18030', 'HZ', 'EUC-TW', 'BIG-5', 'EUC-JP', 'JIS', 'JIS-ms', 'EUC-KR', 'ASCII', 'UTF-8']);
-                    if (false === $content)
+                    try
                     {
-                        $content = ''; // 转换失败，内容为空
+                        $content = mb_convert_encoding($content, 'UTF-8', ['EUC-CN', 'GB18030', 'HZ', 'EUC-TW', 'BIG-5', 'EUC-JP', 'JIS', 'JIS-ms', 'EUC-KR', 'ASCII', 'UTF-8']);
+                    }
+                    catch (\ValueError $_)
+                    {
+                        $content = '';
                     }
                     if ($fileRecord)
                     {

@@ -1,5 +1,6 @@
 import { computed } from 'vue'
-import { enUS, koKR, zhCN, zhTW } from 'naive-ui'
+import { dateEnUS, dateKoKR, dateRuRU, dateZhCN, enUS, koKR, zhCN, zhTW } from 'naive-ui'
+import datezhTW from 'naive-ui/es/locales/date/zhTW'
 import { useAppStore } from '@/store'
 import { setLocale } from '@/locales'
 
@@ -29,5 +30,22 @@ export function useLanguage() {
     }
   })
 
-  return { language }
+  const dateLocale = computed(() => {
+    switch (appStore.language) {
+      case 'en-US':
+        return dateEnUS
+      case 'ru-RU':
+        return dateRuRU
+      case 'ko-KR':
+        return dateKoKR
+      case 'zh-CN':
+        return dateZhCN
+      case 'zh-TW':
+        return datezhTW
+      default:
+        return dateZhCN
+    }
+  })
+
+  return { language, dateLocale }
 }

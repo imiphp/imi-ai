@@ -283,4 +283,31 @@ class MemberCardService
 
         return $balance;
     }
+
+    public function details(int $memberId = 0, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $query = MemberCardOrder::query();
+        if ($memberId)
+        {
+            $query->where('member_id', '=', $memberId);
+        }
+        if ($operationType)
+        {
+            $query->where('operation_type', '=', $operationType);
+        }
+        if ($businessType)
+        {
+            $query->where('business_type', '=', $businessType);
+        }
+        if ($beginTime)
+        {
+            $query->where('time', '>=', $beginTime);
+        }
+        if ($endTime)
+        {
+            $query->where('time', '<=', $endTime);
+        }
+
+        return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
+    }
 }

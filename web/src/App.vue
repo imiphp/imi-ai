@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useLanguage } from '@/hooks/useLanguage'
 
 const { theme, themeOverrides } = useTheme()
-const { language } = useLanguage()
+const { language, dateLocale } = useLanguage()
 </script>
 
 <template>
@@ -14,6 +14,7 @@ const { language } = useLanguage()
     :theme="theme"
     :theme-overrides="themeOverrides"
     :locale="language"
+    :date-locale="dateLocale"
   >
     <NaiveProvider>
       <RouterView />
