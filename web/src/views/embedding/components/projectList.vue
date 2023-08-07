@@ -400,7 +400,7 @@ onUnmounted(() => {
           <span v-if="PublicProjectStatus.WAIT_FOR_REVIEW === editProject?.publicProject?.status">（等待审核）</span>
         </NFormItem>
         <NFormItem label="分隔符">
-          <NInput v-model:value="editData.sectionSeparator" placeholder="留空则不使用分隔符分割段落" />
+          <NInput v-model:value="editData.sectionSeparator" placeholder="用于分割段落，支持转义符" />
         </NFormItem>
         <NFormItem label="段落最大长度">
           <NInputNumber v-model:value="editData.sectionSplitLength" :max="publicConfig['config:embedding'].config.maxSectionTokens" />

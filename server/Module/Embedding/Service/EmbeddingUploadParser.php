@@ -72,12 +72,14 @@ class EmbeddingUploadParser
 
     private int $sectionSplitLength = 0;
 
+    private string $sectionSeparator = '';
+
     /**
      * @param string $id        项目ID
      * @param bool   $override  是否覆盖已存在文件
      * @param string $directory 上传文件解压目标目录
      */
-    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/', private string $sectionSeparator = '', ?int $sectionSplitLength = null, private bool $sectionSplitByTitle = true)
+    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/', string $sectionSeparator = '', ?int $sectionSplitLength = null, private bool $sectionSplitByTitle = true)
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
@@ -85,6 +87,12 @@ class EmbeddingUploadParser
         $this->config = goWait(fn () => EmbeddingConfig::__getConfig(), 30, true);
         $maxSectionTokens = $this->config->getMaxSectionTokens();
         $this->sectionSplitLength = max($sectionSplitLength ?? $maxSectionTokens, $maxSectionTokens);
+        $this->setSectionSeparator($sectionSeparator);
+    }
+
+    public function setSectionSeparator(string $sectionSeparator): void
+    {
+        $this->sectionSeparator = stripcslashes($sectionSeparator);
     }
 
     public function upload(): EmbeddingProject
@@ -96,7 +104,7 @@ class EmbeddingUploadParser
                 /** @var EmbeddingProject $project */
                 $project = goWait(fn () => $this->embeddingService->getProject($this->id, $this->memberId), 30, true);
                 // 追加文件使用项目配置
-                $this->sectionSeparator = $project->sectionSeparator;
+                $this->setSectionSeparator($project->sectionSeparator);
                 $this->sectionSplitLength = $project->sectionSplitLength;
                 $this->sectionSplitByTitle = $project->sectionSplitByTitle;
             }
