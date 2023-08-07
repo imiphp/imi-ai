@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Enum;
 
-use Imi\Enum\BaseEnum;
-use Imi\Enum\Annotation\EnumItem;
 use app\Module\Config\Annotation\PublicEnum;
+use Imi\Enum\Annotation\EnumItem;
+use Imi\Enum\BaseEnum;
 
 #[PublicEnum(name: 'EmbeddingPublicProjectStatus')]
 class PublicProjectStatus extends BaseEnum

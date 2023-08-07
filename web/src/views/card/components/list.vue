@@ -3,7 +3,7 @@ import { NButton, NDataTable, NIcon, NProgress, NSpace } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
 import { List } from '@vicons/ionicons5'
-import { CardDetails } from './index.ts'
+import { CardDetails } from '.'
 import { cardList } from '@/api'
 
 interface Props {

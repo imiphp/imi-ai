@@ -12,7 +12,7 @@ use Imi\Log\Log;
 class EnumService
 {
     /**
-     * @var array<string,\stdClass>
+     * @var array<string,array{text:string,value:mixed}>
      */
     protected array $enums = [];
 
@@ -45,7 +45,7 @@ class EnumService
     }
 
     /**
-     * @var array<string,\stdClass>
+     * @return array<string,array{text:string,value:mixed}>
      */
     public function getEnums(): array
     {
