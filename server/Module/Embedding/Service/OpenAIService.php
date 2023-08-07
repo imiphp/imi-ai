@@ -210,6 +210,7 @@ class OpenAIService
         $record->completeTime = $endTime;
         $record->update();
         $this->memberCardService->pay($memberId, $payTokens, BusinessType::EMBEDDING_CHAT, $record->id);
+        yield ['message' => $record];
     }
 
     public function getByIdStr(string $id, int $memberId = 0): EmbeddingQa

@@ -211,6 +211,10 @@ async function fetchStream() {
                 }
                 scrollToBottomIfAtBottom()
               }
+              else if (data.message) {
+                if (currentChatReply.value)
+                  currentChatReply.value.tokens = data.message.tokens
+              }
             }
             catch (error) {
             //
