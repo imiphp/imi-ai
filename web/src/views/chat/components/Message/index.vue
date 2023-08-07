@@ -1,10 +1,10 @@
 <script setup lang='ts'>
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { NDropdown, NIcon, useMessage } from 'naive-ui'
 import { MdMore } from '@vicons/ionicons4'
+import { CodeSharp, CodeSlash, CopyOutline } from '@vicons/ionicons5'
 import AvatarComponent from './Avatar.vue'
 import TextComponent from './Text.vue'
-import { useIconRender } from '@/hooks/useIconRender'
 import { t } from '@/locales'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { copyToClip } from '@/utils/copy'
@@ -30,8 +30,6 @@ const emit = defineEmits<Emit>()
 
 const { isMobile } = useBasicLayout()
 
-const { iconRender } = useIconRender()
-
 const message = useMessage()
 
 const textRef = ref<HTMLElement>()
@@ -45,7 +43,7 @@ const options = computed(() => {
     {
       label: t('chat.copy'),
       key: 'copyText',
-      icon: iconRender({ icon: 'ri:file-copy-2-line' }),
+      icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
     },
     // {
     //   label: t('common.delete'),
@@ -58,7 +56,7 @@ const options = computed(() => {
     common.unshift({
       label: asRawText.value ? t('chat.preview') : t('chat.showRawText'),
       key: 'toggleRenderType',
-      icon: iconRender({ icon: asRawText.value ? 'ic:outline-code-off' : 'ic:outline-code' }),
+      icon: () => h(NIcon, null, { default: () => h(asRawText.value ? CodeSlash : CodeSharp) }),
     })
   }
 
