@@ -45,6 +45,31 @@ export async function activation(
   return response
 }
 
+export async function cardDetails(
+  cardId: string,
+  operationType = 0,
+  businessType = 0,
+  beginTime = 0,
+  endTime = 0,
+  page = 1,
+  limit = 15,
+) {
+  const response = await get({
+    url: '/card/cardDetails',
+    data: {
+      cardId,
+      operationType,
+      businessType,
+      beginTime,
+      endTime,
+      page,
+      limit,
+    },
+  })
+
+  return response
+}
+
 export async function memberCardDetails(
   operationType = 0,
   businessType = 0,

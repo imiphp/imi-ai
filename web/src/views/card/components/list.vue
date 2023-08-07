@@ -1,7 +1,9 @@
 <script setup lang='ts'>
-import { NDataTable, NProgress } from 'naive-ui'
+import { NButton, NDataTable, NIcon, NProgress, NSpace } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
+import { List } from '@vicons/ionicons5'
+import { CardDetails } from './index.ts'
 import { cardList } from '@/api'
 
 interface Props {
@@ -9,7 +11,14 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const createColumns = (): DataTableColumns<Card.Card> => {
+const detailId = ref('')
+const showDetail = ref(false)
+
+const createColumns = ({
+  details,
+}: {
+  details: (row: any) => void
+}): DataTableColumns<Card.Card> => {
   return [
     {
       title: '卡号',
@@ -66,10 +75,40 @@ const createColumns = (): DataTableColumns<Card.Card> => {
         return row.expireTime > 0 ? (new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')) : '永久有效'
       },
     },
+    {
+      title: '操作',
+      key: 'actions',
+      render(row) {
+        return h(
+          NSpace,
+          null,
+          {
+            default: () => [
+              h(
+                NButton,
+                {
+                  strong: true,
+                  size: 'small',
+                  type: 'info',
+                  renderIcon: () => h(NIcon, null, { default: () => h(List) }),
+                  onClick: () => details(row),
+                },
+                { default: () => '明细' },
+              ),
+            ],
+          },
+        )
+      },
+    },
   ]
 }
 
-const columns = createColumns()
+const columns = createColumns({
+  details(row) {
+    detailId.value = row.recordId
+    showDetail.value = true
+  },
+})
 const tableLoading = ref(false)
 const data = ref<Card.Card[]>([])
 const pagination = reactive({
@@ -106,7 +145,9 @@ onMounted(async () => {
 </script>
 
 <template>
+  <CardDetails v-if="showDetail" v-model:visible="showDetail" :card-id="detailId" />
   <NDataTable
+    v-show="!showDetail"
     :columns="columns"
     :data="data"
     :bordered="false"

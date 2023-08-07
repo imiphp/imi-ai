@@ -76,6 +76,17 @@ class CardController extends HttpController
         Action,
         LoginRequired()
     ]
+    public function cardDetails(string $cardId, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        return $this->cardService->details($cardId, $memberSession->getIntMemberId(), $operationType, $businessType, $beginTime, $endTime, $page, $limit);
+    }
+
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function details(int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
     {
         $memberSession = MemberUtil::getMemberSession();

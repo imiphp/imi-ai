@@ -196,7 +196,7 @@ class MemberCardService
             throw new \RuntimeException('不是支付订单');
         }
         $time = time();
-        $details = $this->cardService->details($originOrder->detailIds);
+        $details = $this->cardService->selectDetailsByIds($originOrder->detailIds);
         $detailIds = [];
         foreach ($details as $detail)
         {

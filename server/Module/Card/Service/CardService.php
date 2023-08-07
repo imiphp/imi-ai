@@ -25,14 +25,14 @@ class CardService
     #[Inject]
     protected MemberService $memberService;
 
-    public function get(string|int $cardId): Card
+    public function get(string|int $cardId, int $memberId = 0): Card
     {
         if (\is_string($cardId))
         {
             $cardId = Card::decodeId($cardId);
         }
         $record = Card::find($cardId);
-        if (!$record)
+        if (!$record || ($memberId && $record->memberId !== $memberId))
         {
             throw new NotFoundException(sprintf('卡 %d 不存在', $cardId));
         }
@@ -239,7 +239,7 @@ class CardService
     /**
      * @return CardDetail[]
      */
-    public function details(array $ids): array
+    public function selectDetailsByIds(array $ids): array
     {
         return QueryHelper::orderByField(CardDetail::query(), 'id', $ids)
                             ->whereIn('id', $ids)
@@ -299,5 +299,30 @@ class CardService
     protected function getActivationFailedCountKey(int $memberId): string
     {
         return 'card:activationFailedCount:' . $memberId;
+    }
+
+    public function details(int|string $cardId, int $memberId = 0, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $card = $this->get($cardId, $memberId);
+        $query = CardDetail::query();
+        $query->where('card_id', '=', $card->id);
+        if ($operationType)
+        {
+            $query->where('operation_type', '=', $operationType);
+        }
+        if ($businessType)
+        {
+            $query->where('business_type', '=', $businessType);
+        }
+        if ($beginTime)
+        {
+            $query->where('time', '>=', $beginTime);
+        }
+        if ($endTime)
+        {
+            $query->where('time', '<=', $endTime);
+        }
+
+        return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
     }
 }

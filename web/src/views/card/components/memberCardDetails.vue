@@ -146,6 +146,7 @@ onMounted(async () => {
     </NSpace>
   </NForm>
   <NDataTable
+    class="mt-4"
     :columns="columns"
     :data="data"
     :bordered="false"
