@@ -216,6 +216,8 @@ async function loadInfo(allowNewTimer = true) {
       for (const item of assocFileListResponse.list) {
         if (selectedFileId.value === item.recordId) {
           selectedFile.value = { ...item } as unknown as Embedding.File
+          selectedFile.value.baseName = decodeSecureField(selectedFile.value.baseName)
+          selectedFile.value.fileName = decodeSecureField(selectedFile.value.fileName)
           break
         }
       }
