@@ -56,6 +56,9 @@ export function updateProject(
     name?: string
     public?: boolean
     publicList?: boolean
+    sectionSeparator?: string
+    sectionSplitLength?: number
+    sectionSplitByTitle?: boolean
   },
 ) {
   return post({
@@ -65,6 +68,9 @@ export function updateProject(
       name: data.name,
       public: data.public,
       publicList: data.publicList,
+      sectionSeparator: data.sectionSeparator,
+      sectionSplitLength: data.sectionSplitLength,
+      sectionSplitByTitle: data.sectionSplitByTitle,
     },
   })
 }

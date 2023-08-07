@@ -1,11 +1,11 @@
 <script setup lang='ts'>
-import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NSwitch, useDialog } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSpace, NSpin, NSwitch, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, Refresh, TrashOutline } from '@vicons/ionicons5'
-import { deleteProject, projectList, retryProject, updateProject } from '@/api'
+import { config, deleteProject, projectList, retryProject, updateProject } from '@/api'
 import { EmbeddingStatus, PublicProjectStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
 import { t } from '@/locales'
@@ -216,6 +216,7 @@ const showEditModal = ref(false)
 const editData = ref<any>({})
 const editProject = ref<Embedding.Project | null>(null)
 const indeterminate = ref(false)
+const publicConfig = ref<any>(null)
 
 const columns = createColumns({
   chat(row: Embedding.Project) {
@@ -341,8 +342,16 @@ function handleClickPublicProject() {
     editData.value.publicList = indeterminate.value = false
 }
 
+async function loadConfig() {
+  const response = await config()
+  publicConfig.value = response.data
+}
+
 onMounted(async () => {
-  await loadProjectList()
+  await Promise.all([
+    loadProjectList(),
+    loadConfig(),
+  ])
 })
 
 onUnmounted(() => {
@@ -380,15 +389,24 @@ onUnmounted(() => {
         label-width="auto"
         require-mark-placement="right-hanging"
       >
-        <NFormItem label="项目名称" path="name">
+        <NFormItem label="项目名称">
           <NInput v-model:value="editData.name" />
         </NFormItem>
-        <NFormItem label="权限" path="name">
+        <NFormItem label="权限">
           <NCheckbox v-model:checked="editData.public" label="公开" />
         </NFormItem>
-        <NFormItem label="在列表公开" path="name">
+        <NFormItem label="在列表公开">
           <NCheckbox v-model:checked="editData.publicList" :disabled="!editData.public" :indeterminate="indeterminate" label="公开" @click="handleClickPublicProject" />
           <span v-if="PublicProjectStatus.WAIT_FOR_REVIEW === editProject?.publicProject?.status">（等待审核）</span>
+        </NFormItem>
+        <NFormItem label="分隔符">
+          <NInput v-model:value="editData.sectionSeparator" placeholder="留空则不使用分隔符分割段落" />
+        </NFormItem>
+        <NFormItem label="段落最大长度">
+          <NInputNumber v-model:value="editData.sectionSplitLength" :max="publicConfig['config:embedding'].config.maxSectionTokens" />
+        </NFormItem>
+        <NFormItem label="按标题分割段落">
+          <NCheckbox v-model:checked="editData.sectionSplitByTitle" />
         </NFormItem>
         <div style="display: flex; justify-content: flex-end">
           <NButton round type="primary" @click="handleSaveButtonClient">
