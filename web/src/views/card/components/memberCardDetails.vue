@@ -3,7 +3,7 @@ import { NButton, NDataTable, NDatePicker, NForm, NFormItem, NIcon, NSelect, NSp
 import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
 import { SearchSharp } from '@vicons/ionicons5'
-import { memberCardDetails } from '@/api'
+import { ENUM_ALL, enumValues, memberCardDetails } from '@/api'
 
 const createColumns = (): DataTableColumns<any> => {
   return [
@@ -39,47 +39,8 @@ const createColumns = (): DataTableColumns<any> => {
   ]
 }
 
-const businessTypes = [
-  {
-    label: '全部',
-    value: 0,
-  },
-  {
-    label: '其它',
-    value: 1,
-  },
-  {
-    label: 'AI聊天',
-    value: 2,
-  },
-  {
-    label: '模型训练',
-    value: 3,
-  },
-  {
-    label: '模型训练对话',
-    value: 4,
-  },
-]
-
-const operationTypes = [
-  {
-    label: '全部',
-    value: 0,
-  },
-  {
-    label: '消费',
-    value: 1,
-  },
-  {
-    label: '退款',
-    value: 2,
-  },
-  {
-    label: '系统赠送',
-    value: 3,
-  },
-]
+const businessTypes = ref(ENUM_ALL)
+const operationTypes = ref(ENUM_ALL)
 
 const conditions = ref({
   operationType: 0,
@@ -104,6 +65,13 @@ const pagination = reactive({
   },
 })
 
+async function loadEnums() {
+  const response = await enumValues(['BusinessType', 'OperationType'])
+  const data = response.data
+  businessTypes.value = ENUM_ALL.concat(data.BusinessType ?? [])
+  operationTypes.value = ENUM_ALL.concat(data.OperationType ?? [])
+}
+
 async function loadList(resetPage = true) {
   tableLoading.value = true
   try {
@@ -121,7 +89,7 @@ async function loadList(resetPage = true) {
 }
 
 onMounted(async () => {
-  await loadList()
+  await Promise.all([loadList(), loadEnums()])
 })
 </script>
 
@@ -129,10 +97,10 @@ onMounted(async () => {
   <NForm label-placement="left" :show-feedback="false">
     <NSpace class="flex flex-row flex-wrap">
       <NFormItem label="业务类型">
-        <NSelect v-model:value="conditions.businessType" class="!w-[140px]" :options="businessTypes" />
+        <NSelect v-model:value="conditions.businessType" class="!w-[140px]" :options="businessTypes" label-field="text" value-field="value" />
       </NFormItem>
       <NFormItem label="操作类型">
-        <NSelect v-model:value="conditions.operationType" class="!w-[120px]" :options="operationTypes" />
+        <NSelect v-model:value="conditions.operationType" class="!w-[120px]" :options="operationTypes" label-field="text" value-field="value" />
       </NFormItem>
       <NFormItem label="时间">
         <NDatePicker v-model:value="conditions.timeRange" class="pr-2 flex-1" type="daterange" clearable />

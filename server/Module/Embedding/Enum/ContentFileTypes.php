@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Enum;
 
+use app\Module\Config\Annotation\PublicEnum;
 use Imi\Enum\Annotation\EnumItem;
 use Imi\Enum\BaseEnum;
 
+#[PublicEnum(name: 'EmbeddingContentFileTypes')]
 class ContentFileTypes extends BaseEnum
 {
     #[EnumItem(text: 'txt')]

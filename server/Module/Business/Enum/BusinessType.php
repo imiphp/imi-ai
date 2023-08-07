@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace app\Module\Business\Enum;
 
+use app\Module\Config\Annotation\PublicEnum;
 use Imi\Enum\Annotation\EnumItem;
 use Imi\Enum\BaseEnum;
 
+#[PublicEnum(name: 'BusinessType')]
 class BusinessType extends BaseEnum
 {
     #[EnumItem(text: '其它')]

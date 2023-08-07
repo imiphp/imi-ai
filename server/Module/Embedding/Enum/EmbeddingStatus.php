@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Enum;
 
-use Imi\Enum\Annotation\EnumItem;
 use Imi\Enum\BaseEnum;
+use Imi\Enum\Annotation\EnumItem;
+use app\Module\Config\Annotation\PublicEnum;
 
+#[PublicEnum(name: 'EmbeddingStatus')]
 class EmbeddingStatus extends BaseEnum
 {
     #[EnumItem(text: '正在解压')]
