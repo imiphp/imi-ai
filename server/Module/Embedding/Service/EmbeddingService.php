@@ -273,22 +273,22 @@ class EmbeddingService
     }
 
     #[Transaction()]
-    public function retryProject(string $id, int $memberId = 0): void
+    public function retryProject(string $id, int $memberId = 0, bool $force = false, bool $reSection = false): void
     {
         $project = $this->getProject($id, $memberId);
         $project->status = EmbeddingStatus::TRAINING;
         $project->update();
         $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
         $retryParser->asyncRun();
-        foreach ($this->fileList($id, $memberId, EmbeddingStatus::FAILED) as $file)
+        foreach ($this->fileList($id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $file)
         {
-            $this->retryFile($file, $memberId, $retryParser);
+            $this->retryFile($file, $memberId, $retryParser, $force, $reSection, $project);
         }
         $retryParser->endPush();
     }
 
     #[Transaction()]
-    public function retryFile(string|EmbeddingFile $file, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null): void
+    public function retryFile(string|EmbeddingFile $file, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null, bool $force = false, bool $reSection = false, ?EmbeddingProject $project = null): void
     {
         if (\is_string($file))
         {
@@ -302,15 +302,50 @@ class EmbeddingService
         }
         else
         {
-            $project = $this->getProject($file->projectId, $memberId);
+            if (!$project)
+            {
+                $project = $this->getProject($file->projectId, $memberId);
+            }
             $project->status = EmbeddingStatus::TRAINING;
             $project->update();
             $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
             $retryParser->asyncRun();
         }
-        foreach ($this->sectionList($file->projectId, $file->id, $memberId, EmbeddingStatus::FAILED) as $section)
+        if ($reSection)
         {
-            $this->retrySection($section, $memberId, $retryParser);
+            if (!$project)
+            {
+                $project = $this->getProject($file->projectId, $memberId);
+            }
+            $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
+            /** @var IFileHandler $handler */
+            $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
+            $generator = $handler->parseSections($file->content, $project->sectionSplitLength, $project->sectionSeparator, $project->sectionSplitByTitle);
+            foreach ($generator as $item)
+            {
+                [$title, $chunk, $tokens] = $item;
+                if ('' === $chunk)
+                {
+                    continue;
+                }
+                $section = EmbeddingSection::newInstance();
+                $section->projectId = $file->projectId;
+                $section->fileId = $file->id;
+                $section->status = EmbeddingStatus::TRAINING;
+                $section->title = $title;
+                $section->content = $chunk;
+                $section->vector = '[0]';
+                $section->tokens = $tokens;
+                $section->insert();
+                $this->retrySection($section, $memberId, $retryParser, $force);
+            }
+        }
+        else
+        {
+            foreach ($this->sectionList($file->projectId, $file->id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $section)
+            {
+                $this->retrySection($section, $memberId, $retryParser, $force);
+            }
         }
         if (!$_retryParser)
         {
@@ -319,7 +354,7 @@ class EmbeddingService
     }
 
     #[Transaction()]
-    public function retrySection(string|EmbeddingSection $_section, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null): void
+    public function retrySection(string|EmbeddingSection $_section, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null, bool $force = false): void
     {
         if (\is_string($_section))
         {
@@ -329,7 +364,7 @@ class EmbeddingService
         {
             $section = $_section;
         }
-        if (EmbeddingStatus::FAILED !== $section->status)
+        if (EmbeddingStatus::FAILED !== $section->status && !$force)
         {
             throw new \RuntimeException('段落当前状态不可重试');
         }

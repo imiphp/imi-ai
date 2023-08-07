@@ -146,7 +146,7 @@ class EmbeddingRetryParser
         try
         {
             $input = array_map(function (EmbeddingSection $section) {
-                return $section->content;
+                return $section->title . "\n" . $section->content;
             }, $sections);
             $response = $this->openaiClient->embeddings()->create([
                 'model' => $this->model,

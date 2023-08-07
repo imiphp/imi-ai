@@ -31,8 +31,6 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null    $tokens               Token数量
  * @property int|null    $payTokens            支付 Token 数量
  * @property string|null $title                标题
- * @property int|null    $contentPosition      内容位置
- * @property int|null    $contentLength        内容长度
  */
 abstract class EmbeddingSectionBase extends Model
 {
@@ -461,66 +459,6 @@ abstract class EmbeddingSectionBase extends Model
     public function setTitle(?string $title)
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * 内容位置.
-     * content_position.
-     *
-     * @Column(name="content_position", type="int4", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
-     */
-    protected ?int $contentPosition = 0;
-
-    /**
-     * 获取 contentPosition - 内容位置.
-     */
-    public function getContentPosition(): ?int
-    {
-        return $this->contentPosition;
-    }
-
-    /**
-     * 赋值 contentPosition - 内容位置.
-     *
-     * @param int|null $contentPosition content_position
-     *
-     * @return static
-     */
-    public function setContentPosition(?int $contentPosition)
-    {
-        $this->contentPosition = $contentPosition;
-
-        return $this;
-    }
-
-    /**
-     * 内容长度.
-     * content_length.
-     *
-     * @Column(name="content_length", type="int4", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
-     */
-    protected ?int $contentLength = 0;
-
-    /**
-     * 获取 contentLength - 内容长度.
-     */
-    public function getContentLength(): ?int
-    {
-        return $this->contentLength;
-    }
-
-    /**
-     * 赋值 contentLength - 内容长度.
-     *
-     * @param int|null $contentLength content_length
-     *
-     * @return static
-     */
-    public function setContentLength(?int $contentLength)
-    {
-        $this->contentLength = $contentLength;
 
         return $this;
     }

@@ -31,7 +31,7 @@ class TxtFileHandler implements IFileHandler
             foreach ($tokenizer->chunk($splitItem, $sectionSplitLength) as $chunk)
             {
                 $tokens = $tokenizer->count($chunk);
-                yield [$chunk, $tokens];
+                yield ['', $chunk, $tokens];
             }
         }
     }

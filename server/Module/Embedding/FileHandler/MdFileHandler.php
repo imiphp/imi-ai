@@ -32,7 +32,6 @@ class MdFileHandler implements IFileHandler
                 [$heading, $section] = $item;
                 $heading = trim($heading);
                 $section = trim($section);
-                $heading .= "\n";
                 $headingTokens = $tokenizer->count($heading);
                 // 分隔符分割
                 if ('' === $sectionSeparator)
@@ -49,7 +48,7 @@ class MdFileHandler implements IFileHandler
                     foreach ($tokenizer->chunk($splitItem, $sectionSplitLength - $headingTokens) as $chunk)
                     {
                         $tokens = $headingTokens + $tokenizer->count($chunk);
-                        yield [$heading . $chunk, $tokens];
+                        yield [$heading, $chunk, $tokens];
                     }
                 }
             }
@@ -72,7 +71,7 @@ class MdFileHandler implements IFileHandler
                 foreach ($tokenizer->chunk($splitItem, $sectionSplitLength) as $chunk)
                 {
                     $tokens = $tokenizer->count($chunk);
-                    yield [$chunk, $tokens];
+                    yield ['', $chunk, $tokens];
                 }
             }
         }

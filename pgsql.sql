@@ -168,7 +168,8 @@ CACHE 1
   "complete_training_time" int8 NOT NULL DEFAULT 0,
   "reason" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text,
   "tokens" int4 NOT NULL,
-  "pay_tokens" int4 NOT NULL DEFAULT 0
+  "pay_tokens" int4 NOT NULL DEFAULT 0,
+  "title" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_section"."project_id" IS '项目ID';
@@ -183,6 +184,7 @@ COMMENT ON COLUMN "public"."tb_embedding_section"."complete_training_time" IS '�
 COMMENT ON COLUMN "public"."tb_embedding_section"."reason" IS '失败原因';
 COMMENT ON COLUMN "public"."tb_embedding_section"."tokens" IS 'Token数量';
 COMMENT ON COLUMN "public"."tb_embedding_section"."pay_tokens" IS '支付 Token 数量';
+COMMENT ON COLUMN "public"."tb_embedding_section"."title" IS '标题';
 COMMENT ON TABLE "public"."tb_embedding_section" IS '训练内容段落';
 
 -- ----------------------------

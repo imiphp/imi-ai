@@ -126,7 +126,7 @@ class OpenAIService
             $data = '';
             foreach ($list as $item)
             {
-                $data .= $item->content . "\n";
+                $data .= $item->title . "\n" . $item->content . "\n";
             }
             $question = '资料:' . $data . '问题:' . $record->question;
             $messages = [

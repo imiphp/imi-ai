@@ -394,14 +394,14 @@ class EmbeddingUploadParser
         $sectionRecordCount = 0;
         $embedding = function () use ($client, &$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
             $updateFileIds = [];
-            $input = array_map(function ($sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
+            $input = array_map(function (EmbeddingSection $sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
                 if (!isset($fileUpdateMap[$sectionRecord->fileId]))
                 {
                     $updateFileIds[] = $sectionRecord->fileId;
                     $fileUpdateMap[$sectionRecord->fileId] = true;
                 }
 
-                return $sectionRecord->content;
+                return $sectionRecord->title . "\n" . $sectionRecord->content;
             }, $sectionRecords);
             $beginTrainingTime = (int) (microtime(true) * 1000);
 
@@ -502,7 +502,7 @@ class EmbeddingUploadParser
 
         foreach ($generator as $item)
         {
-            [$chunk, $tokens] = $item;
+            [$title, $chunk, $tokens] = $item;
             if ('' === $chunk)
             {
                 continue;
@@ -511,6 +511,7 @@ class EmbeddingUploadParser
             $sectionRecord->projectId = $file->projectId;
             $sectionRecord->fileId = $file->id;
             $sectionRecord->status = EmbeddingStatus::TRAINING;
+            $sectionRecord->title = $title;
             $sectionRecord->content = $chunk;
             $sectionRecord->vector = '[0]';
             $sectionRecord->tokens = $tokens;
