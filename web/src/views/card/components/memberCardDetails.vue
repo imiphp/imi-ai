@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { NButton, NDataTable, NDatePicker, NForm, NFormItem, NIcon, NSelect } from 'naive-ui'
+import { NButton, NDataTable, NDatePicker, NForm, NFormItem, NIcon, NSelect, NSpace } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
 import { SearchSharp } from '@vicons/ionicons5'
@@ -126,22 +126,24 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NForm inline label-placement="left">
-    <NFormItem label="业务类型">
-      <NSelect v-model:value="conditions.businessType" class="!w-[140px]" :options="businessTypes" />
-    </NFormItem>
-    <NFormItem label="操作类型">
-      <NSelect v-model:value="conditions.operationType" class="!w-[120px]" :options="operationTypes" />
-    </NFormItem>
-    <NFormItem label="时间">
-      <NDatePicker v-model:value="conditions.timeRange" class="pr-2 flex-1" type="daterange" clearable />
-    </NFormItem>
-    <NFormItem>
-      <NButton type="primary" @click="loadList()">
-        <NIcon :component="SearchSharp" size="20" />
-        查询
-      </NButton>
-    </NFormItem>
+  <NForm label-placement="left" :show-feedback="false">
+    <NSpace class="flex flex-row flex-wrap">
+      <NFormItem label="业务类型">
+        <NSelect v-model:value="conditions.businessType" class="!w-[140px]" :options="businessTypes" />
+      </NFormItem>
+      <NFormItem label="操作类型">
+        <NSelect v-model:value="conditions.operationType" class="!w-[120px]" :options="operationTypes" />
+      </NFormItem>
+      <NFormItem label="时间">
+        <NDatePicker v-model:value="conditions.timeRange" class="pr-2 flex-1" type="daterange" clearable />
+      </NFormItem>
+      <NFormItem>
+        <NButton type="primary" @click="loadList()">
+          <NIcon :component="SearchSharp" size="20" />
+          查询
+        </NButton>
+      </NFormItem>
+    </NSpace>
   </NForm>
   <NDataTable
     :columns="columns"
