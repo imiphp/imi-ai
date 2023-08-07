@@ -6,6 +6,7 @@ namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
 use app\Module\Embedding\Enum\EmbeddingStatus;
+use app\Module\Embedding\Model\DTO\EmbeddingFileInList;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
@@ -149,12 +150,12 @@ class EmbeddingService
     }
 
     /**
-     * @return EmbeddingFile[]
+     * @return EmbeddingFileInList[]
      */
     public function fileList(string|int $projectId, int $memberId = 0, int $status = 0): array
     {
         $project = $this->getProject($projectId, $memberId);
-        $query = EmbeddingFile::query();
+        $query = EmbeddingFileInList::query();
 
         $query = $query->where('project_id', '=', $project->id)
                      ->order('id');
@@ -214,7 +215,6 @@ class EmbeddingService
             if ($secureField)
             {
                 $item['fileName'] = SecureFieldUtil::encode($item['fileName']);
-                $item['content'] = SecureFieldUtil::encode($item['content']);
             }
             $parent[] = $item;
         }

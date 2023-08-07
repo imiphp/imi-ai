@@ -36,7 +36,7 @@ declare namespace Embedding {
         statusText: string
         fileName: string
         fileSize: number
-        content: string
+        content: ?string
         createTime: number
         updateTime: number
         beginTrainingTime: number

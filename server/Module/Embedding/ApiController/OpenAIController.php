@@ -154,6 +154,22 @@ class OpenAIController extends HttpController
         Action,
         LoginRequired()
     ]
+    public function getFile(string $id): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        $file = $this->embeddingService->getFile($id, memberId: $memberSession->getIntMemberId());
+        $file->__setSecureField(true);
+
+        return [
+            'data' => $file,
+        ];
+    }
+
+    #[
+        Action,
+        LoginRequired()
+    ]
     public function sectionList(string $projectId, string $fileId): array
     {
         $memberSession = MemberUtil::getMemberSession();

@@ -119,6 +119,21 @@ export async function sectionList(
   return response
 }
 
+export async function getFile(
+  id: string,
+) {
+  const response = await get({
+    url: '/embedding/openai/getFile',
+    data: {
+      id,
+    },
+  })
+
+  decodeEmbeddingFileSecureFields(response.data)
+
+  return response
+}
+
 export async function chatList(
   id: string,
   page = 1,
@@ -225,6 +240,11 @@ export function retrySection(
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name)
   data.publicList = PublicProjectStatus.OPEN === data.publicProject?.status
+}
+
+function decodeEmbeddingFileSecureFields(data: any) {
+  data.fileName = decodeSecureField(data.fileName)
+  data.content = decodeSecureField(data.content)
 }
 
 function decodeEmbeddingSectionSecureFields(data: any) {

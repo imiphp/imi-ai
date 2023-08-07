@@ -8,7 +8,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowBackOutline, BookOutline, CloudUploadOutline, Refresh } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
-import { assocFileList, getProject, retryFile, retrySection, sectionList } from '@/api'
+import { assocFileList, getFile, getProject, retryFile, retrySection, sectionList } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useAuthStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
@@ -47,6 +47,7 @@ const uploadData = ref<any>({
   directory: '',
 })
 const upload = ref<UploadInst | null>(null)
+const loadingFile = ref(false)
 const showUploadModal = ref(false)
 watch(showUploadModal, (value) => {
   if (!value)
@@ -91,7 +92,6 @@ function handleSelectKeys(keys: Array<string & number>, option: Array<TreeOption
   if (!meta.node?.children) {
     selectedKeys.value = keys
     selectedFile.value = { ...meta.node } as unknown as Embedding.File
-    selectedFile.value.content = decodeSecureField(selectedFile.value.content)
     selectedFile.value.baseName = decodeSecureField(selectedFile.value.baseName)
     selectedFile.value.fileName = decodeSecureField(selectedFile.value.fileName)
   }
@@ -216,7 +216,6 @@ async function loadInfo(allowNewTimer = true) {
       for (const item of assocFileListResponse.list) {
         if (selectedFileId.value === item.recordId) {
           selectedFile.value = { ...item } as unknown as Embedding.File
-          selectedFile.value.content = decodeSecureField(selectedFile.value.content)
           break
         }
       }
@@ -263,6 +262,18 @@ async function handleRetrySection(id: string) {
       await loadInfo()
     },
   })
+}
+
+async function viewFileContent() {
+  if (!selectedFile.value)
+    return
+  if (!selectedFile.value.content) {
+    loadingFile.value = true
+    const response = await getFile(selectedFile.value.recordId)
+    selectedFile.value = response.data
+    loadingFile.value = false
+  }
+  showViewContent.value = true
 }
 
 onMounted(async () => {
@@ -351,7 +362,7 @@ onUnmounted(() => {
         <NCard :bordered="false">
           <NCard v-if="selectedFile" :title="selectedFile.fileName">
             <template #header-extra>
-              <NButton type="info" @click="showViewContent = true">
+              <NButton type="info" :loading="loadingFile" @click="viewFileContent()">
                 <template #icon>
                   <NIcon><BookOutline /></NIcon>
                 </template>
