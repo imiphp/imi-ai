@@ -1,11 +1,12 @@
 <script setup lang='ts'>
-import type { Ref } from 'vue'
+import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
 import type { MenuOption } from 'naive-ui'
-import { NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, useMessage } from 'naive-ui'
+import { NIcon, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
+import { LogInOutline, LogOutOutline, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
 import { MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -77,7 +78,7 @@ const menuOptions: MenuOption[] = [
 
 const logined = ref(false)
 
-const rightMenuOptions: Ref<any> = ref([
+const rightMenuOptions = ref([
   {
     label: () => h(MemberAvatar),
     key: 'Member',
@@ -85,7 +86,8 @@ const rightMenuOptions: Ref<any> = ref([
       {
         label: () => userStore.userInfo.nickname,
         key: 'Nickname',
-        show: logined,
+        show: computed(() => logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(Person) }),
       },
       {
         label: () =>
@@ -99,7 +101,8 @@ const rightMenuOptions: Ref<any> = ref([
             { default: () => `我的卡包 (${balance.value})` },
           ),
         key: 'Card',
-        show: logined,
+        show: computed(() => logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(WalletOutline) }),
       },
       {
         label: () =>
@@ -114,6 +117,7 @@ const rightMenuOptions: Ref<any> = ref([
           ),
         key: 'Login',
         show: computed(() => !logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(LogInOutline) }),
       },
       {
         label: () =>
@@ -128,11 +132,13 @@ const rightMenuOptions: Ref<any> = ref([
           ),
         key: 'Register',
         show: computed(() => !logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(PersonAddOutline) }),
       },
       {
         label: '退出',
         key: 'Logout',
         show: logined,
+        icon: (): VNode => h(NIcon, null, { default: () => h(LogOutOutline) }),
       },
     ],
   },
