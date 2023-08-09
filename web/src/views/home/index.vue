@@ -23,7 +23,7 @@ const moduleCards = [
 
 <template>
   <NLayout position="absolute">
-    <NLayoutContent position="absolute">
+    <NLayoutContent position="absolute" class="mb-8">
       <div class="wrap relative">
         <h1 class="text-center text-4xl mt-[56px]">
           imi AI
@@ -38,12 +38,12 @@ const moduleCards = [
           <NButton type="primary" size="large" @click="router.push({ name: 'Embedding' })">
             开始模型训练
           </NButton>
-          <NButton size="large" @click="message.info('敬请期待！')">
+          <NButton size="large" disabled @click="message.info('敬请期待！')">
             源码下载
           </NButton>
         </NSpace>
-        <NGrid class="mt-[32px]" x-gap="12" y-gap="16" :cols="3" item-responsive responsive="screen">
-          <NGi v-for="(item, index) of moduleCards" :key="index" span="4 m:2 l:1">
+        <NGrid class="mt-[32px]" x-gap="12" y-gap="16" cols="1 640:2 1024:3" item-responsive>
+          <NGi v-for="(item, index) of moduleCards" :key="index">
             <NCard :title="item.title" header-style="text-align: center" content-style="height: 4em">
               <p v-text="item.description" />
             </NCard>

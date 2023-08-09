@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, nextTick } from 'vue'
-import { ListSharp, MenuSharp } from '@vicons/ionicons5'
+import { ArrowBackCircleOutline, ArrowForwardCircleOutline } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { useAppStore, useRuntimeStore } from '@/store'
 
@@ -30,7 +30,7 @@ function onScrollToTop() {
           class="flex items-center justify-center w-11 h-11"
           @click="handleUpdateCollapsed"
         >
-          <NIcon size="30" :component="collapsed ? MenuSharp : ListSharp" />
+          <NIcon size="30" :component="collapsed ? ArrowForwardCircleOutline : ArrowBackCircleOutline" />
         </button>
       </div>
       <h1

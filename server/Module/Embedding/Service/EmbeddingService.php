@@ -6,6 +6,7 @@ namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
 use app\Module\Embedding\Enum\EmbeddingStatus;
+use app\Module\Embedding\FileHandler\IFileHandler;
 use app\Module\Embedding\Model\DTO\EmbeddingFileInList;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;

@@ -2,11 +2,10 @@
 import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
-import type { MenuOption } from 'naive-ui'
-import { NIcon, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, useMessage } from 'naive-ui'
+import { NDropdown, NIcon, NMenu, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
-import { LogInOutline, LogOutOutline, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
+import { LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
 import { MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -22,7 +21,7 @@ const message = useMessage()
 
 const balance = ref('0')
 
-const menuOptions: MenuOption[] = [
+const menuOptions = [
   {
     label: () =>
       h(
@@ -147,6 +146,8 @@ const rightMenuOptions = ref([
 const selectedKey = ref(router.currentRoute.value.name?.toString() || 'Home')
 const rightMenuSelectedKey = ref('')
 
+const showDropdownMenu = ref(false)
+
 watch(
   () => router.currentRoute.value,
   (newValue: any) => {
@@ -187,33 +188,40 @@ async function onMouseEnter() {
 </script>
 
 <template>
-  <NLayout>
-    <NLayoutHeader :bordered="true">
-      <NLayout class="wrap h-[48px] leading-[48px]" has-sider>
-        <NLayoutSider collapse-mode="width" :collapsed="isMobile" :collapsed-width="50">
-          <div class="logo">
-            <img :src="logo" alt="logo" class="box-border" :class="[isMobile ? 'ml-[2px] mobile' : 'mr-2']">
-            <h2 v-if="!isMobile" class="title">
-              imi AI
-            </h2>
-          </div>
-        </NLayoutSider>
-        <NLayoutContent content-style="justify-content: space-between;display: flex;">
-          <NMenu v-model:value="selectedKey" class="header-menu" mode="horizontal" :options="menuOptions" />
-          <NMenu v-model:value="rightMenuSelectedKey" class="header-menu" mode="horizontal" :options="rightMenuOptions" @mouseenter="onMouseEnter" />
-        </NLayoutContent>
-      </nlayout>
-    </NLayoutHeader>
-  </NLayout>
+  <div class="border-b border-[#efeff5]">
+    <div class="navigate wrap flex justify-between">
+      <div v-if="isMobile">
+        <NDropdown v-model:show="showDropdownMenu" trigger="click" :options="menuOptions" size="huge">
+          <button type="button" class="h-full">
+            <NIcon size="30" :class="`align-middle ${showDropdownMenu ? 'text-black' : 'text-gray-500'}`" :component="Menu" />
+          </button>
+        </NDropdown>
+      </div>
+      <div v-if="isMobile" />
+      <div :class="isMobile ? 'left-0 right-0 self-center absolute w-full block !z-0' : 'flex'">
+        <RouterLink to="/" class="logo">
+          <img :src="logo" alt="logo" class="box-border mr-2" :class="[isMobile ? 'mobile' : '']">
+          <h2 class="title">
+            imi AI
+          </h2>
+        </RouterLink>
+        <NMenu v-if="!isMobile" v-model:value="selectedKey" class="header-menu ml-10" mode="horizontal" :options="menuOptions" />
+      </div>
+      <NMenu v-model:value="rightMenuSelectedKey" class="header-menu member-menu" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
+    </div>
+  </div>
 </template>
 
 <style lang="less" scoped>
+  .navigate {
+    >*{
+      z-index: 10
+    }
+  }
   .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 48px;
-    line-height: 48px;
     overflow: hidden;
     white-space: nowrap;
 
@@ -237,6 +245,11 @@ async function onMouseEnter() {
 .header-menu {
   .n-menu-item, .n-menu-item-content{
     height: 100% !important;
+  }
+}
+.member-menu {
+  .n-menu-item-content {
+    padding: 0 !important;
   }
 }
 </style>
