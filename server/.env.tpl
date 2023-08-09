@@ -3,6 +3,11 @@
 # 生产环境禁用调试
 APP_DEBUG=false
 
+# 测试环境启动时，接收邮件通知的邮箱
+# DEBUG_STARTUP_EMAIL_ADDRESS=
+# 正式环境启动时，接收邮件通知的邮箱
+# RELEASE_STARTUP_EMAIL_ADDRESS=
+
 # 服务监听ip
 APP_HOST=0.0.0.0
 # 服务端口
