@@ -73,3 +73,13 @@ export function updateProfile(
     data,
   })
 }
+
+export function changePassword(oldPassword: string, newPassword: string) {
+  return post({
+    url: '/auth/changePassword',
+    data: {
+      oldPassword,
+      newPassword,
+    },
+  })
+}

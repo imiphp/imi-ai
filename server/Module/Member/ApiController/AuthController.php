@@ -42,10 +42,21 @@ class AuthController extends HttpController
     ]
     public function info(): array
     {
-        $memberSession = MemberUtil::getMemberSession();
-
         return [
-            'data' => $memberSession->getMemberInfo(),
+            'data' => MemberUtil::getMemberSession()->getMemberInfo(),
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        LoginRequired(),
+    ]
+    public function changePassword(string $oldPassword, string $newPassword)
+    {
+        $this->authService->changePassword(MemberUtil::getMemberSession()->getIntMemberId(), $oldPassword, $newPassword);
     }
 }

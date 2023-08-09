@@ -9,6 +9,8 @@ use app\Module\Member\Model\Redis\MemberConfig;
 use Imi\Aop\Annotation\Inject;
 use Imi\JWT\Exception\InvalidTokenException;
 use Imi\JWT\Facade\JWT;
+use Imi\Validate\Annotation\AutoValidation;
+use Imi\Validate\Annotation\Text;
 use Imi\Validate\ValidatorHelper;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\UnencryptedToken;
@@ -100,5 +102,23 @@ class AuthService
         }
 
         return $token;
+    }
+
+    #[
+        AutoValidation(),
+        Text(name: 'newPassword', min: 6, message: '密码最小长度为6位'),
+    ]
+    public function changePassword(int|string $memberId, string $oldPassword, string $newPassword): void
+    {
+        $member = $this->memberService->get($memberId);
+        if ($this->verifyPassword($oldPassword, $member->password))
+        {
+            $member->password = $this->passwordHash($newPassword);
+            $member->update();
+        }
+        else
+        {
+            throw new \RuntimeException('旧密码错误');
+        }
     }
 }

@@ -2,16 +2,18 @@
 import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
+import type { FormInst, FormItemRule } from 'naive-ui'
 import { NButton, NDropdown, NForm, NFormItem, NIcon, NInput, NMenu, NModal, NSpin, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
-import { LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
+import { LockClosedOutline, LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
 import { MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAuthStore, useUserStore } from '@/store'
 import type { UserInfo } from '@/store/modules/user/helper'
-import { cardInfo, updateProfile } from '@/api'
+import { cardInfo, changePassword, updateProfile } from '@/api'
+import { hashPassword } from '@/utils/functions'
 
 const { isMobile } = useBasicLayout()
 const authStore = useAuthStore()
@@ -77,6 +79,7 @@ const menuOptions = [
 
 const logined = ref(false)
 
+// 修改资料
 const showUpdateProfile = ref(false)
 const updateProfileLoading = ref(false)
 const updateProfileData = ref<any>({})
@@ -91,6 +94,52 @@ async function handleUpdateProfile() {
   finally {
     updateProfileLoading.value = false
   }
+}
+
+// 修改密码
+const showChangePassword = ref(false)
+const changePasswordLoading = ref(false)
+const changePasswordInitData = {
+  oldPassword: '',
+  newPassword: '',
+}
+const changePasswordData = ref<any>(changePasswordInitData)
+const changePasswordRules = {
+  oldPassword: {
+    required: true,
+    message: '请输入旧密码',
+  },
+  newPassword: {
+    required: true,
+    message: '请输入新密码',
+  },
+  confirmPassword: [
+    {
+      required: true,
+      message: '请再次输入密码',
+      trigger: ['blur', 'password-input'],
+    },
+    {
+      validator: (rule: FormItemRule, value: string) => value === changePasswordData.value.newPassword,
+      message: '两次密码输入不一致',
+      trigger: ['blur', 'password-input'],
+    },
+  ],
+}
+const changePasswordForm = ref<FormInst | null>(null)
+async function handleChangePassword() {
+  changePasswordForm.value?.validate().then(async () => {
+    try {
+      changePasswordLoading.value = true
+      const response = await changePassword(hashPassword(changePasswordData.value.oldPassword), hashPassword(changePasswordData.value.newPassword))
+      userStore.updateUserInfo(response.data)
+      showChangePassword.value = false
+      message.success('密码修改成功')
+    }
+    finally {
+      changePasswordLoading.value = false
+    }
+  })
 }
 
 const rightMenuOptions = ref([
@@ -155,6 +204,17 @@ const rightMenuOptions = ref([
         key: 'Register',
         show: computed(() => !logined.value),
         icon: (): VNode => h(NIcon, null, { default: () => h(PersonAddOutline) }),
+      },
+      {
+        label: () => h('a', {
+          onclick: () => {
+            changePasswordData.value = changePasswordInitData
+            showChangePassword.value = true
+          },
+        }, '修改密码'),
+        key: 'ChangePassword',
+        show: computed(() => logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(LockClosedOutline) }),
       },
       {
         label: '退出',
@@ -234,9 +294,11 @@ async function onMouseEnter() {
     </div>
   </div>
 
+  <!-- 修改资料 -->
   <NModal
+    v-if="showUpdateProfile"
     v-model:show="showUpdateProfile"
-    :mask-closable="false"
+    :mask-closable="!changePasswordLoading"
     :close-on-esc="!updateProfileLoading"
     :closable="!updateProfileLoading"
     preset="card"
@@ -245,7 +307,6 @@ async function onMouseEnter() {
   >
     <NSpin :show="updateProfileLoading">
       <NForm
-        ref="formRef"
         :model="updateProfileData"
         label-placement="left"
         label-width="auto"
@@ -256,6 +317,44 @@ async function onMouseEnter() {
         </NFormItem>
         <div style="display: flex; justify-content: flex-end">
           <NButton round type="primary" @click="handleUpdateProfile">
+            保存
+          </NButton>
+        </div>
+      </NForm>
+    </NSpin>
+  </NModal>
+
+  <!-- 修改密码 -->
+  <NModal
+    v-if="showChangePassword"
+    v-model:show="showChangePassword"
+    :mask-closable="!changePasswordLoading"
+    :close-on-esc="!changePasswordLoading"
+    :closable="!changePasswordLoading"
+    preset="card"
+    title="修改密码"
+    style="width: 95%; max-width: 500px"
+  >
+    <NSpin :show="changePasswordLoading">
+      <NForm
+        ref="changePasswordForm"
+        :model="changePasswordData"
+        label-placement="left"
+        label-width="auto"
+        require-mark-placement="right-hanging"
+        :rules="changePasswordRules"
+      >
+        <NFormItem path="oldPassword" label="旧密码">
+          <NInput v-model:value="changePasswordData.oldPassword" type="password" />
+        </NFormItem>
+        <NFormItem path="newPassword" label="新密码">
+          <NInput v-model:value="changePasswordData.newPassword" type="password" />
+        </NFormItem>
+        <NFormItem path="confirmPassword" label="确认密码">
+          <NInput v-model:value="changePasswordData.confirmPassword" type="password" />
+        </NFormItem>
+        <div style="display: flex; justify-content: flex-end">
+          <NButton round type="primary" @click="handleChangePassword">
             保存
           </NButton>
         </div>

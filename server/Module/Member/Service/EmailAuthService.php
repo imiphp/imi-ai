@@ -36,7 +36,7 @@ class EmailAuthService
     #[
         AutoValidation(),
         Condition(name: 'email', callable: '\Imi\Validate\ValidatorHelper::email', message: '邮箱格式错误'),
-        Text(name: 'password', min: 6),
+        Text(name: 'password', min: 6, message: '密码最小长度为6位'),
     ]
     public function sendRegisterEmail(string $email, string $password): array
     {

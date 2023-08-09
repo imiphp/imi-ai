@@ -9,6 +9,8 @@ use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Member;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
+use Imi\Validate\Annotation\AutoValidation;
+use Imi\Validate\Annotation\Text;
 use Imi\Validate\ValidatorHelper;
 
 class MemberService
@@ -32,6 +34,10 @@ class MemberService
         return $record;
     }
 
+    #[
+        AutoValidation(),
+        Text(name: 'nickname', min: 1, message: '昵称不能为空')
+    ]
     public function update(int|string $id, string $nickname): Member
     {
         $record = $this->get($id);
