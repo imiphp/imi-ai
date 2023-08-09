@@ -32,6 +32,15 @@ class MemberService
         return $record;
     }
 
+    public function update(int|string $id, string $nickname): Member
+    {
+        $record = $this->get($id);
+        $record->nickname = $nickname;
+        $record->update();
+
+        return $record;
+    }
+
     public function get(int|string $id): Member
     {
         $record = Member::find(\is_int($id) ? $id : Member::decodeId($id));

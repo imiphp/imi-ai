@@ -1,8 +1,8 @@
-import { createApp } from 'vue'
+import { createApp, nextTick } from 'vue'
 import App from './App.vue'
 import { setupI18n } from './locales'
 import { setupAssets, setupScrollbarStyle } from './plugins'
-import { setupStore, useAppStoreWithOut } from './store'
+import { setupStore, useAppStoreWithOut, useUserStore } from './store'
 import { setupRouter } from './router'
 
 async function bootstrap() {
@@ -16,6 +16,10 @@ async function bootstrap() {
   setupI18n(app)
 
   await setupRouter(app)
+
+  nextTick(() => {
+    useUserStore().updateUserInfoFromApi()
+  })
 
   app.mount('#app')
 

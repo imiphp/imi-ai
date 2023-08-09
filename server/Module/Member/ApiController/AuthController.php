@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace app\Module\Member\ApiController;
 
+use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Service\AuthService;
+use app\Module\Member\Util\MemberUtil;
 use app\Module\VCode\Service\VCodeService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
@@ -15,7 +17,7 @@ use Imi\Server\Http\Route\Annotation\Route;
 use Imi\Util\Http\Consts\RequestMethod;
 
 #[Controller(prefix: '/auth/')]
-class LoginController extends HttpController
+class AuthController extends HttpController
 {
     #[Inject()]
     protected AuthService $authService;
@@ -32,5 +34,18 @@ class LoginController extends HttpController
         $this->vCodeService->autoCheck($vcodeToken, $vcode);
 
         return $this->authService->login($account, $password, IPUtil::getIP());
+    }
+
+    #[
+        Action,
+        LoginRequired()
+    ]
+    public function info(): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        return [
+            'data' => $memberSession->getMemberInfo(),
+        ];
     }
 }

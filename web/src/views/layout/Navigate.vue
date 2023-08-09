@@ -2,7 +2,7 @@
 import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
-import { NDropdown, NIcon, NMenu, useMessage } from 'naive-ui'
+import { NButton, NDropdown, NForm, NFormItem, NIcon, NInput, NMenu, NModal, NSpin, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
 import { LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
@@ -11,7 +11,7 @@ import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAuthStore, useUserStore } from '@/store'
 import type { UserInfo } from '@/store/modules/user/helper'
-import { cardInfo } from '@/api'
+import { cardInfo, updateProfile } from '@/api'
 
 const { isMobile } = useBasicLayout()
 const authStore = useAuthStore()
@@ -77,13 +77,36 @@ const menuOptions = [
 
 const logined = ref(false)
 
+const showUpdateProfile = ref(false)
+const updateProfileLoading = ref(false)
+const updateProfileData = ref<any>({})
+async function handleUpdateProfile() {
+  try {
+    updateProfileLoading.value = true
+    const response = await updateProfile(updateProfileData.value)
+    userStore.updateUserInfo(response.data)
+    showUpdateProfile.value = false
+    message.success('修改资料成功')
+  }
+  finally {
+    updateProfileLoading.value = false
+  }
+}
+
 const rightMenuOptions = ref([
   {
-    label: () => h(MemberAvatar),
+    label: () => [h(MemberAvatar, { style: 'display:inline-block; vertical-align: middle; margin-right: 0.5em' }), isMobile.value ? undefined : userStore.userInfo.nickname],
     key: 'Member',
     children: [
       {
-        label: () => userStore.userInfo.nickname,
+        label: () => h('a', {
+          onclick: () => {
+            updateProfileData.value = {
+              nickname: userStore.userInfo.nickname,
+            }
+            showUpdateProfile.value = true
+          },
+        }, '修改资料'),
         key: 'Nickname',
         show: computed(() => logined.value),
         icon: (): VNode => h(NIcon, null, { default: () => h(Person) }),
@@ -210,6 +233,35 @@ async function onMouseEnter() {
       <NMenu v-model:value="rightMenuSelectedKey" class="header-menu member-menu" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
     </div>
   </div>
+
+  <NModal
+    v-model:show="showUpdateProfile"
+    :mask-closable="false"
+    :close-on-esc="!updateProfileLoading"
+    :closable="!updateProfileLoading"
+    preset="card"
+    title="修改资料"
+    style="width: 95%; max-width: 500px"
+  >
+    <NSpin :show="updateProfileLoading">
+      <NForm
+        ref="formRef"
+        :model="updateProfileData"
+        label-placement="left"
+        label-width="auto"
+        require-mark-placement="right-hanging"
+      >
+        <NFormItem label="昵称">
+          <NInput v-model:value="updateProfileData.nickname" />
+        </NFormItem>
+        <div style="display: flex; justify-content: flex-end">
+          <NButton round type="primary" @click="handleUpdateProfile">
+            保存
+          </NButton>
+        </div>
+      </NForm>
+    </NSpin>
+  </NModal>
 </template>
 
 <style lang="less" scoped>

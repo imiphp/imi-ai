@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import type { Response } from '@/utils/request'
-import { post } from '@/utils/request'
+import { get, post } from '@/utils/request'
 
 export function sendRegisterEmail(
   data: {
@@ -54,6 +54,22 @@ export function login(
   }) {
   return post({
     url: '/auth/login',
+    data,
+  })
+}
+
+export function authInfo() {
+  return get({
+    url: '/auth/info',
+  })
+}
+
+export function updateProfile(
+  data: {
+    nickname: string
+  }) {
+  return post({
+    url: '/profile/update',
     data,
   })
 }

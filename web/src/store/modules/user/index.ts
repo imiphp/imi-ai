@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
+import { useAuthStore } from '../auth'
 import type { UserInfo, UserState } from './helper'
 import { defaultSetting, getLocalState, setLocalState } from './helper'
+import { authInfo } from '@/api'
 
 export const useUserStore = defineStore('user-store', {
   state: (): UserState => getLocalState(),
@@ -17,6 +19,13 @@ export const useUserStore = defineStore('user-store', {
 
     recordState() {
       setLocalState(this.$state)
+    },
+
+    async updateUserInfoFromApi() {
+      if (useAuthStore().hasToken()) {
+        const response = await authInfo()
+        this.updateUserInfo(response.data)
+      }
     },
   },
 })
