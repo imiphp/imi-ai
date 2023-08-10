@@ -3,7 +3,7 @@ import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 
 import type { FormInst, FormItemRule } from 'naive-ui'
-import { NButton, NDropdown, NForm, NFormItem, NIcon, NInput, NMenu, NModal, NSpin, useMessage } from 'naive-ui'
+import { NBadge, NButton, NDropdown, NForm, NFormItem, NIcon, NInput, NMenu, NModal, NSpin, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
 import { LockClosedOutline, LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
@@ -52,15 +52,17 @@ const menuOptions = [
   },
   {
     label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: 'Embedding',
+      h(NBadge, { value: '热', offset: [6, 0] }, {
+        default: () => h(
+          RouterLink,
+          {
+            to: {
+              name: 'Embedding',
+            },
           },
-        },
-        { default: () => '模型训练' },
-      ),
+          { default: () => '模型训练' },
+        ),
+      }),
     key: 'Embedding',
   },
   // {
@@ -290,7 +292,7 @@ async function onMouseEnter() {
         </RouterLink>
         <NMenu v-if="!isMobile" v-model:value="selectedKey" class="header-menu ml-10" mode="horizontal" :options="menuOptions" />
       </div>
-      <NMenu v-model:value="rightMenuSelectedKey" class="header-menu member-menu" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
+      <NMenu v-model:value="rightMenuSelectedKey" class="member-menu" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
     </div>
   </div>
 
@@ -394,6 +396,11 @@ async function onMouseEnter() {
 
 <style lang="less">
 .header-menu {
+  .n-menu-item-content .n-menu-item-content-header {
+    overflow: inherit !important;
+  }
+}
+.header-menu, .member-menu {
   .n-menu-item, .n-menu-item-content{
     height: 100% !important;
   }
