@@ -35,7 +35,7 @@ class AppInit implements IEventListener
         }
         else
         {
-            $address = env('STARTUP_EMAIL_ADDRESS');
+            $address = env('RELEASE_STARTUP_EMAIL_ADDRESS');
         }
         if (Text::isEmpty($address))
         {
