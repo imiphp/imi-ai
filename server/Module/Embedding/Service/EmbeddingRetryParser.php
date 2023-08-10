@@ -6,12 +6,12 @@ namespace app\Module\Embedding\Service;
 
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
-use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Db;
@@ -145,17 +145,17 @@ class EmbeddingRetryParser
             $input = array_map(function (EmbeddingSection $section) {
                 return $section->title . "\n" . $section->content;
             }, $sections);
-            $client = OpenAI::makeClient($this->model);
-            $response = $client->embeddings()->create([
+            $client = OpenAIUtil::makeClient($this->model);
+            $response = $client->embedding([
                 'model' => $this->model,
                 'input' => $input,
             ]);
             $completeTrainingTime = (int) (microtime(true) * 1000);
             goWait(fn () => Db::transUse(function () use ($response, $sections, $beginTrainingTime, $completeTrainingTime) {
-                foreach ($response->embeddings as $i => $embedding)
+                foreach ($response['data'] as $i => $embedding)
                 {
                     $section = $sections[$i];
-                    $section->vector = (string) (new Vector($embedding->embedding));
+                    $section->vector = (string) (new Vector($embedding['embedding']));
                     $section->status = EmbeddingStatus::COMPLETED;
                     $section->beginTrainingTime = $beginTrainingTime;
                     $section->completeTrainingTime = $completeTrainingTime;

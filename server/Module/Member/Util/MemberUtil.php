@@ -8,12 +8,11 @@ use app\Module\Member\Service\MemberSessionService;
 use Imi\ConnectionContext;
 use Imi\RequestContext;
 use Imi\Util\Http\Consts\RequestHeader;
+use Imi\Util\Traits\TStaticClass;
 
 class MemberUtil
 {
-    private function __construct()
-    {
-    }
+    use TStaticClass;
 
     public static function allowParamToken(string $token): void
     {

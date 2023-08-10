@@ -11,9 +11,9 @@ use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
-use app\Module\Chat\Util\Gpt3Tokenizer;
-use app\Module\Chat\Util\OpenAI;
 use app\Module\OpenAI\Model\Redis\ModelConfig;
+use app\Module\OpenAI\Util\Gpt3Tokenizer;
+use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
@@ -139,18 +139,23 @@ class OpenAIService
             throw new \RuntimeException('没有消息');
         }
         $record->tokens += $inputTokens;
-        $client = OpenAI::makeClient($model);
+        $client = OpenAIUtil::makeClient($model);
         $beginTime = time();
         $params['messages'] = $messages;
         // @phpstan-ignore-next-line
-        $stream = $client->chat()->createStreamed($params);
+        $stream = $client->chat($params);
         goWait(static fn () => $record->update(), 30, true);
         $role = null;
         $content = '';
         $finishReason = null;
         foreach ($stream as $response)
         {
-            $data = $response->choices[0]->toArray();
+            $data = $response['choices'][0] ?? null;
+            if (!$data)
+            {
+                Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
+                continue;
+            }
             $delta = $data['delta'];
             if (isset($delta['role']))
             {

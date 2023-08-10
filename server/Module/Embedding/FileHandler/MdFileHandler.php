@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\FileHandler;
 
-use app\Module\Chat\Util\Gpt3Tokenizer;
+use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use Imi\Bean\Annotation\Bean;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;

@@ -7,14 +7,14 @@ namespace app\Module\Embedding\Service;
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
-use app\Module\Chat\Util\Gpt3Tokenizer;
-use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\OpenAI\Util\Gpt3Tokenizer;
+use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
@@ -83,12 +83,16 @@ class OpenAIService
     public function search(int $projectId, string $q = '', float $similarity = 0, int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
         $model = 'text-embedding-ada-002';
-        $client = OpenAI::makeClient($model);
-        $response = $client->embeddings()->create([
+        $client = OpenAIUtil::makeClient($model);
+        $response = $client->embedding([
             'model' => $model,
             'input' => $q,
         ]);
-        $vector = new Vector($response->embeddings[0]->embedding);
+        if (!isset($response['data'][0]['embedding']))
+        {
+            throw new \RuntimeException('获取向量失败');
+        }
+        $vector = new Vector($response['data'][0]['embedding']);
 
         $tokens = Gpt3Tokenizer::getInstance()->count($q);
         $config = EmbeddingConfig::__getConfig();
@@ -157,15 +161,20 @@ class OpenAIService
             $model = $params['model'];
             $params['messages'] = $messages;
             $record->beginTime = (int) (microtime(true) * 1000);
-            $client = OpenAI::makeClient($model);
+            $client = OpenAIUtil::makeClient($model);
             // @phpstan-ignore-next-line
-            $stream = $client->chat()->createStreamed($params);
+            $stream = $client->chat($params);
             goWait(static fn () => $record->update(), 30, true);
             $content = '';
             $finishReason = null;
             foreach ($stream as $response)
             {
-                $data = $response->choices[0]->toArray();
+                $data = $response['choices'][0] ?? null;
+                if (!$data)
+                {
+                    Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
+                    continue;
+                }
                 $delta = $data['delta'];
                 if (isset($delta['role']))
                 {

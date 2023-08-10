@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Module\Chat\Util;
+namespace app\Module\OpenAI\Util;
 
 use Gioni06\Gpt3Tokenizer\Gpt3TokenizerConfig;
 

@@ -4,8 +4,8 @@
     "description": "基于 imi 框架开发的 AI 服务，支持 ChatGPT。",
     "require": {
         "php": ">=8.1",
-        "ext-swoole": ">=5.0",
         "ext-gd": "*",
+        "ext-swoole": ">=5.0",
         "ankane/pgvector": "^0.1.2",
         "gemorroj/archive7z": "^5.6",
         "gioni06/gpt3-tokenizer": "^1.2",

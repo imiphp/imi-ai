@@ -6,7 +6,6 @@ namespace app\Module\Embedding\Service;
 
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
-use app\Module\Chat\Util\OpenAI;
 use app\Module\Embedding\Enum\CompressFileTypes;
 use app\Module\Embedding\Enum\ContentFileTypes;
 use app\Module\Embedding\Enum\EmbeddingStatus;
@@ -15,6 +14,7 @@ use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Archive7z\Archive7z;
 use Imi\Aop\Annotation\Inject;
@@ -388,11 +388,11 @@ class EmbeddingUploadParser
     private function training(): void
     {
         $fileUpdateMap = [];
-        $client = OpenAI::makeClient($this->model);
         /** @var EmbeddingSection[] $sectionRecords */
         $sectionRecords = [];
         $sectionRecordCount = 0;
-        $embedding = function () use ($client, &$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
+        $embedding = function () use (&$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
+            $client = OpenAIUtil::makeClient($this->model);
             $updateFileIds = [];
             $input = array_map(function (EmbeddingSection $sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
                 if (!isset($fileUpdateMap[$sectionRecord->fileId]))
@@ -415,15 +415,15 @@ class EmbeddingUploadParser
 
             try
             {
-                $response = $client->embeddings()->create([
+                $response = $client->embedding([
                     'model' => $this->model,
                     'input' => $input,
                 ]);
                 $time = (int) (microtime(true) * 1000);
-                foreach ($response->embeddings as $i => $embedding)
+                foreach ($response['data'] as $i => $embedding)
                 {
                     $sectionRecord = $sectionRecords[$i];
-                    $sectionRecord->vector = (string) (new Vector($embedding->embedding));
+                    $sectionRecord->vector = (string) (new Vector($embedding['embedding']));
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;

@@ -165,6 +165,7 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 			"gpt-3.5-turbo-16k",
 			"text-embedding-ada-002"
 		],
+		"client": "OpenAIClient", // 客户端名称。OpenAIClient-openai官方；
         // 是否启用
         "enable": true
     }

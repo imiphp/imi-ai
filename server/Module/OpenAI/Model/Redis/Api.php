@@ -40,6 +40,11 @@ class Api
      */
     public array $models = [];
 
+    /**
+     * 客户端名称.
+     */
+    public string $client = 'OpenAIClient';
+
     public function getApiKey(): string
     {
         if (!$this->apiKeys)
