@@ -4,6 +4,7 @@
     "description": "基于 imi 框架开发的 AI 服务，支持 ChatGPT。",
     "require": {
         "php": ">=8.1",
+        "ext-swoole": ">=5.0",
         "ext-gd": "*",
         "ankane/pgvector": "^0.1.2",
         "gemorroj/archive7z": "^5.6",
@@ -17,9 +18,8 @@
         "imiphp/imi-swoole": "2.1.x-dev",
         "league/commonmark": "^2.4",
         "nyholm/psr7": "^1.6",
-        "openai-php/client": "^0.4.2",
+        "openai-php/client": "^0.6.4",
         "phpmailer/phpmailer": "^6.8",
-        "psr/log": "^1",
         "symfony/http-client": "^6.2",
         "yurunsoft/yurun-http": "^4.4"
     },
@@ -27,7 +27,7 @@
         "imiphp/imi-phar": "2.1.x-dev",
         "php-cs-fixer/shim": "~3.22.0",
         "phpstan/phpstan": "~1.8.0",
-        "swoole/ide-helper": "^4.8",
+        "swoole/ide-helper": "^5.0",
         "yurunsoft/ide-helper": "~1.0"
     },
     "replace": {
