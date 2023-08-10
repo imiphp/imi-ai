@@ -64,7 +64,7 @@ class Client implements IClient
             {
                 $channel->push([
                     'delta'         => [],
-                    'finish_reason' => '',
+                    'finish_reason' => 'stop',
                 ]);
                 $channel->close();
             }
