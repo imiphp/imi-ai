@@ -32,8 +32,6 @@ class EmbeddingRetryParser
 
     private Channel $taskChannel;
 
-    private \OpenAI\Client $openaiClient;
-
     private EmbeddingConfig $config;
 
     private string $model = 'text-embedding-ada-002';
@@ -49,7 +47,6 @@ class EmbeddingRetryParser
     public function __construct(private int $memberId)
     {
         $this->taskChannel = new Channel(\PHP_INT_MAX);
-        $this->openaiClient = OpenAI::makeClient($this->model);
         $this->config = EmbeddingConfig::__getConfigAsync();
     }
 
@@ -148,7 +145,8 @@ class EmbeddingRetryParser
             $input = array_map(function (EmbeddingSection $section) {
                 return $section->title . "\n" . $section->content;
             }, $sections);
-            $response = $this->openaiClient->embeddings()->create([
+            $client = OpenAI::makeClient($this->model);
+            $response = $client->embeddings()->create([
                 'model' => $this->model,
                 'input' => $input,
             ]);
