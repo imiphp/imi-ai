@@ -93,7 +93,7 @@ async function loadList(resetPage = true) {
     if (resetPage)
       pagination.page = 1
 
-    const response = await cardDetails(props.cardId, conditions.value.operationType, conditions.value.businessType, conditions.value.timeRange ? parseInt((conditions.value.timeRange[0] / 1000).toString()) : 0, conditions.value.timeRange ? parseInt((conditions.value.timeRange[1] / 1000).toString()) : 0, pagination.page, pagination.pageSize)
+    const response = await cardDetails(props.cardId, conditions.value.operationType, conditions.value.businessType, conditions.value.timeRange ? parseInt((conditions.value.timeRange[0] / 1000).toString()) : 0, conditions.value.timeRange ? parseInt((conditions.value.timeRange[1] / 1000 + 86399).toString()) : 0, pagination.page, pagination.pageSize)
     data.value = response.list
     pagination.pageCount = response.pageCount
     pagination.itemCount = response.total
