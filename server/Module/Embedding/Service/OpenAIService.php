@@ -82,9 +82,10 @@ class OpenAIService
 
     public function search(int $projectId, string $q = '', float $similarity = 0, int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
-        $client = OpenAI::makeClient();
+        $model = 'text-embedding-ada-002';
+        $client = OpenAI::makeClient($model);
         $response = $client->embeddings()->create([
-            'model' => $model = 'text-embedding-ada-002',
+            'model' => $model,
             'input' => $q,
         ]);
         $vector = new Vector($response->embeddings[0]->embedding);
@@ -115,7 +116,6 @@ class OpenAIService
             throw new \RuntimeException('AI 已回答完毕');
         }
         $config = EmbeddingConfig::__getConfigAsync();
-        $model = 'gpt-3.5-turbo';
         $embeddingTokens = $embeddingPayTokens = 0;
         $list = goWait(function () use ($record) {
             return $this->search($record->projectId, $record->question, $record->similarity, 1, $record->topSections, $embeddingTokens, $embeddingPayTokens)->getList();
@@ -140,7 +140,6 @@ class OpenAIService
                 ],
             ];
 
-            $client = OpenAI::makeClient();
             $params = [];
             foreach (self::ALLOW_PARAMS as $name)
             {
@@ -155,8 +154,10 @@ class OpenAIService
             {
                 throw new \RuntimeException('不允许使用模型：' . $params['model']);
             }
+            $model = $params['model'];
             $params['messages'] = $messages;
             $record->beginTime = (int) (microtime(true) * 1000);
+            $client = OpenAI::makeClient($model);
             // @phpstan-ignore-next-line
             $stream = $client->chat()->createStreamed($params);
             goWait(static fn () => $record->update(), 30, true);
@@ -203,7 +204,7 @@ class OpenAIService
             $chatInputTokens = $chatOutputTokens = 0;
         }
         $endTime = (int) (microtime(true) * 1000);
-        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model, $chatInputTokens, $chatOutputTokens, $config->getChatModelConfig());
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model ?? 'gpt-3.5-turbo', $chatInputTokens, $chatOutputTokens, $config->getChatModelConfig());
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
         $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;

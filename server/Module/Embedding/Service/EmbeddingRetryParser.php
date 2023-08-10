@@ -49,7 +49,7 @@ class EmbeddingRetryParser
     public function __construct(private int $memberId)
     {
         $this->taskChannel = new Channel(\PHP_INT_MAX);
-        $this->openaiClient = OpenAI::makeClient();
+        $this->openaiClient = OpenAI::makeClient($this->model);
         $this->config = EmbeddingConfig::__getConfigAsync();
     }
 

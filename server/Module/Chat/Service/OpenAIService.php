@@ -139,7 +139,7 @@ class OpenAIService
             throw new \RuntimeException('没有消息');
         }
         $record->tokens += $inputTokens;
-        $client = OpenAI::makeClient();
+        $client = OpenAI::makeClient($model);
         $beginTime = time();
         $params['messages'] = $messages;
         // @phpstan-ignore-next-line

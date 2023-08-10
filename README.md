@@ -144,6 +144,7 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 ```js
 [
     {
+		"name": "", // 配置名称，需要唯一
         // 接口地址，配置多个使用时随机，默认可不配置
         "baseUrls": [
             "api.openai.com/v1"
@@ -156,6 +157,14 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
         "proxys": [
             "http://127.0.0.1:10808"
         ],
+		"rateLimitUnit": "", // 限流单位，支持：microsecond、millisecond、second、minute、hour、day、week、month、year
+		"rateLimitAmount": 0, // 限流数量，默认0为不限制
+		// 支持的模型列表，为空则支持所有模型
+		"models": [
+			"gpt-3.5-turbo",
+			"gpt-3.5-turbo-16k",
+			"text-embedding-ada-002"
+		],
         // 是否启用
         "enable": true
     }

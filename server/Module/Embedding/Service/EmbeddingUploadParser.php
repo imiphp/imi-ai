@@ -388,7 +388,7 @@ class EmbeddingUploadParser
     private function training(): void
     {
         $fileUpdateMap = [];
-        $client = OpenAI::makeClient();
+        $client = OpenAI::makeClient($this->model);
         /** @var EmbeddingSection[] $sectionRecords */
         $sectionRecords = [];
         $sectionRecordCount = 0;

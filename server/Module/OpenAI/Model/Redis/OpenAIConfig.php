@@ -50,21 +50,30 @@ class OpenAIConfig extends RedisModel
         return $this;
     }
 
-    public function getRandomApi(): Api
+    public function getRandomApi(?string $model = null): Api
     {
         $apis = $this->apis;
         foreach ($apis as $i => $api)
         {
-            if (!$api->enable)
-            {
+            if (!$api->enable
+            || (null !== $model && $api->models && !\in_array($model, $api->models))
+            ) {
                 unset($apis[$i]);
             }
         }
-        if (!$apis)
+        while ($apis)
         {
-            throw new \RuntimeException('请配置 openai api');
+            $key = array_rand($apis);
+            $api = $apis[$key];
+            if ($api->isRateLimit())
+            {
+                unset($apis[$key]);
+            }
+            else
+            {
+                return $api;
+            }
         }
-
-        return $apis[array_rand($apis)];
+        throw new \RuntimeException('没有可用的 API');
     }
 }
