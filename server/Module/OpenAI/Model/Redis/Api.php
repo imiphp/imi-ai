@@ -82,6 +82,6 @@ class Api
             return goWait(fn () => !RateLimiter::limit('rateLimit:openai:api:' . $this->name, $this->rateLimitAmount, fn () => false, unit: $this->rateLimitUnit), 30, true);
         }
 
-        return true;
+        return false;
     }
 }
