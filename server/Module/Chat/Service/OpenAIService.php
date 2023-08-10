@@ -142,6 +142,7 @@ class OpenAIService
         $client = OpenAIUtil::makeClient($model);
         $beginTime = time();
         $params['messages'] = $messages;
+        $params['stream'] = true;
         // @phpstan-ignore-next-line
         $stream = $client->chat($params);
         goWait(static fn () => $record->update(), 30, true);
@@ -184,7 +185,7 @@ class OpenAIService
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
         [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfig());
-        $messageRecord = $this->appendMessage($record->id, $role, $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
+        $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
         $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);

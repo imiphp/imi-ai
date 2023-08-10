@@ -20,6 +20,7 @@
         "nyholm/psr7": "^1.6",
         "openai-php/client": "^0.6.4",
         "phpmailer/phpmailer": "^6.8",
+        "swoole-inc/open-ai": "^1.5",
         "symfony/http-client": "^6.2",
         "yurunsoft/yurun-http": "^4.4"
     },

@@ -160,6 +160,7 @@ class OpenAIService
             }
             $model = $params['model'];
             $params['messages'] = $messages;
+            $params['stream'] = true;
             $record->beginTime = (int) (microtime(true) * 1000);
             $client = OpenAIUtil::makeClient($model);
             // @phpstan-ignore-next-line
