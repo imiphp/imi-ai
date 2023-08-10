@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAlert, NAutoComplete, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { DownloadOutline, PaperPlaneSharp, SettingsOutline, Sparkles, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
@@ -36,11 +36,12 @@ chatStore.setActive(id ?? '')
 const dataSources = computed(() => chatStore.getChatByUuid(id))
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
 
-const prompt = ref<string>('')
+const inputContent = ref<string>('')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
 const models = ref({})
+const prompt = ref<string>('')
 const setting = ref(defaultChatSetting())
 const showSetting = ref(false)
 
@@ -67,7 +68,7 @@ function handleSubmit() {
 }
 
 async function onConversation() {
-  const message = prompt.value
+  const message = inputContent.value
 
   if (loading.value)
     return
@@ -78,13 +79,13 @@ async function onConversation() {
   controller = new AbortController()
 
   loading.value = true
-  prompt.value = ''
+  inputContent.value = ''
 
   const beginTime = parseInt(((new Date()).getTime() / 1000).toString())
   const newSession = !id || id.length === 0
   try {
     // sendMessage
-    const sendMessageResponse = await sendMessage(id, message, setting.value)
+    const sendMessageResponse = await sendMessage(id, message, prompt.value, setting.value)
 
     if (newSession) {
       chatStore.deleteHistoryById('')
@@ -405,8 +406,8 @@ function handleStop() {
 // 搜索选项计算，这里使用value作为索引项，所以当出现重复value时渲染异常(多项同时出现选中效果)
 // 理想状态下其实应该是key作为索引项,但官方的renderOption会出现问题，所以就需要value反renderLabel实现
 const searchOptions = computed(() => {
-  if (prompt.value.startsWith('/')) {
-    return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(prompt.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
+  if (inputContent.value.startsWith('/')) {
+    return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(inputContent.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
       return {
         label: obj.value,
         value: obj.value,
@@ -434,7 +435,7 @@ const placeholder = computed(() => {
 })
 
 const buttonDisabled = computed(() => {
-  return loading.value || !prompt.value || prompt.value.trim() === ''
+  return loading.value || !inputContent.value || inputContent.value.trim() === ''
 })
 
 const footerClass = computed(() => {
@@ -448,7 +449,7 @@ async function saveSetting() {
   if (!id || id.length === 0)
     return
 
-  await editSession({ id, config: setting.value })
+  await editSession({ id, config: setting.value, prompt: prompt.value })
 }
 
 async function loadConfig() {
@@ -487,6 +488,7 @@ onMounted(async () => {
     chatStore.setChatsById(id, result)
     chatStore.setActive(id)
     setting.value = { ...setting.value, ...response.data.config }
+    prompt.value = response.data.prompt
   }
 
   scrollToBottom()
@@ -524,17 +526,20 @@ onUnmounted(() => {
             </template>
             <template v-else>
               <div>
-                <Message
-                  v-for="(item, index) of dataSources"
-                  :key="index"
-                  :date-time="item.completeTime ? item.completeTime : item.beginTime"
-                  :text="item.message"
-                  :inversion="item.inversion"
-                  :error="item.error"
-                  :loading="item.loading"
-                  :tokens="item.tokens"
-                  @delete="handleDelete(index)"
-                />
+                <NAlert v-if="prompt.length > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
+                  {{ prompt }}
+                </NAlert>
+                <template v-for="(item, index) of dataSources" :key="index">
+                  <Message
+                    :date-time="item.completeTime ? item.completeTime : item.beginTime"
+                    :text="item.message"
+                    :inversion="item.inversion"
+                    :error="item.error"
+                    :loading="item.loading"
+                    :tokens="item.tokens"
+                    @delete="handleDelete(index)"
+                  />
+                </template>
                 <div class="sticky bottom-0 left-0 flex justify-center">
                   <NButton v-if="loading" type="warning" @click="handleStop">
                     <template #icon>
@@ -560,11 +565,11 @@ onUnmounted(() => {
             <HoverButton @click="handleConfig">
               <NIcon class="text-[#4f555e] dark:text-white" :component="SettingsOutline" size="20" />
             </HoverButton>
-            <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
+            <NAutoComplete v-model:value="inputContent" :options="searchOptions" :render-label="renderOption">
               <template #default="{ handleInput, handleBlur, handleFocus }">
                 <NInput
                   ref="inputRef"
-                  v-model:value="prompt"
+                  v-model:value="inputContent"
                   type="textarea"
                   :placeholder="placeholder"
                   :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }"
@@ -584,6 +589,6 @@ onUnmounted(() => {
         </div>
       </footer>
     </div>
-    <Setting v-model:setting="setting" v-model:visible="showSetting" :models="models" :tokens="currentChatHistory?.tokens" :pay-tokens="currentChatHistory?.payTokens" @update:setting="saveSetting" />
+    <Setting v-model:prompt="prompt" v-model:setting="setting" v-model:visible="showSetting" :models="models" :tokens="currentChatHistory?.tokens" :pay-tokens="currentChatHistory?.payTokens" @update:setting="saveSetting" />
   </ChatLayout>
 </template>

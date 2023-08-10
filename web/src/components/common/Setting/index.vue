@@ -6,6 +6,7 @@ import type { ChatSetting, ModelConfig } from '@/store'
 
 interface Props {
   visible: boolean
+  prompt: string
   setting: ChatSetting
   models: { [key: string]: ModelConfig }
   tokens?: number
@@ -14,12 +15,18 @@ interface Props {
 
 interface Emit {
   (e: 'update:visible', visible: boolean): void
+  (e: 'update:prompt', prompt: string): void
   (e: 'update:setting', setting: ChatSetting): void
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<Emit>()
+
+const prompt = computed({
+  get: () => props.prompt,
+  set: (prompt: string) => emit('update:prompt', prompt),
+})
 
 const setting = computed({
   get: () => props.setting,
@@ -37,7 +44,7 @@ const show = computed({
 </script>
 
 <template>
-  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 640px" title="聊天设置">
+  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 660px" title="聊天设置">
     <div v-if="undefined !== props.tokens && undefined !== props.payTokens" class="px-4 space-y-5">
       <div class="flex font-bold">
         <div class="flex flex-1 items-center space-x-4">
@@ -54,6 +61,6 @@ const show = computed({
         </div>
       </div>
     </div>
-    <Advanced v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
+    <Advanced v-model:prompt="prompt" v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
   </NModal>
 </template>

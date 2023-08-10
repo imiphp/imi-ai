@@ -82,6 +82,7 @@ export async function sessionList(
 export async function sendMessage(
   id: string,
   message: string,
+  prompt?: string,
   config?: ChatSetting,
 ) {
   const response = await post({
@@ -89,6 +90,7 @@ export async function sendMessage(
     data: {
       id,
       message,
+      prompt,
       config,
     },
   })
@@ -102,6 +104,7 @@ export async function sendMessage(
 export function editSession(data: {
   id: string
   title?: string
+  prompt?: string
   config?: ChatSetting
 }) {
   return post({

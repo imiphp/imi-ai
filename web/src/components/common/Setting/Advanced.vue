@@ -1,22 +1,35 @@
 <script lang="ts" setup>
-import { NButton, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
+import { NButton, NInput, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
 import { computed, ref } from 'vue'
 import type { ChatSetting, ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
 
 interface Props {
+  prompt?: string
   setting: ChatSetting
   models: { [key: string]: ModelConfig }
   showConfirm?: boolean
 }
 
 interface Emit {
+  (e: 'update:prompt', prompt: string): void
   (e: 'update:setting', setting: ChatSetting): void
   (e: 'ok'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
+
+const prompt = props.showConfirm
+  ? ref(props.prompt ?? '')
+  : computed({
+    get() {
+      return props.prompt ?? ''
+    },
+    set(prompt: string) {
+      emit('update:prompt', prompt)
+    },
+  })
 
 const setting = props.showConfirm
   ? ref({ ...props.setting })
@@ -30,6 +43,8 @@ const setting = props.showConfirm
   })
 
 function ok() {
+  if (undefined !== props.prompt)
+    emit('update:prompt', prompt.value ?? '')
   emit('update:setting', setting.value)
   emit('ok')
 }
@@ -60,6 +75,12 @@ function handleReset() {
               :disabled="!model.enable"
             />
           </NRadioGroup>
+        </div>
+      </div>
+      <div v-if="undefined !== prompt" class="flex items-center space-x-4">
+        <span class="flex-shrink-0 w-[130px]">提示语</span>
+        <div class="flex-1">
+          <NInput v-model:value="prompt" type="textarea" />
         </div>
       </div>
       <div class="flex items-center space-x-4">

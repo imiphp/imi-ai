@@ -36,7 +36,7 @@ class OpenAIService
         AutoValidation(),
         Text(name: 'message', min: 1, message: '内容不能为空'),
     ]
-    public function sendMessage(string $message, string $id, int $memberId, string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
+    public function sendMessage(string $message, string $id, int $memberId, string $prompt = '', string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
 
@@ -58,7 +58,7 @@ class OpenAIService
 
         if ('' === $id)
         {
-            $session = $this->create($memberId, mb_substr($message, 0, 16), $config, $ip);
+            $session = $this->create($memberId, mb_substr($message, 0, 16), $prompt, $config, $ip);
         }
         else
         {
@@ -104,6 +104,10 @@ class OpenAIService
         $gpt3Tokenizer = Gpt3Tokenizer::getInstance();
         $inputTokens = 0;
         $messages = [];
+        if ('' !== $record->prompt)
+        {
+            $inputTokens += $gpt3Tokenizer->count($record->prompt);
+        }
         $historyMessages = goWait(fn () => $this->selectMessages($record->id, 'desc', limit: $config->getTopConversations() * 2 + 1), 30, true);
         $modelMaxTokens = $modelConfig->maxTokens;
         foreach ($historyMessages as $message)
@@ -122,6 +126,13 @@ class OpenAIService
             }
         }
         $inputTokens = min($inputTokens, $modelMaxTokens);
+        if ('' !== $record->prompt)
+        {
+            $messages[] = [
+                'role'    => 'system',
+                'content' => $record->prompt,
+            ];
+        }
         $messages = array_reverse($messages);
         if (!$messages)
         {
@@ -204,11 +215,12 @@ class OpenAIService
         return $record;
     }
 
-    public function create(int $memberId, string $title, array|object $config, string $ip = ''): ChatSession
+    public function create(int $memberId, string $title, string $prompt, array|object $config, string $ip = ''): ChatSession
     {
         $record = ChatSession::newInstance();
         $record->memberId = $memberId;
         $record->title = $title;
+        $record->prompt = $prompt;
         $record->config = $config;
         $record->qaStatus = QAStatus::ANSWER;
         $record->ipData = inet_pton($ip) ?: '';
@@ -230,12 +242,16 @@ class OpenAIService
                      ->toArray();
     }
 
-    public function edit(string $id, ?string $title, array|object|null $config, int $memberId): void
+    public function edit(string $id, ?string $title, ?string $prompt, array|object|null $config, int $memberId): void
     {
         $record = $this->getByIdStr($id, $memberId);
         if (null !== $title)
         {
             $record->title = $title;
+        }
+        if (null !== $prompt)
+        {
+            $record->prompt = $prompt;
         }
         if (null !== $config)
         {
