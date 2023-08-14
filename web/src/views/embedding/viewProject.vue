@@ -299,7 +299,9 @@ onUnmounted(() => {
     <div v-if="!isMobile">
       <NBreadcrumb class="!leading-[24px]">
         <NBreadcrumbItem>
-          首页
+          <RouterLink to="/">
+            首页
+          </RouterLink>
         </NBreadcrumbItem>
         <NBreadcrumbItem>
           <RouterLink to="/embedding">

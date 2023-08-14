@@ -73,7 +73,9 @@ onMounted(async () => {
     <!-- 面包屑 -->
     <NBreadcrumb class="!leading-[24px]">
       <NBreadcrumbItem>
-        首页
+        <RouterLink to="/">
+          首页
+        </RouterLink>
       </NBreadcrumbItem>
       <NBreadcrumbItem>
         模型市场
