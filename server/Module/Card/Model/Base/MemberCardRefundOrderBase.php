@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardRefundOrder.name", default="tb_member_card_refund_order"), usePrefix=false, id={"refund_order_id", "pay_order_id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardRefundOrder.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_member_card_refund_order` (   `refund_order_id` bigint(20) unsigned NOT NULL,   `pay_order_id` bigint(20) unsigned NOT NULL,   PRIMARY KEY (`refund_order_id`,`pay_order_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户卡退款订单'")
+ * @DDL(sql="CREATE TABLE `tb_member_card_refund_order` (   `refund_order_id` bigint unsigned NOT NULL,   `pay_order_id` bigint unsigned NOT NULL,   PRIMARY KEY (`refund_order_id`,`pay_order_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户卡退款订单'")
  *
  * @property int|null $refundOrderId
  * @property int|null $payOrderId
@@ -38,7 +38,7 @@ abstract class MemberCardRefundOrderBase extends Model
     /**
      * refund_order_id.
      *
-     * @Column(name="refund_order_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="refund_order_id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $refundOrderId = null;
 
@@ -67,7 +67,7 @@ abstract class MemberCardRefundOrderBase extends Model
     /**
      * pay_order_id.
      *
-     * @Column(name="pay_order_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="pay_order_id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $payOrderId = null;
 

@@ -21,9 +21,19 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/chat/:id?',
         name: 'Chat',
+        props: route => (route.query),
         component: () => import('@/views/chat/index.vue'),
         meta: {
           title: 'AI聊天',
+        },
+      },
+      // 提示语
+      {
+        path: '/prompt/store',
+        name: 'PromptStore',
+        component: () => import('@/views/prompt/store.vue'),
+        meta: {
+          title: '模型市场',
         },
       },
       // Embedding

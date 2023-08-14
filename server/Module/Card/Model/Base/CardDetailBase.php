@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardDetail.name", default="tb_card_detail"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardDetail.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_detail` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `card_id` bigint(20) unsigned NOT NULL COMMENT '卡ID',   `operation_type` tinyint(3) unsigned NOT NULL COMMENT '操作类型',   `business_type` tinyint(3) unsigned NOT NULL COMMENT '业务类型',   `business_id` bigint(20) unsigned NOT NULL COMMENT '业务ID',   `change_amount` bigint(20) NOT NULL COMMENT '变动余额',   `before_amount` bigint(20) NOT NULL COMMENT '变动前余额',   `after_amount` bigint(20) NOT NULL COMMENT '变动后余额',   `time` int(10) unsigned NOT NULL COMMENT '时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`time`),   KEY `business_type` (`member_id`,`business_type`,`business_id`) USING BTREE,   KEY `card_id` (`card_id`,`operation_type`,`business_type`,`time`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡明细'")
+ * @DDL(sql="CREATE TABLE `tb_card_detail` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `member_id` int unsigned NOT NULL COMMENT '用户ID',   `card_id` bigint unsigned NOT NULL COMMENT '卡ID',   `operation_type` tinyint unsigned NOT NULL COMMENT '操作类型',   `business_type` tinyint unsigned NOT NULL COMMENT '业务类型',   `business_id` bigint unsigned NOT NULL COMMENT '业务ID',   `change_amount` bigint NOT NULL COMMENT '变动余额',   `before_amount` bigint NOT NULL COMMENT '变动前余额',   `after_amount` bigint NOT NULL COMMENT '变动后余额',   `time` int unsigned NOT NULL COMMENT '时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `member_id` (`member_id`,`time`) USING BTREE,   KEY `business_type` (`member_id`,`business_type`,`business_id`) USING BTREE,   KEY `card_id` (`card_id`,`operation_type`,`business_type`,`time`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡明细'")
  *
  * @property int|null $id
  * @property int|null $memberId      用户ID
@@ -46,7 +46,7 @@ abstract class CardDetailBase extends Model
     /**
      * id.
      *
-     * @Column(name="id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
+     * @Column(name="id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
      */
     protected ?int $id = null;
 
@@ -76,7 +76,7 @@ abstract class CardDetailBase extends Model
      * 用户ID.
      * member_id.
      *
-     * @Column(name="member_id", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="member_id", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $memberId = null;
 
@@ -106,7 +106,7 @@ abstract class CardDetailBase extends Model
      * 卡ID.
      * card_id.
      *
-     * @Column(name="card_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="card_id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $cardId = null;
 
@@ -136,7 +136,7 @@ abstract class CardDetailBase extends Model
      * 操作类型.
      * operation_type.
      *
-     * @Column(name="operation_type", type="tinyint", length=3, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="operation_type", type="tinyint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $operationType = null;
 
@@ -166,7 +166,7 @@ abstract class CardDetailBase extends Model
      * 业务类型.
      * business_type.
      *
-     * @Column(name="business_type", type="tinyint", length=3, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="business_type", type="tinyint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $businessType = null;
 
@@ -196,7 +196,7 @@ abstract class CardDetailBase extends Model
      * 业务ID.
      * business_id.
      *
-     * @Column(name="business_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="business_id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $businessId = null;
 
@@ -226,7 +226,7 @@ abstract class CardDetailBase extends Model
      * 变动余额.
      * change_amount.
      *
-     * @Column(name="change_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="change_amount", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
      */
     protected ?int $changeAmount = null;
 
@@ -256,7 +256,7 @@ abstract class CardDetailBase extends Model
      * 变动前余额.
      * before_amount.
      *
-     * @Column(name="before_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="before_amount", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
      */
     protected ?int $beforeAmount = null;
 
@@ -286,7 +286,7 @@ abstract class CardDetailBase extends Model
      * 变动后余额.
      * after_amount.
      *
-     * @Column(name="after_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="after_amount", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
      */
     protected ?int $afterAmount = null;
 
@@ -316,7 +316,7 @@ abstract class CardDetailBase extends Model
      * 时间.
      * time.
      *
-     * @Column(name="time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $time = null;
 

@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.name", default="tb_card"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `type` int(10) unsigned NOT NULL COMMENT '卡类型',   `member_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint(20) NOT NULL COMMENT '初始金额',   `left_amount` bigint(20) NOT NULL COMMENT '剩余金额',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `activation_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int(10) unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`expire_time`,`left_amount`),   KEY `type` (`member_id`,`type`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='卡'")
+ * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` int unsigned NOT NULL COMMENT '卡类型',   `member_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint NOT NULL COMMENT '初始金额',   `left_amount` bigint NOT NULL COMMENT '剩余金额',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `activation_time` int unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `member_id` (`member_id`,`expire_time`,`left_amount`) USING BTREE,   KEY `type` (`member_id`,`type`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡'")
  *
  * @property int|null $id
  * @property int|null $type           卡类型
@@ -44,7 +44,7 @@ abstract class CardBase extends Model
     /**
      * id.
      *
-     * @Column(name="id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
+     * @Column(name="id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
      */
     protected ?int $id = null;
 
@@ -74,7 +74,7 @@ abstract class CardBase extends Model
      * 卡类型.
      * type.
      *
-     * @Column(name="type", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="type", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $type = null;
 
@@ -104,7 +104,7 @@ abstract class CardBase extends Model
      * 用户ID.
      * member_id.
      *
-     * @Column(name="member_id", type="int", length=10, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="member_id", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $memberId = 0;
 
@@ -134,7 +134,7 @@ abstract class CardBase extends Model
      * 初始金额.
      * amount.
      *
-     * @Column(name="amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="amount", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
      */
     protected ?int $amount = null;
 
@@ -164,7 +164,7 @@ abstract class CardBase extends Model
      * 剩余金额.
      * left_amount.
      *
-     * @Column(name="left_amount", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     * @Column(name="left_amount", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
      */
     protected ?int $leftAmount = null;
 
@@ -194,7 +194,7 @@ abstract class CardBase extends Model
      * 创建时间.
      * create_time.
      *
-     * @Column(name="create_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="create_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $createTime = null;
 
@@ -224,7 +224,7 @@ abstract class CardBase extends Model
      * 激活时间.
      * activation_time.
      *
-     * @Column(name="activation_time", type="int", length=10, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="activation_time", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $activationTime = 0;
 
@@ -254,7 +254,7 @@ abstract class CardBase extends Model
      * 过期时间.
      * expire_time.
      *
-     * @Column(name="expire_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="expire_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $expireTime = null;
 

@@ -52,14 +52,27 @@ const menuOptions = [
   },
   {
     label: () =>
-      h(NBadge, { value: '热', offset: [6, 0] }, {
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'PromptStore',
+          },
+        },
+        { default: () => '模型市场' },
+      ),
+    key: 'Prompt',
+  },
+  {
+    label: () =>
+      h(NBadge, { value: '热', offset: [6, 0], style: 'color: inherit' }, {
         default: () => h(
           RouterLink,
           {
             to: {
               name: 'Embedding',
             },
-            style: 'color: rgb(51, 54, 57)',
+            // style: 'color: rgb(51, 54, 57)',
           },
           { default: () => '模型训练' },
         ),

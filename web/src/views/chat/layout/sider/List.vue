@@ -109,7 +109,7 @@ function isActive(id: string) {
               />
               <span v-else>{{ item.title }}</span>
             </div>
-            <div v-if="isActive(item.id)" class="absolute z-10 flex visible right-1">
+            <div v-if="'' !== item.id && isActive(item.id)" class="absolute z-10 flex visible right-1">
               <template v-if="item.isEdit">
                 <button class="p-1" @click="handleEdit(item, false, $event)">
                   <NIcon class="align-middle" :component="SaveOutline" size="14" />

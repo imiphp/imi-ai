@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.name", default="tb_chat_session"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `member_id` int(10) unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint(3) unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `prompt` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '提示语',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then '' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `create_time` int(10) unsigned NOT NULL COMMENT '创建时间',   `update_time` int(10) unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`),   KEY `member_id` (`member_id`,`update_time`),   KEY `delete_time` (`delete_time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='AI聊天会话'")
+ * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `member_id` int unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '提示语',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `update_time` int unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `member_id` (`member_id`,`update_time`) USING BTREE,   KEY `delete_time` (`delete_time`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天会话'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $memberId   用户ID
@@ -49,7 +49,7 @@ abstract class ChatSessionBase extends Model
     /**
      * id.
      *
-     * @Column(name="id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
+     * @Column(name="id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
      */
     protected ?int $id = null;
 
@@ -79,7 +79,7 @@ abstract class ChatSessionBase extends Model
      * 用户ID.
      * member_id.
      *
-     * @Column(name="member_id", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="member_id", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $memberId = null;
 
@@ -143,7 +143,7 @@ abstract class ChatSessionBase extends Model
      * 问答状态.
      * qa_status.
      *
-     * @Column(name="qa_status", type="tinyint", length=3, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="qa_status", type="tinyint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $qaStatus = null;
 
@@ -173,7 +173,7 @@ abstract class ChatSessionBase extends Model
      * 累计 Token 数量，此为实际数量，不是在平台消耗的数量.
      * tokens.
      *
-     * @Column(name="tokens", type="bigint", length=20, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="tokens", type="bigint", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $tokens = 0;
 
@@ -203,7 +203,7 @@ abstract class ChatSessionBase extends Model
      * 支付 Token 数量.
      * pay_tokens.
      *
-     * @Column(name="pay_tokens", type="bigint", length=20, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="pay_tokens", type="bigint", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $payTokens = 0;
 
@@ -365,7 +365,7 @@ abstract class ChatSessionBase extends Model
      * 创建时间.
      * create_time.
      *
-     * @Column(name="create_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="create_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $createTime = null;
 
@@ -395,7 +395,7 @@ abstract class ChatSessionBase extends Model
      * 最后更新时间.
      * update_time.
      *
-     * @Column(name="update_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="update_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $updateTime = null;
 
@@ -425,7 +425,7 @@ abstract class ChatSessionBase extends Model
      * 删除时间.
      * delete_time.
      *
-     * @Column(name="delete_time", type="int", length=10, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="delete_time", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $deleteTime = 0;
 

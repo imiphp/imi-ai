@@ -30,7 +30,7 @@ export default {
   },
   chat: {
     newChatButton: '新增對話',
-    placeholder: '來說點什麼...（Shift + Enter = 換行，"/" 觸發提示詞）',
+    placeholder: '來說點什麼...（Shift + Enter = 換行）',
     placeholderMobile: '來說點什麼...',
     copy: '複製',
     copied: '複製成功',

@@ -27,6 +27,7 @@ declare namespace Chat {
 		usingContext: boolean;
 		history: History[]
 		chat: { id: string; data: Chat[] }[]
+		promptId?: string
 	}
 
 	interface ConversationRequest {

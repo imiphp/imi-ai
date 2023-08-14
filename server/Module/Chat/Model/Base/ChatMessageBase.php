@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.name", default="tb_chat_message"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatMessage.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint(20) unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int(10) unsigned NOT NULL COMMENT '实际 Token 数量',   `message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then '' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `begin_time` int(10) unsigned NOT NULL COMMENT '开始时间',   `complete_time` int(10) unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`),   KEY `session_id` (`session_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='AI聊天对话消息'")
+ * @DDL(sql="CREATE TABLE `tb_chat_message` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `session_id` bigint unsigned NOT NULL COMMENT '会话ID',   `role` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色',   `config` json NOT NULL COMMENT '配置',   `tokens` int unsigned NOT NULL COMMENT '实际 Token 数量',   `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `begin_time` int unsigned NOT NULL COMMENT '开始时间',   `complete_time` int unsigned NOT NULL COMMENT '完成时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `session_id` (`session_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天对话消息'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $sessionId    会话ID
@@ -46,7 +46,7 @@ abstract class ChatMessageBase extends Model
     /**
      * id.
      *
-     * @Column(name="id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
+     * @Column(name="id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=true, unsigned=true, virtual=false)
      */
     protected ?int $id = null;
 
@@ -76,7 +76,7 @@ abstract class ChatMessageBase extends Model
      * 会话ID.
      * session_id.
      *
-     * @Column(name="session_id", type="bigint", length=20, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="session_id", type="bigint", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $sessionId = null;
 
@@ -174,7 +174,7 @@ abstract class ChatMessageBase extends Model
      * 实际 Token 数量.
      * tokens.
      *
-     * @Column(name="tokens", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="tokens", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $tokens = null;
 
@@ -302,7 +302,7 @@ abstract class ChatMessageBase extends Model
      * 开始时间.
      * begin_time.
      *
-     * @Column(name="begin_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="begin_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $beginTime = null;
 
@@ -332,7 +332,7 @@ abstract class ChatMessageBase extends Model
      * 完成时间.
      * complete_time.
      *
-     * @Column(name="complete_time", type="int", length=10, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     * @Column(name="complete_time", type="int", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
      */
     protected ?int $completeTime = null;
 

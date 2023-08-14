@@ -86,7 +86,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * Swoole >= v4.8.13 或 Swoole >= v5.0.3
 
-* MySQL 5.7 / 8.0
+* MySQL >= 8.0.17
 
 * Redis
 
@@ -223,6 +223,24 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
 OpenAI 官方价格表：<https://openai.com/pricing>
 
 > 手动写入时请去除注释。
+
+* 提示语设置
+
+键名：`imi_ai:config:prompt`
+
+| 名称 | 默认值 | 说明 |
+|-|-|-|
+| crawlers | 详见表格下方 | 提示语采集器列表 |
+
+**crawlers：**
+
+```js
+[
+	"app\\Module\\Chat\\Prompt\\AwesomeChatgptPromptsCrawler"
+]
+```
+
+> 默认一小时触发一次采集
 
 * 模型训练设置
 

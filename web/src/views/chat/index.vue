@@ -2,21 +2,26 @@
 import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { NAlert, NAutoComplete, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAlert, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
-import { DownloadOutline, PaperPlaneSharp, SettingsOutline, Sparkles, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
+import { DownloadOutline, PaperPlaneSharp, SettingsOutline, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
 import { HoverButton, Setting } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { QAStatus, defaultChatSetting, useChatStore, usePromptStore, useRuntimeStore } from '@/store'
-import { config, editSession, fetchChatAPIProcess, getSession, sendMessage } from '@/api'
+import { QAStatus, defaultChatSetting, useChatStore, useRuntimeStore } from '@/store'
+import { config, editSession, fetchChatAPIProcess, getPrompt, getSession, sendMessage } from '@/api'
 import { t } from '@/locales'
 import { ChatLayout } from '@/views/chat/layout'
 import { decodeSecureField } from '@/utils/request'
+
+interface Props {
+  promptId?: string
+}
+
+const props = defineProps<Props>()
 
 let controller = new AbortController()
 
@@ -30,8 +35,8 @@ const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
-let { id } = route.params as { id: string }
-chatStore.setActive(id ?? '')
+let { id } = route.params as { id: string; promptId: string }
+chatStore.setActive(id ?? '', props.promptId)
 
 const dataSources = computed(() => chatStore.getChatByUuid(id))
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
@@ -45,13 +50,7 @@ const prompt = ref<string>('')
 const setting = ref(defaultChatSetting())
 const showSetting = ref(false)
 
-// 添加PromptStore
-const promptStore = usePromptStore()
-
 const runtimeStore = useRuntimeStore()
-
-// 使用storeToRefs，保证store修改后，联想部分能够重新渲染
-const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
 watch(currentChatHistory, () => {
   runtimeStore.$state.headerTitle = currentChatHistory.value?.title || ''
@@ -402,32 +401,6 @@ function handleStop() {
   }
 }
 
-// 可优化部分
-// 搜索选项计算，这里使用value作为索引项，所以当出现重复value时渲染异常(多项同时出现选中效果)
-// 理想状态下其实应该是key作为索引项,但官方的renderOption会出现问题，所以就需要value反renderLabel实现
-const searchOptions = computed(() => {
-  if (inputContent.value.startsWith('/')) {
-    return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(inputContent.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
-      return {
-        label: obj.value,
-        value: obj.value,
-      }
-    })
-  }
-  else {
-    return []
-  }
-})
-
-// value反渲染key
-const renderOption = (option: { label: string }) => {
-  for (const i of promptTemplate.value) {
-    if (i.value === option.label)
-      return [i.key]
-  }
-  return []
-}
-
 const placeholder = computed(() => {
   if (isMobile.value)
     return t('chat.placeholderMobile')
@@ -455,6 +428,14 @@ async function saveSetting() {
 async function loadConfig() {
   const response = await config()
   models.value = response.data['config:chat'].config.modelConfig ?? []
+}
+
+async function loadPrompt() {
+  if (!props.promptId)
+    return
+
+  const response = await getPrompt(props.promptId)
+  prompt.value = response.data.prompt
 }
 
 onMounted(async () => {
@@ -486,9 +467,12 @@ onMounted(async () => {
     }
     chatStore.updateHistory(id, { ...response.data })
     chatStore.setChatsById(id, result)
-    chatStore.setActive(id)
+    chatStore.setActive(id, null)
     setting.value = { ...setting.value, ...response.data.config }
     prompt.value = response.data.prompt
+  }
+  else if (props.promptId) {
+    await loadPrompt()
   }
 
   scrollToBottom()
@@ -518,38 +502,40 @@ onUnmounted(() => {
             class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
             :class="[isMobile ? 'p-2' : 'p-4']"
           >
-            <template v-if="!dataSources.length">
+            <!-- <template v-if="!dataSources.length">
               <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
                 <NIcon :component="Sparkles" size="30" class="mr-2" />
                 <span>imi</span>
               </div>
             </template>
-            <template v-else>
-              <div>
-                <NAlert v-if="prompt.length > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
+            <template v-else> -->
+            <div>
+              <NAlert v-if="prompt.length > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
+                <a class="block hover:text-gray-500" href="javascript:;" @click="handleConfig()">
                   {{ prompt }}
-                </NAlert>
-                <template v-for="(item, index) of dataSources" :key="index">
-                  <Message
-                    :date-time="item.completeTime ? item.completeTime : item.beginTime"
-                    :text="item.message"
-                    :inversion="item.inversion"
-                    :error="item.error"
-                    :loading="item.loading"
-                    :tokens="item.tokens"
-                    @delete="handleDelete(index)"
-                  />
-                </template>
-                <div class="sticky bottom-0 left-0 flex justify-center">
-                  <NButton v-if="loading" type="warning" @click="handleStop">
-                    <template #icon>
-                      <NIcon :component="StopCircleOutline" size="28" />
-                    </template>
-                    {{ t('common.stopResponding') }}
-                  </NButton>
-                </div>
+                </a>
+              </NAlert>
+              <template v-for="(item, index) of dataSources" :key="index">
+                <Message
+                  :date-time="item.completeTime ? item.completeTime : item.beginTime"
+                  :text="item.message"
+                  :inversion="item.inversion"
+                  :error="item.error"
+                  :loading="item.loading"
+                  :tokens="item.tokens"
+                  @delete="handleDelete(index)"
+                />
+              </template>
+              <div class="sticky bottom-0 left-0 flex justify-center">
+                <NButton v-if="loading" type="warning" @click="handleStop">
+                  <template #icon>
+                    <NIcon :component="StopCircleOutline" size="28" />
+                  </template>
+                  {{ t('common.stopResponding') }}
+                </NButton>
               </div>
-            </template>
+            </div>
+            <!-- </template> -->
           </div>
         </div>
       </main>
@@ -565,21 +551,14 @@ onUnmounted(() => {
             <HoverButton @click="handleConfig">
               <NIcon class="text-[#4f555e] dark:text-white" :component="SettingsOutline" size="20" />
             </HoverButton>
-            <NAutoComplete v-model:value="inputContent" :options="searchOptions" :render-label="renderOption">
-              <template #default="{ handleInput, handleBlur, handleFocus }">
-                <NInput
-                  ref="inputRef"
-                  v-model:value="inputContent"
-                  type="textarea"
-                  :placeholder="placeholder"
-                  :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }"
-                  @input="handleInput"
-                  @focus="handleFocus"
-                  @blur="handleBlur"
-                  @keypress="handleEnter"
-                />
-              </template>
-            </NAutoComplete>
+            <NInput
+              ref="inputRef"
+              v-model:value="inputContent"
+              type="textarea"
+              :placeholder="placeholder"
+              :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }"
+              @keypress="handleEnter"
+            />
             <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
               <template #icon>
                 <NIcon class="dark:text-black" :component="PaperPlaneSharp" size="18" />

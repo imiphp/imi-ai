@@ -73,7 +73,7 @@ export const useChatStore = defineStore('chat-store', {
       this.history.unshift(history)
       this.chat.unshift({ id: history.id, data: chatData })
       this.active = history.id
-      this.reloadRoute(history.id)
+      this.reloadRoute(history.id, null)
     },
 
     updateHistory(id: string, edit: Partial<Chat.History>) {
@@ -93,14 +93,14 @@ export const useChatStore = defineStore('chat-store', {
 
         if (this.history.length === 0) {
           this.active = null
-          this.reloadRoute()
+          this.reloadRoute(undefined, null)
           return
         }
 
         if (index > 0 && index <= this.history.length) {
           const id = this.history[index - 1].id
           this.active = id
-          this.reloadRoute(id)
+          this.reloadRoute(id, null)
           return
         }
 
@@ -108,14 +108,14 @@ export const useChatStore = defineStore('chat-store', {
           if (this.history.length > 0) {
             const id = this.history[0].id
             this.active = id
-            this.reloadRoute(id)
+            this.reloadRoute(id, null)
           }
         }
 
         if (index > this.history.length) {
           const id = this.history[this.history.length - 1].id
           this.active = id
-          this.reloadRoute(id)
+          this.reloadRoute(id, null)
         }
       }
       finally {
@@ -131,14 +131,14 @@ export const useChatStore = defineStore('chat-store', {
 
         if (this.history.length === 0) {
           this.active = null
-          this.reloadRoute()
+          this.reloadRoute(undefined, null)
           return
         }
 
         if (index > 0 && index <= this.history.length) {
           const id = this.history[index - 1].id
           this.active = id
-          this.reloadRoute(id)
+          this.reloadRoute(id, null)
           return
         }
 
@@ -146,21 +146,23 @@ export const useChatStore = defineStore('chat-store', {
           if (this.history.length > 0) {
             const id = this.history[0].id
             this.active = id
-            this.reloadRoute(id)
+            this.reloadRoute(id, null)
           }
         }
 
         if (index > this.history.length) {
           const id = this.history[this.history.length - 1].id
           this.active = id
-          this.reloadRoute(id)
+          this.reloadRoute(id, null)
         }
       }
     },
 
-    async setActive(id: string) {
+    async setActive(id: string, promptId?: string | null) {
       this.active = id
-      return await this.reloadRoute(id)
+      if (promptId !== null)
+        this.promptId = promptId
+      return await this.reloadRoute(id, this.promptId)
     },
 
     getChatByUuidAndIndex(id: string, index: number) {
@@ -289,9 +291,9 @@ export const useChatStore = defineStore('chat-store', {
       }
     },
 
-    async reloadRoute(id?: string) {
+    async reloadRoute(id?: string, promptId?: string | null) {
       this.recordState()
-      await router.push({ name: 'Chat', params: { id } })
+      await router.push({ name: 'Chat', params: { id }, query: { promptId: promptId === null ? this.promptId : promptId } })
     },
 
     recordState() {

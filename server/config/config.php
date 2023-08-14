@@ -165,6 +165,9 @@ return [
                     'tables'    => [
                         'tb_chat_session',
                         'tb_chat_message',
+                        'tb_prompt',
+                        'tb_prompt_category',
+                        'tb_prompt_crawler_origin',
                     ],
                 ],
                 'app\Module\Embedding\Model' => [
