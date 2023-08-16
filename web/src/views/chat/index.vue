@@ -170,6 +170,7 @@ async function onConversation() {
 async function fetchStream() {
   try {
     loading.value = true
+    inputContent.value = ''
     const beginTime = parseInt(((new Date()).getTime() / 1000).toString())
     // AI 返回
     addChat(
@@ -249,8 +250,13 @@ async function fetchStream() {
     }
     await fetchChatAPIOnce()
 
-    const response = await getSession(id, false)
-    chatStore.updateHistory(id, { ...response.data })
+    if (usePrompt) {
+      chatStore.setActive(id, undefined)
+    }
+    else {
+      const response = await getSession(id, false)
+      chatStore.updateHistory(id, { ...response.data })
+    }
   }
   catch (error: any) {
     console.error(error)
