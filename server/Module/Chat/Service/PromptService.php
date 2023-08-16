@@ -72,7 +72,6 @@ class PromptService
     public function list(array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
     {
         $query = Prompt::query();
-        $tableName = Prompt::__getMeta()->getTableName();
         if ($categoryIds)
         {
             foreach ($categoryIds as &$categoryId)
@@ -82,18 +81,16 @@ class PromptService
                     $categoryId = PromptCategory::decodeId($categoryId);
                 }
             }
-            $query->distinct()->field($tableName . '.*')
-                  ->joinRaw('JOIN ' . PromptCategory::__getMeta()->getTableName() . ' ON JSON_CONTAINS(category_ids, :categoryIds)', ['categoryIds' => json_encode($categoryIds)])
-            ;
+            $query->whereRaw('JSON_CONTAINS(category_ids, :categoryIds)', binds: ['categoryIds' => json_encode($categoryIds)]);
         }
         if ($search)
         {
-            $query->where($tableName . '.title', 'like', "%{$search}%");
+            $query->where('title', 'like', "%{$search}%");
         }
 
-        return $query->order($tableName . '.index', 'asc')
-                     ->order($tableName . '.update_time', 'desc')
-                     ->paginate($page, $limit, ['countField' => 'distinct ' . $tableName . '.id'])
+        return $query->order('index', 'asc')
+                     ->order('update_time', 'desc')
+                     ->paginate($page, $limit)
                      ->toArray();
     }
 

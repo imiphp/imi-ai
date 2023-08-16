@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.name", default="tb_card_type"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `amount` bigint unsigned NOT NULL DEFAULT '0' COMMENT '初始余额',   `expire_seconds` int unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `status` (`enable`,`create_time`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
+ * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `amount` bigint unsigned NOT NULL DEFAULT '0' COMMENT '初始余额',   `expire_seconds` int unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `status` (`enable`,`create_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
  *
  * @property int|null    $id
  * @property string|null $name          名称

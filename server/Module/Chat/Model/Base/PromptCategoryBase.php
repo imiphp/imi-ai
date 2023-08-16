@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\PromptCategory.name", default="tb_prompt_category"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\PromptCategory.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_prompt_category` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `title` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题',   `index` tinyint unsigned NOT NULL DEFAULT '128' COMMENT '排序，0-255，最小越靠前',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `update_time` int unsigned NOT NULL COMMENT '更新时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `index` (`index`,`update_time`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='提示语分类'")
+ * @DDL(sql="CREATE TABLE `tb_prompt_category` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `title` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题',   `index` tinyint unsigned NOT NULL DEFAULT '128' COMMENT '排序，0-255，最小越靠前',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `update_time` int unsigned NOT NULL COMMENT '更新时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `index` (`index`,`update_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='提示语分类'")
  *
  * @property int|null    $id
  * @property string|null $title      标题
