@@ -61,7 +61,7 @@ const menuOptions = [
         },
         { default: () => '模型市场' },
       ),
-    key: 'Prompt',
+    key: 'PromptStore',
   },
   {
     label: () =>
