@@ -1,6 +1,5 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { decodeSecureField, get, post } from '@/utils/request'
-import type { ChatSetting } from '@/store'
 import { PublicProjectStatus } from '@/store/modules/embedding'
 
 export async function projectList(
@@ -157,7 +156,7 @@ export async function chatList(
 export async function sendEmbeddingMessage(
   projectId: string,
   question: string,
-  config?: ChatSetting,
+  config?: Chat.ChatSetting,
   similarity?: number,
   topSections?: number,
   prompt?: string,

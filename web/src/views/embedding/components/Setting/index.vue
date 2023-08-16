@@ -4,20 +4,20 @@ import { NButton, NIcon, NModal, NTabPane, NTabs } from 'naive-ui'
 import { BuildOutline, SettingsOutline } from '@vicons/ionicons5'
 import General from './General.vue'
 import Advanced from '@/components/common/Setting/Advanced.vue'
-import type { ChatSetting, ModelConfig } from '@/store'
+import type { ModelConfig } from '@/store'
 import type { EmbeddingChatSetting } from '@/store/modules/embedding'
 
 interface Props {
   visible: boolean
   embeddingSetting: EmbeddingChatSetting
-  setting: ChatSetting
+  setting: Chat.ChatSetting
   models: { [key: string]: ModelConfig }
 }
 
 interface Emit {
   (e: 'update:visible', visible: boolean): void
   (e: 'update:embeddingSetting', embeddingSetting: EmbeddingChatSetting): void
-  (e: 'update:setting', setting: ChatSetting): void
+  (e: 'update:setting', setting: Chat.ChatSetting): void
 }
 
 const props = defineProps<Props>()

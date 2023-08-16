@@ -10,20 +10,23 @@ use app\Module\Chat\Model\PromptCategory;
 
 class PromptService
 {
-    public function create(array $categoryIds, string $title, string $prompt, int $index = 128, int $crawlerOriginId = 0): Prompt
+    public function create(array $categoryIds, string $title, string $prompt, string $firstMessageContent = '', int $index = 128, int $crawlerOriginId = 0, array $config = [], array $formConfig = []): Prompt
     {
         $record = Prompt::newInstance();
         $record->categoryIds = $categoryIds;
         $record->title = $title;
         $record->prompt = $prompt;
+        $record->firstMessageContent = $firstMessageContent;
         $record->index = $index;
         $record->crawlerOriginId = $crawlerOriginId;
+        $record->config = $config;
+        $record->formConfig = $formConfig;
         $record->insert();
 
         return $record;
     }
 
-    public function update(int|string $id, ?array $categoryIds = null, ?string $title = null, ?string $prompt = null, ?int $index = null): Prompt
+    public function update(int|string $id, ?array $categoryIds = null, ?string $title = null, ?string $prompt = null, ?string $firstMessageContent = null, ?int $index = null, ?array $config = null, ?array $formConfig = null): Prompt
     {
         $record = $this->get($id);
         if (null !== $categoryIds)
@@ -38,9 +41,21 @@ class PromptService
         {
             $record->prompt = $prompt;
         }
+        if (null !== $firstMessageContent)
+        {
+            $record->firstMessageContent = $firstMessageContent;
+        }
         if (null !== $index)
         {
             $record->index = $index;
+        }
+        if (null !== $config)
+        {
+            $record->config = $config;
+        }
+        if (null !== $formConfig)
+        {
+            $record->formConfig = $formConfig;
         }
         $record->update();
 

@@ -1,6 +1,5 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { decodeSecureField, get, post } from '@/utils/request'
-import type { ChatSetting } from '@/store'
 
 export * from './auth'
 export * from './embedding'
@@ -84,7 +83,7 @@ export async function sendMessage(
   id: string,
   message: string,
   prompt?: string,
-  config?: ChatSetting,
+  config?: Chat.ChatSetting,
 ) {
   const response = await post({
     url: '/chat/openai/sendMessage',
@@ -106,7 +105,7 @@ export function editSession(data: {
   id: string
   title?: string
   prompt?: string
-  config?: ChatSetting
+  config?: Chat.ChatSetting
 }) {
   return post({
     url: '/chat/openai/edit',

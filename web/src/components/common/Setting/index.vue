@@ -2,21 +2,22 @@
 import { computed } from 'vue'
 import { NModal } from 'naive-ui'
 import Advanced from './Advanced.vue'
-import type { ChatSetting, ModelConfig } from '@/store'
+import type { ModelConfig } from '@/store'
 
 interface Props {
   visible: boolean
-  prompt: string
-  setting: ChatSetting
+  prompt?: string
+  setting: Chat.ChatSetting
   models: { [key: string]: ModelConfig }
   tokens?: number
   payTokens?: number
+  readonly?: boolean
 }
 
 interface Emit {
   (e: 'update:visible', visible: boolean): void
-  (e: 'update:prompt', prompt: string): void
-  (e: 'update:setting', setting: ChatSetting): void
+  (e: 'update:prompt', prompt?: string): void
+  (e: 'update:setting', setting: Chat.ChatSetting): void
 }
 
 const props = defineProps<Props>()
@@ -25,12 +26,12 @@ const emit = defineEmits<Emit>()
 
 const prompt = computed({
   get: () => props.prompt,
-  set: (prompt: string) => emit('update:prompt', prompt),
+  set: (prompt?: string) => emit('update:prompt', prompt),
 })
 
 const setting = computed({
   get: () => props.setting,
-  set: (setting: ChatSetting) => emit('update:setting', setting),
+  set: (setting: Chat.ChatSetting) => emit('update:setting', setting),
 })
 
 const show = computed({
@@ -61,6 +62,6 @@ const show = computed({
         </div>
       </div>
     </div>
-    <Advanced v-model:prompt="prompt" v-model:setting="setting" :models="props.models" show-confirm @ok="show = false" />
+    <Advanced v-model:prompt="prompt" v-model:setting="setting" :models="props.models" show-confirm :readonly="readonly" @ok="show = false" />
   </NModal>
 </template>

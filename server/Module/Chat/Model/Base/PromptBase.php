@@ -18,17 +18,19 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\Prompt.name", default="tb_prompt"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\Prompt.poolName"))
  *
- * @DDL(sql="Q1JFQVRFIFRBQkxFIGB0Yl9wcm9tcHRgICggICBgaWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBBVVRPX0lOQ1JFTUVOVCwgICBgY3Jhd2xlcl9vcmlnaW5faWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBDT01NRU5UICfph4fpm4bmnaXmupBJRCcsICAgYGNhdGVnb3J5X2lkc2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfliIbnsbtJRCcsICAgYHRpdGxlYCB2YXJjaGFyKDMyKSBDSEFSQUNURVIgU0VUIHV0ZjhtYjQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn5qCH6aKYJywgICBgcHJvbXB0YCB0ZXh0IENIQVJBQ1RFUiBTRVQgdXRmOG1iNCBDT0xMQVRFIHV0ZjhtYjRfdW5pY29kZV9jaSBOT1QgTlVMTCBDT01NRU5UICfmj5DnpLror63lhoXlrrknLCAgIGBpbmRleGAgdGlueWludCB1bnNpZ25lZCBOT1QgTlVMTCBERUZBVUxUICcxMjgnIENPTU1FTlQgJ+aOkuW6j++8jDAtMjU177yM5pyA5bCP6LaK6Z2g5YmNJywgICBgY29uZmlnYCBqc29uIE5PVCBOVUxMIENPTU1FTlQgJ+mFjee9ricsICAgYGNyZWF0ZV90aW1lYCBpbnQgdW5zaWduZWQgTk9UIE5VTEwgQ09NTUVOVCAn5Yib5bu65pe26Ze0JywgICBgdXBkYXRlX3RpbWVgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBDT01NRU5UICfmm7TmlrDml7bpl7QnLCAgIFBSSU1BUlkgS0VZIChgaWRgKSBVU0lORyBCVFJFRSwgICBLRVkgYGluZGV4YCAoYGluZGV4YCxgdXBkYXRlX3RpbWVgIERFU0MpIFVTSU5HIEJUUkVFLCAgIEtFWSBgY3Jhd2xlcl9vcmlnaW5faWRgIChgY3Jhd2xlcl9vcmlnaW5faWRgKSBVU0lORyBCVFJFRSwgICBLRVkgYGNhdGVnb3J5X2lkc2AgKChjYXN0KGBjYXRlZ29yeV9pZHNgIGFzIHVuc2lnbmVkIGFycmF5KSkpLCAgIEZVTExURVhUIEtFWSBgdGl0bGVgIChgdGl0bGVgKSAvKiE1MDEwMCBXSVRIIFBBUlNFUiBgbmdyYW1gICovICApIEVOR0lORT1Jbm5vREIgREVGQVVMVCBDSEFSU0VUPXV0ZjhtYjQgQ09MTEFURT11dGY4bWI0X3VuaWNvZGVfY2kgQ09NTUVOVD0n5o+Q56S66K+tJw==", decode="base64_decode")
+ * @DDL(sql="Q1JFQVRFIFRBQkxFIGB0Yl9wcm9tcHRgICggICBgaWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBBVVRPX0lOQ1JFTUVOVCwgICBgY3Jhd2xlcl9vcmlnaW5faWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBDT01NRU5UICfph4fpm4bmnaXmupBJRCcsICAgYGNhdGVnb3J5X2lkc2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfliIbnsbtJRCcsICAgYHRpdGxlYCB2YXJjaGFyKDMyKSBDSEFSQUNURVIgU0VUIHV0ZjhtYjQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn5qCH6aKYJywgICBgcHJvbXB0YCB0ZXh0IENIQVJBQ1RFUiBTRVQgdXRmOG1iNCBDT0xMQVRFIHV0ZjhtYjRfdW5pY29kZV9jaSBOT1QgTlVMTCBDT01NRU5UICfmj5DnpLror63lhoXlrrknLCAgIGBmaXJzdF9tZXNzYWdlX2NvbnRlbnRgIHRleHQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn6aaW5p2h5raI5oGv5YaF5a65JywgICBgaW5kZXhgIHRpbnlpbnQgdW5zaWduZWQgTk9UIE5VTEwgREVGQVVMVCAnMTI4JyBDT01NRU5UICfmjpLluo/vvIwwLTI1Ne+8jOacgOWwj+i2iumdoOWJjScsICAgYGNvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfphY3nva4nLCAgIGBmb3JtX2NvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfooajljZXphY3nva4nLCAgIGBjcmVhdGVfdGltZWAgaW50IHVuc2lnbmVkIE5PVCBOVUxMIENPTU1FTlQgJ+WIm+W7uuaXtumXtCcsICAgYHVwZGF0ZV90aW1lYCBpbnQgdW5zaWduZWQgTk9UIE5VTEwgQ09NTUVOVCAn5pu05paw5pe26Ze0JywgICBQUklNQVJZIEtFWSAoYGlkYCkgVVNJTkcgQlRSRUUsICAgS0VZIGBpbmRleGAgKGBpbmRleGAsYHVwZGF0ZV90aW1lYCBERVNDKSBVU0lORyBCVFJFRSwgICBLRVkgYGNyYXdsZXJfb3JpZ2luX2lkYCAoYGNyYXdsZXJfb3JpZ2luX2lkYCkgVVNJTkcgQlRSRUUsICAgS0VZIGBjYXRlZ29yeV9pZHNgICgoY2FzdChgY2F0ZWdvcnlfaWRzYCBhcyB1bnNpZ25lZCBhcnJheSkpKSwgICBGVUxMVEVYVCBLRVkgYHRpdGxlYCAoYHRpdGxlYCkgLyohNTAxMDAgV0lUSCBQQVJTRVIgYG5ncmFtYCAqLyAgKSBFTkdJTkU9SW5ub0RCIERFRkFVTFQgQ0hBUlNFVD11dGY4bWI0IENPTExBVEU9dXRmOG1iNF91bmljb2RlX2NpIENPTU1FTlQ9J+aPkOekuuivrSc=", decode="base64_decode")
  *
  * @property int|null                                    $id
- * @property int|null                                    $crawlerOriginId 采集来源ID
- * @property \Imi\Util\LazyArrayObject|object|array|null $categoryIds     分类ID
- * @property string|null                                 $title           标题
- * @property string|null                                 $prompt          提示语内容
- * @property int|null                                    $index           排序，0-255，最小越靠前
- * @property \Imi\Util\LazyArrayObject|object|array|null $config          配置
- * @property int|null                                    $createTime      创建时间
- * @property int|null                                    $updateTime      更新时间
+ * @property int|null                                    $crawlerOriginId     采集来源ID
+ * @property \Imi\Util\LazyArrayObject|object|array|null $categoryIds         分类ID
+ * @property string|null                                 $title               标题
+ * @property string|null                                 $prompt              提示语内容
+ * @property string|null                                 $firstMessageContent 首条消息内容
+ * @property int|null                                    $index               排序，0-255，最小越靠前
+ * @property \Imi\Util\LazyArrayObject|object|array|null $config              配置
+ * @property \Imi\Util\LazyArrayObject|object|array|null $formConfig          表单配置
+ * @property int|null                                    $createTime          创建时间
+ * @property int|null                                    $updateTime          更新时间
  */
 abstract class PromptBase extends Model
 {
@@ -204,6 +206,40 @@ abstract class PromptBase extends Model
     }
 
     /**
+     * 首条消息内容.
+     * first_message_content.
+     *
+     * @Column(name="first_message_content", type="text", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $firstMessageContent = null;
+
+    /**
+     * 获取 firstMessageContent - 首条消息内容.
+     */
+    public function getFirstMessageContent(): ?string
+    {
+        return $this->firstMessageContent;
+    }
+
+    /**
+     * 赋值 firstMessageContent - 首条消息内容.
+     *
+     * @param string|null $firstMessageContent first_message_content
+     *
+     * @return static
+     */
+    public function setFirstMessageContent($firstMessageContent)
+    {
+        if (\is_string($firstMessageContent) && mb_strlen($firstMessageContent) > 65535)
+        {
+            throw new \InvalidArgumentException('The maximum length of $firstMessageContent is 65535');
+        }
+        $this->firstMessageContent = null === $firstMessageContent ? null : (string) $firstMessageContent;
+
+        return $this;
+    }
+
+    /**
      * 排序，0-255，最小越靠前.
      * index.
      *
@@ -263,6 +299,40 @@ abstract class PromptBase extends Model
     public function setConfig($config)
     {
         $this->config = null === $config ? null : $config;
+
+        return $this;
+    }
+
+    /**
+     * 表单配置.
+     * form_config.
+     *
+     * @Column(name="form_config", type="json", length=0, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     *
+     * @var \Imi\Util\LazyArrayObject|object|array|null
+     */
+    protected $formConfig = null;
+
+    /**
+     * 获取 formConfig - 表单配置.
+     *
+     * @return \Imi\Util\LazyArrayObject|object|array|null
+     */
+    public function &getFormConfig()
+    {
+        return $this->formConfig;
+    }
+
+    /**
+     * 赋值 formConfig - 表单配置.
+     *
+     * @param \Imi\Util\LazyArrayObject|object|array|null $formConfig form_config
+     *
+     * @return static
+     */
+    public function setFormConfig($formConfig)
+    {
+        $this->formConfig = null === $formConfig ? null : $formConfig;
 
         return $this;
     }

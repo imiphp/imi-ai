@@ -1,19 +1,20 @@
 <script lang="ts" setup>
 import { NButton, NInput, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
 import { computed, ref } from 'vue'
-import type { ChatSetting, ModelConfig } from '@/store'
+import type { ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
 
 interface Props {
   prompt?: string
-  setting: ChatSetting
+  setting: Chat.ChatSetting
   models: { [key: string]: ModelConfig }
   showConfirm?: boolean
+  readonly?: boolean
 }
 
 interface Emit {
   (e: 'update:prompt', prompt: string): void
-  (e: 'update:setting', setting: ChatSetting): void
+  (e: 'update:setting', setting: Chat.ChatSetting): void
   (e: 'ok'): void
 }
 
@@ -37,7 +38,7 @@ const setting = props.showConfirm
     get() {
       return props.setting
     },
-    set(setting: ChatSetting) {
+    set(setting: Chat.ChatSetting) {
       emit('update:setting', setting)
     },
   })
@@ -72,7 +73,7 @@ function handleReset() {
               :key="key"
               :value="key"
               :label="key.toString()"
-              :disabled="!model.enable"
+              :disabled="!model.enable || readonly"
             />
           </NRadioGroup>
         </div>
@@ -80,38 +81,38 @@ function handleReset() {
       <div v-if="undefined !== prompt" class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">提示语</span>
         <div class="flex-1">
-          <NInput v-model:value="prompt" type="textarea" />
+          <NInput v-model:value="prompt" type="textarea" :readonly="readonly" />
         </div>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.temperature') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="setting.temperature" :max="2" :min="0" :step="0.1" />
+          <NSlider v-model:value="setting.temperature" :max="2" :min="0" :step="0.1" :disabled="readonly" />
         </div>
         <span>{{ setting.temperature }}</span>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.top_p') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="setting.top_p" :max="1" :min="0" :step="0.1" />
+          <NSlider v-model:value="setting.top_p" :max="1" :min="0" :step="0.1" :disabled="readonly" />
         </div>
         <span>{{ setting.top_p }}</span>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.presence_penalty') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="setting.presence_penalty" :max="2" :min="-2" :step="0.1" />
+          <NSlider v-model:value="setting.presence_penalty" :max="2" :min="-2" :step="0.1" :disabled="readonly" />
         </div>
         <span>{{ setting.presence_penalty }}</span>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.frequency_penalty') }} </span>
         <div class="flex-1">
-          <NSlider v-model:value="setting.frequency_penalty" :max="2" :min="-2" :step="0.1" />
+          <NSlider v-model:value="setting.frequency_penalty" :max="2" :min="-2" :step="0.1" :disabled="readonly" />
         </div>
         <span>{{ setting.frequency_penalty }}</span>
       </div>
-      <div class="flex items-center space-x-4">
+      <div v-if="!readonly" class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">&nbsp;</span>
         <NButton v-show="props.showConfirm" size="small" type="primary" @click="ok()">
           {{ $t('common.save') }}

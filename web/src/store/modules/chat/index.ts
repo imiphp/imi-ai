@@ -8,21 +8,13 @@ export const enum QAStatus {
   ANSWER = 2,
 }
 
-export interface ChatSetting {
-  model: string
-  temperature: number
-  top_p: number
-  presence_penalty: number
-  frequency_penalty: number
-}
-
 export interface ModelConfig {
   enable: boolean
   inputTokenMultiple: string
   outputTokenMultiple: string
 }
 
-export function defaultChatSetting(): ChatSetting {
+export function defaultChatSetting(): Chat.ChatSetting {
   return {
     model: 'gpt-3.5-turbo',
     temperature: 1,
@@ -158,11 +150,12 @@ export const useChatStore = defineStore('chat-store', {
       }
     },
 
-    async setActive(id: string, promptId?: string | null) {
+    async setActive(id: string, prompt?: Chat.ChatStatePrompt | null) {
       this.active = id
-      if (promptId !== null)
-        this.promptId = promptId
-      return await this.reloadRoute(id, this.promptId)
+      if (prompt !== null)
+        this.prompt = prompt
+
+      return await this.reloadRoute(id, this.prompt)
     },
 
     getChatByUuidAndIndex(id: string, index: number) {
@@ -291,9 +284,9 @@ export const useChatStore = defineStore('chat-store', {
       }
     },
 
-    async reloadRoute(id?: string, promptId?: string | null) {
+    async reloadRoute(id?: string, prompt?: Chat.ChatStatePrompt | null) {
       this.recordState()
-      await router.push({ name: 'Chat', params: { id }, query: { promptId: promptId === null ? this.promptId : promptId } })
+      await router.push({ name: 'Chat', params: { id }, query: { usePrompt: (prompt === null ? this.prompt : prompt) ? '1' : undefined } })
     },
 
     recordState() {

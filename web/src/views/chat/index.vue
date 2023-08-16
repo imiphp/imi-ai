@@ -18,7 +18,7 @@ import { ChatLayout } from '@/views/chat/layout'
 import { decodeSecureField } from '@/utils/request'
 
 interface Props {
-  promptId?: string
+  usePrompt?: string
 }
 
 const props = defineProps<Props>()
@@ -31,23 +31,26 @@ const ms = useMessage()
 
 const chatStore = useChatStore()
 
+const usePrompt = (props.usePrompt === '1' && chatStore.prompt)
+
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
-let { id } = route.params as { id: string; promptId: string }
-chatStore.setActive(id ?? '', props.promptId)
+let { id } = route.params as { id: string }
+chatStore.setActive(id ?? '', usePrompt ? chatStore?.prompt : undefined)
 
 const dataSources = computed(() => chatStore.getChatByUuid(id))
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
 
-const inputContent = ref<string>('')
+const inputContent = ref<string>(usePrompt ? (chatStore.prompt?.firstMessageContent ?? '') : '')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
 const models = ref({})
-const prompt = ref<string>('')
-const setting = ref(defaultChatSetting())
+const prompt = ref<string>(usePrompt ? (chatStore.prompt?.prompt ?? '') : '')
+
+const setting = ref(usePrompt ? (chatStore.prompt?.config ?? defaultChatSetting()) : defaultChatSetting())
 const showSetting = ref(false)
 
 const runtimeStore = useRuntimeStore()
@@ -431,10 +434,10 @@ async function loadConfig() {
 }
 
 async function loadPrompt() {
-  if (!props.promptId)
+  if (!usePrompt || !chatStore.prompt?.id)
     return
 
-  const response = await getPrompt(props.promptId)
+  const response = await getPrompt(chatStore.prompt.id)
   prompt.value = response.data.prompt
 }
 
@@ -471,13 +474,13 @@ onMounted(async () => {
     setting.value = { ...setting.value, ...response.data.config }
     prompt.value = response.data.prompt
   }
-  else if (props.promptId) {
+  else {
     await loadPrompt()
   }
 
   scrollToBottom()
 
-  if (inputRef.value && !isMobile.value)
+  if (inputRef.value)
     inputRef.value?.focus()
   if (currentChatHistory.value && QAStatus.ANSWER === currentChatHistory.value.qaStatus)
     await fetchStream()
