@@ -78,7 +78,7 @@ function handleReset() {
           </NRadioGroup>
         </div>
       </div>
-      <div v-if="undefined !== prompt" class="flex items-center space-x-4">
+      <div v-if="undefined !== props.prompt" class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">提示语</span>
         <div class="flex-1">
           <NInput v-model:value="prompt" type="textarea" :readonly="readonly" />

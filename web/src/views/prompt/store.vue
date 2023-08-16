@@ -98,7 +98,9 @@ function showPrompt(item: any) {
     activedPromptTab.value = 'prompt'
   }
   formRules.value = _formRules
-  setting.value = { ...defaultChatSetting(), ...(item.config ?? {}) }
+  const _setting = { ...defaultChatSetting(), ...(item.config ?? {}) }
+  delete _setting.prompt
+  setting.value = _setting
 
   showPromptData.value = { ...item }
 }
