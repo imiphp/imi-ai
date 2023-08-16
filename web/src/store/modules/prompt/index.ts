@@ -24,7 +24,10 @@ export interface FormItemInput {
 }
 
 export interface FormItemTextarea {
-
+  autosize?: boolean
+  minRows?: number
+  maxRows?: number
+  rows?: number
 }
 
 export interface FormItemSelect {

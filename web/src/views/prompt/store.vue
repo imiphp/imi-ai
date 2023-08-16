@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import type { FormInst } from 'naive-ui'
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NEllipsis, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NDivider, NEllipsis, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { config, promptList as getPromptList, promptCategoryList } from '@/api'
@@ -212,9 +212,9 @@ onMounted(async () => {
         <NForm ref="form" :model="formData" :rules="formRules">
           <NFormItemRow v-for="(item, index) of showPromptData.formConfig" :key="index" :path="item.id" :label="`${item.label}：`" :label-placement="FormItemType.SWITCH === item.type ? 'left' : 'top'">
             <!-- 下拉 -->
-            <NSelect v-if="FormItemType.SELECT === item.type" v-model:value="formData[item.id]" :options="item.data" />
+            <NSelect v-if="FormItemType.SELECT === item.type" v-model:value="formData[item.id]" :options="item.data" filterable tag />
             <!-- 多行文本 -->
-            <NInput v-else-if="FormItemType.TEXTAREA === item.type" v-model:value="formData[item.id]" type="textarea" />
+            <NInput v-else-if="FormItemType.TEXTAREA === item.type" v-model:value="formData[item.id]" type="textarea" :rows="item.rows" :autosize="undefined === item.autosize ? (undefined !== item.minRows || undefined !== item.maxRows ? { minRows: item.minRows, maxRows: item.maxRows } : undefined) : item.autosize" />
             <!-- 开关 -->
             <NSwitch v-else-if="FormItemType.SWITCH === item.type" v-model:value="formData[item.id]" :checked-value="item.checkedValue" :unchecked-value="item.uncheckedValue" />
             <!-- 单选 -->
@@ -234,6 +234,7 @@ onMounted(async () => {
             <!-- 单行文本 -->
             <NInput v-else v-model:value="formData[item.id]" />
           </NFormItemRow>
+          <NDivider />
           <NFormItemRow label="提示语">
             <NInput
               :value="formPrompt"
