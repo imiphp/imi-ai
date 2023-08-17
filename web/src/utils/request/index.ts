@@ -41,9 +41,8 @@ function http(
       case 10001:
         // 跳转到登录
         cancelAll()
-        const authStore = useAuthStore()
-        authStore.removeToken()
-        authStore.setLoginRedirectUrl(location.href)
+        useAuthStore().removeToken()
+        useAuthStore().setLoginRedirectUrl(location.href)
         useUserStore().resetUserInfo()
         window.$router.replace({ name: 'Login' })
         break

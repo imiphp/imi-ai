@@ -95,6 +95,15 @@ const routes: RouteRecordRaw[] = [
           title: '我的卡包',
         },
       },
+      // Tokenizer
+      {
+        path: '/tokenizer',
+        name: 'Tokenizer',
+        component: () => import('@/views/tokenizer/index.vue'),
+        meta: {
+          title: 'Token 分词器',
+        },
+      },
     ],
   },
 

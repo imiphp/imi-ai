@@ -79,6 +79,19 @@ const menuOptions = [
       }),
     key: 'Embedding',
   },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'Tokenizer',
+          },
+        },
+        { default: () => 'Token 分词器' },
+      ),
+    key: 'Tokenizer',
+  },
   // {
   //   label: () =>
   //     h(
