@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace app\Module\Card\Service;
 
-use app\Exception\NotFoundException;
-use app\Module\Business\Enum\BusinessType;
-use app\Module\Card\Model\Card;
-use app\Module\Card\Model\CardDetail;
-use app\Module\Card\Model\CardType;
-use app\Module\Card\Model\Redis\CardConfig;
-use app\Module\Member\Service\MemberService;
+use Imi\Redis\Redis;
 use app\Util\QueryHelper;
 use Imi\Aop\Annotation\Inject;
+use app\Module\Card\Model\Card;
 use Imi\Db\Annotation\Transaction;
+use app\Exception\NoScoreException;
+use app\Module\Card\Model\CardType;
+use app\Exception\NotFoundException;
+use app\Module\Card\Model\CardDetail;
 use Imi\Db\Mysql\Query\Lock\MysqlLock;
-use Imi\Redis\Redis;
+use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Model\Redis\CardConfig;
+use app\Module\Member\Service\MemberService;
 
 class CardService
 {
@@ -231,7 +232,7 @@ class CardService
         {
             if ($card->leftAmount + $changeAmount < $minAmount)
             {
-                throw new \RuntimeException('卡余额不足');
+                throw new NoScoreException('卡余额不足');
             }
         }
     }

@@ -1,9 +1,11 @@
 <script setup lang='ts'>
 import { NCard, NTabPane, NTabs } from 'naive-ui'
 import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { CardActivation, CardList, MemberCardDetails } from './components'
 
-const tab = ref('list')
+const route = useRoute()
+const tab = ref(route.params.tab ? route.params.tab.toString() : 'list')
 const success = ref(false)
 
 watch(success, (val) => {

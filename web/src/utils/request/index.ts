@@ -37,13 +37,20 @@ function http(
     else
       dialogApiFailHandler(res)
 
-    if (res.data.code === 10001) {
-      cancelAll()
-      const authStore = useAuthStore()
-      authStore.removeToken()
-      authStore.setLoginRedirectUrl(location.href)
-      useUserStore().resetUserInfo()
-      window.$router.replace({ name: 'Login' })
+    switch (res.data.code) {
+      case 10001:
+        // 跳转到登录
+        cancelAll()
+        const authStore = useAuthStore()
+        authStore.removeToken()
+        authStore.setLoginRedirectUrl(location.href)
+        useUserStore().resetUserInfo()
+        window.$router.replace({ name: 'Login' })
+        break
+      case 11001:
+        // 跳转到激活卡
+        window.$router.replace({ name: 'Card', params: { tab: 'activation' } })
+        break
     }
 
     return Promise.reject(res.data)

@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
       },
       // 卡包
       {
-        path: '/card/',
+        path: '/card/:tab?',
         name: 'Card',
         component: () => import('@/views/card/index.vue'),
         meta: {

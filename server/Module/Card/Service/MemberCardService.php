@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Card\Service;
 
+use app\Exception\NoScoreException;
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Enum\OperationType;
@@ -157,7 +158,7 @@ class MemberCardService
             {
                 if ($leftAmount < $minAmount)
                 {
-                    throw new \RuntimeException('余额不足');
+                    throw new NoScoreException('余额不足');
                 }
                 // 余额不足，但是满足最小余额，直接扣除基础账户
                 $baseCardId = $this->getMemberBaseCardId($memberId);
@@ -277,7 +278,7 @@ class MemberCardService
         {
             if ($balance + $changeAmount < $minAmount)
             {
-                throw new \RuntimeException('余额不足');
+                throw new NoScoreException('余额不足');
             }
         }
 
