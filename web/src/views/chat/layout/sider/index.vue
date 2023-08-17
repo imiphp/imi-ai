@@ -16,7 +16,7 @@ const show = ref(false)
 const collapsed = computed(() => appStore.siderCollapsed)
 
 function handleAdd() {
-  chatStore.deleteHistoryById('')
+  chatStore.deleteHistoryById('', false)
   chatStore.addHistory({
     id: '',
     title: 'New Chat',

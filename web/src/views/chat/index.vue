@@ -16,6 +16,7 @@ import { config, editSession, fetchChatAPIProcess, getPrompt, getSession, sendMe
 import { t } from '@/locales'
 import { ChatLayout } from '@/views/chat/layout'
 import { decodeSecureField } from '@/utils/request'
+import { router } from '@/router'
 
 interface Props {
   usePrompt?: string
@@ -48,7 +49,6 @@ const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
 const models = ref({})
-const prompt = ref<string>(usePrompt ? (chatStore.prompt?.prompt ?? '') : '')
 
 const setting = ref(usePrompt ? (chatStore.prompt?.config ?? defaultChatSetting()) : defaultChatSetting())
 const showSetting = ref(false)
@@ -87,16 +87,19 @@ async function onConversation() {
   const newSession = !id || id.length === 0
   try {
     // sendMessage
-    const sendMessageResponse = await sendMessage(id, message, prompt.value, setting.value)
-
-    if (newSession) {
-      chatStore.deleteHistoryById('')
-      const history = { ...sendMessageResponse.data, isEdit: false }
-      history.id = history.recordId
-      chatStore.addHistory(history)
-    }
+    const sendMessageResponse = await sendMessage(id, message, currentChatHistory.value?.prompt, setting.value)
 
     id = sendMessageResponse.data.recordId
+
+    if (newSession) {
+      chatStore.deleteHistoryById('', false)
+      const history = { ...sendMessageResponse.data, isEdit: false }
+      history.id = history.recordId
+      chatStore.addHistory(history, [], false)
+      setting.value = { ...setting.value, ...sendMessageResponse.data.config }
+      if (currentChatHistory.value)
+        currentChatHistory.value.prompt = sendMessageResponse.data.prompt
+    }
 
     // 用户发送
     addChat(
@@ -163,8 +166,11 @@ async function onConversation() {
   finally {
     loading.value = false
   }
-  if (!newSession)
+  if (id && id.length > 0) {
     await fetchStream()
+    if (newSession)
+      router.replace({ name: 'Chat', params: { id }, state: history.state })
+  }
 }
 
 async function fetchStream() {
@@ -431,7 +437,7 @@ async function saveSetting() {
   if (!id || id.length === 0)
     return
 
-  await editSession({ id, config: setting.value, prompt: prompt.value })
+  await editSession({ id, config: setting.value, prompt: currentChatHistory.value?.prompt })
 }
 
 async function loadConfig() {
@@ -444,7 +450,8 @@ async function loadPrompt() {
     return
 
   const response = await getPrompt(chatStore.prompt.id)
-  prompt.value = response.data.prompt
+  if (currentChatHistory.value)
+    currentChatHistory.value.prompt = response.data.prompt
 }
 
 onMounted(async () => {
@@ -478,9 +485,24 @@ onMounted(async () => {
     chatStore.setChatsById(id, result)
     chatStore.setActive(id, null)
     setting.value = { ...setting.value, ...response.data.config }
-    prompt.value = response.data.prompt
+    if (currentChatHistory.value)
+      currentChatHistory.value.prompt = response.data.prompt
   }
   else {
+    if (!currentChatHistory.value) {
+      chatStore.deleteHistoryById('', false)
+      chatStore.addHistory({
+        id: '',
+        title: 'New Chat',
+        isEdit: false,
+        createTime: 0,
+        updateTime: 0,
+        qaStatus: QAStatus.ASK,
+        tokens: 0,
+      })
+    }
+    if (currentChatHistory.value)
+      currentChatHistory.value.prompt = (usePrompt ? (chatStore.prompt?.prompt ?? '') : '')
     await loadPrompt()
   }
 
@@ -519,9 +541,9 @@ onUnmounted(() => {
             </template>
             <template v-else> -->
             <div>
-              <NAlert v-if="prompt.length > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
+              <NAlert v-if="(currentChatHistory?.prompt?.length ?? 0) > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
                 <a class="block hover:text-gray-500" href="javascript:;" @click="handleConfig()">
-                  {{ prompt }}
+                  {{ currentChatHistory?.prompt }}
                 </a>
               </NAlert>
               <template v-for="(item, index) of dataSources" :key="index">
@@ -577,6 +599,6 @@ onUnmounted(() => {
         </div>
       </footer>
     </div>
-    <Setting v-model:prompt="prompt" v-model:setting="setting" v-model:visible="showSetting" :models="models" :tokens="currentChatHistory?.tokens" :pay-tokens="currentChatHistory?.payTokens" @update:setting="saveSetting" />
+    <Setting v-if="currentChatHistory" v-model:prompt="currentChatHistory.prompt" v-model:setting="setting" v-model:visible="showSetting" :models="models" :tokens="currentChatHistory?.tokens" :pay-tokens="currentChatHistory?.payTokens" @update:setting="saveSetting" />
   </ChatLayout>
 </template>

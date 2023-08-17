@@ -61,11 +61,12 @@ export const useChatStore = defineStore('chat-store', {
       this.recordState()
     },
 
-    addHistory(history: Chat.History, chatData: Chat.Chat[] = []) {
+    addHistory(history: Chat.History, chatData: Chat.Chat[] = [], reload = true) {
       this.history.unshift(history)
       this.chat.unshift({ id: history.id, data: chatData })
       this.active = history.id
-      this.reloadRoute(history.id, null)
+      if (reload)
+        this.reloadRoute(history.id, null)
     },
 
     updateHistory(id: string, edit: Partial<Chat.History>) {
@@ -115,7 +116,7 @@ export const useChatStore = defineStore('chat-store', {
       }
     },
 
-    async deleteHistoryById(id: string) {
+    async deleteHistoryById(id: string, reload = true) {
       const index = this.history.findIndex(item => item.id === id)
       if (index !== -1) {
         this.history.splice(index, 1)
@@ -123,14 +124,16 @@ export const useChatStore = defineStore('chat-store', {
 
         if (this.history.length === 0) {
           this.active = null
-          this.reloadRoute(undefined, null)
+          if (reload)
+            this.reloadRoute(undefined, null)
           return
         }
 
         if (index > 0 && index <= this.history.length) {
           const id = this.history[index - 1].id
           this.active = id
-          this.reloadRoute(id, null)
+          if (reload)
+            this.reloadRoute(id, null)
           return
         }
 
@@ -138,14 +141,16 @@ export const useChatStore = defineStore('chat-store', {
           if (this.history.length > 0) {
             const id = this.history[0].id
             this.active = id
-            this.reloadRoute(id, null)
+            if (reload)
+              this.reloadRoute(id, null)
           }
         }
 
         if (index > this.history.length) {
           const id = this.history[this.history.length - 1].id
           this.active = id
-          this.reloadRoute(id, null)
+          if (reload)
+            this.reloadRoute(id, null)
         }
       }
     },

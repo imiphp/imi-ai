@@ -20,6 +20,7 @@ declare namespace Chat {
 		qaStatus: QAStatus
 		tokens?: number
 		payTokens?: number
+		prompt?: string
 	}
 
 	interface ChatState {
