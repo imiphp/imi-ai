@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace app\Module\Card\Service;
 
-use Imi\Redis\Redis;
-use app\Util\QueryHelper;
-use Imi\Aop\Annotation\Inject;
-use app\Module\Card\Model\Card;
-use Imi\Db\Annotation\Transaction;
 use app\Exception\NoScoreException;
-use app\Module\Card\Model\CardType;
 use app\Exception\NotFoundException;
-use app\Module\Card\Model\CardDetail;
-use Imi\Db\Mysql\Query\Lock\MysqlLock;
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Model\Card;
+use app\Module\Card\Model\CardDetail;
+use app\Module\Card\Model\CardType;
 use app\Module\Card\Model\Redis\CardConfig;
 use app\Module\Member\Service\MemberService;
+use app\Util\QueryHelper;
+use Imi\Aop\Annotation\Inject;
+use Imi\Db\Annotation\Transaction;
+use Imi\Db\Mysql\Query\Lock\MysqlLock;
+use Imi\Redis\Redis;
 
 class CardService
 {
