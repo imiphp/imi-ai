@@ -125,10 +125,20 @@ export const router = createRouter({
 
 // 页面标题
 router.beforeEach(async (to, from, next) => {
+  if (to.name !== from.name)
+    window.$loadingBar?.start()
   if (to.meta.title)
     document.title = `${to.meta.title as string} - ${import.meta.env.VITE_APP_TITLE as string}`
 
   next()
+})
+
+router.afterEach(() => {
+  window.$loadingBar?.finish()
+})
+
+router.onError(() => {
+  window.$loadingBar?.error()
 })
 
 setupPageGuard(router)
