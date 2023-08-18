@@ -248,7 +248,7 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 
 | 名称 | 默认值 | 说明 |
 |-|-|-|
-| maxCompressedFileSize | `4194304` | 压缩文件最大尺寸，单位：字节，默认：4MB |
+| maxCompressedFileSize | `4194304` | 压缩文件最大尺寸，单位：字节，默认：4MB。请同时调整 `@app.mainServer.configs.package_max_length` 配置 |
 | maxSingleFileSize | `2097152` | 单个文件最大尺寸，单位：字节，默认：2MB |
 | maxTotalFilesSize | `4194304` | 所有文件最大尺寸，单位：字节，默认：4MB |
 | maxSectionTokens | `512` | 段落最大Token数量 |

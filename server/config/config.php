@@ -33,8 +33,9 @@ return [
         'host'         => env('APP_HOST', '0.0.0.0'),
         'port'         => env('APP_PORT', 8080),
         'configs'      => [
-            'worker_num'        => env('APP_WORKER_NUM', 1),
-            'task_worker_num'   => env('APP_TASK_WORKER_NUM', 0),
+            'worker_num'         => env('APP_WORKER_NUM', 1),
+            'task_worker_num'    => env('APP_TASK_WORKER_NUM', 0),
+            'package_max_length' => 5 * 1024 * 1024, // 5MB
         ],
     ],
 
