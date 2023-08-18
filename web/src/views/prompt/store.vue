@@ -257,7 +257,7 @@ onMounted(async () => {
         <NTag :checked="categoryId === ''" checkable @click="categoryId = ''">
           全部
         </NTag>
-        <NTag v-for="(item, index) of categoryList" :key="index" :checked="categoryId === item.recordId" checkable @click="categoryId = item.recordId">
+        <NTag v-for="(item, index) of categoryList" :key="index" :checked="categoryId === item.recordId" checkable @click="page = 1;categoryId = item.recordId">
           {{ item.title }}
         </NTag>
       </NSpace>
