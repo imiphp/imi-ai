@@ -36,7 +36,7 @@ class OpenAIService
         AutoValidation(),
         Text(name: 'message', min: 1, message: '内容不能为空'),
     ]
-    public function sendMessage(string $message, string $id, int $memberId, string $prompt = '', string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
+    public function sendMessage(string $message, string $id, int $memberId, int $type, string $prompt = '', string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
 
@@ -58,11 +58,11 @@ class OpenAIService
 
         if ('' === $id)
         {
-            $session = $this->create($memberId, mb_substr($message, 0, 16), $prompt, $config, $ip);
+            $session = $this->create($memberId, $type, mb_substr($message, 0, 16), $prompt, $config, $ip);
         }
         else
         {
-            $session = $this->getByIdStr($id, $memberId);
+            $session = $this->getById($id, $memberId, $type);
             if (QAStatus::ASK !== $session->qaStatus)
             {
                 throw new \RuntimeException('当前状态不允许提问');
@@ -79,7 +79,7 @@ class OpenAIService
     public function chatStream(string $id, int $memberId, string $ip): \Iterator
     {
         /** @var ChatSession $record */
-        $record = goWait(fn () => $this->getByIdStr($id, $memberId), 30, true);
+        $record = goWait(fn () => $this->getById($id, $memberId), 30, true);
         if (QAStatus::ANSWER !== $record->qaStatus)
         {
             throw new \RuntimeException('AI 已回答完毕');
@@ -198,22 +198,18 @@ class OpenAIService
         yield ['message' => $messageRecord];
     }
 
-    public function getById(int $id, int $memberId = 0): ChatSession
+    public function getById(int|string $id, int $memberId = 0, int $type = 0): ChatSession
     {
-        $record = ChatSession::find($id);
-        if (!$record || ($memberId && $record->memberId !== $memberId))
+        if (\is_string($id))
         {
-            throw new NotFoundException(sprintf('会话 %s 不存在', $id));
+            $intId = ChatSession::decodeId($id);
         }
-
-        return $record;
-    }
-
-    public function getByIdStr(string $id, int $memberId = 0): ChatSession
-    {
-        $intId = ChatSession::decodeId($id);
+        else
+        {
+            $intId = $id;
+        }
         $record = ChatSession::find($intId);
-        if (!$record || ($memberId && $record->memberId !== $memberId))
+        if (!$record || ($memberId && $record->memberId !== $memberId) || ($type && $record->type !== $type))
         {
             throw new NotFoundException(sprintf('会话 %s 不存在', $id));
         }
@@ -221,10 +217,11 @@ class OpenAIService
         return $record;
     }
 
-    public function create(int $memberId, string $title, string $prompt, array|object $config, string $ip = ''): ChatSession
+    public function create(int $memberId, int $type, string $title, string $prompt, array|object $config, string $ip = ''): ChatSession
     {
         $record = ChatSession::newInstance();
         $record->memberId = $memberId;
+        $record->type = $type;
         $record->title = $title;
         $record->prompt = $prompt;
         $record->config = $config;
@@ -235,12 +232,16 @@ class OpenAIService
         return $record;
     }
 
-    public function list(int $memberId, int $page = 1, int $limit = 15): array
+    public function list(int $memberId, int $type = 0, int $page = 1, int $limit = 15): array
     {
         $query = ChatSession::query();
         if ($memberId)
         {
             $query->where('member_id', '=', $memberId);
+        }
+        if ($type)
+        {
+            $query->where('type', '=', $type);
         }
 
         return $query->order('update_time', 'desc')
@@ -250,7 +251,7 @@ class OpenAIService
 
     public function edit(string $id, ?string $title, ?string $prompt, array|object|null $config, int $memberId): void
     {
-        $record = $this->getByIdStr($id, $memberId);
+        $record = $this->getById($id, $memberId);
         if (null !== $title)
         {
             $record->title = $title;
@@ -266,9 +267,9 @@ class OpenAIService
         $record->update();
     }
 
-    public function delete(string $id, int $memberId = 0): void
+    public function delete(string $id, int $memberId = 0, int $type = 0): void
     {
-        $record = $this->getByIdStr($id, $memberId);
+        $record = $this->getById($id, $memberId, $type);
         $record->delete();
     }
 

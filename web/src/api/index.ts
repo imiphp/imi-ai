@@ -125,10 +125,10 @@ export function deleteSession(
   })
 }
 
-function decodeChatSessionSecureFields(data: any) {
+export function decodeChatSessionSecureFields(data: any) {
   data.title = decodeSecureField(data.title)
 }
 
-function decodeChatMessageSecureFields(data: any) {
+export function decodeChatMessageSecureFields(data: any) {
   data.message = decodeSecureField(data.message)
 }

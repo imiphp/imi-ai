@@ -1,14 +1,21 @@
 <script setup lang='ts'>
 import type { FormInst } from 'naive-ui'
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NDivider, NEllipsis, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NEllipsis, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag, useMessage } from 'naive-ui'
+
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { config, promptList as getPromptList, promptCategoryList } from '@/api'
+import { config, convertPromptFormToChat, fetchChatAPIProcess, promptList as getPromptList, promptCategoryList, submitPromptForm } from '@/api'
 import { FormItemType, defaultChatSetting, useChatStore } from '@/store'
 import { SettingAdvanced } from '@/components/common'
+import { decodeSecureField } from '@/utils/request'
+import { t } from '@/locales'
 
+const message = useMessage()
 const chatStore = useChatStore()
 const router = useRouter()
+
+const controller = new AbortController()
+
 const showLoading = ref(false)
 const categoryList = ref<any[]>([])
 const categoryId = ref('')
@@ -20,6 +27,9 @@ const showPromptData = ref<any>(null)
 const form = ref<FormInst | null>(null)
 const formData = ref<any>(null)
 const formRules = ref<any>({})
+const formLoading = ref(false)
+const formSession = ref<any>({})
+const formStreamContent = ref('')
 const formPrompt = computed(() => {
   if (!formData.value || !showPromptData.value)
     return ''
@@ -105,16 +115,87 @@ function showPrompt(item: any) {
   showPromptData.value = { ...item }
 }
 
-function createSession() {
-  if (activedPromptTab.value === 'form') {
-    form.value?.validate().then(async () => {
-      _createSession()
+async function submitForm() {
+  try {
+    formLoading.value = true
+    formStreamContent.value = ''
+    await form.value?.validate().then(async () => {
+      const response = await submitPromptForm(showPromptData.value.recordId, formData.value)
+      formSession.value = response.data
+      await fetchStream()
     })
   }
-  else { _createSession() }
+  finally {
+    formLoading.value = false
+  }
 }
 
-function _createSession() {
+async function fetchStream() {
+  try {
+    let lastIndex = 0
+    const fetchChatAPIOnce = async () => {
+      await fetchChatAPIProcess(formSession.value.recordId, {
+        // prompt: message,
+        // options,
+        signal: controller.signal,
+        onDownloadProgress: ({ event }) => {
+          const xhr = event.target
+          const { responseText }: { responseText: string } = xhr
+          // Always process the final line
+          let currentIndex = responseText.indexOf('\n\n', lastIndex)
+          while (currentIndex > -1) {
+            try {
+              const chunk = responseText.substring(lastIndex, currentIndex)
+              const data = JSON.parse(chunk.substring('data:'.length))
+              if (data.content) {
+                data.content = decodeSecureField(data.content)
+                if (data.content) {
+                  formStreamContent.value += (data.content ?? '')
+
+                  if (data.finishReason === 'length')
+                    return fetchChatAPIOnce()
+                }
+              }
+              else if (data.message) {
+                formStreamContent.value = decodeSecureField(data.message.message)
+              }
+            }
+            catch (error) {
+            //
+            }
+            lastIndex = currentIndex + 2
+            currentIndex = responseText.indexOf('\n\n', lastIndex)
+          }
+        },
+      })
+    }
+    await fetchChatAPIOnce()
+  }
+  catch (error: any) {
+    console.error(error)
+    const errorMessage = error?.message ?? t('common.wrong')
+
+    if (error.message === 'canceled') {
+      formStreamContent.value = error.message
+      return
+    }
+
+    formStreamContent.value += `\n[${errorMessage}]`
+  }
+}
+
+async function convertToChat() {
+  await convertPromptFormToChat(formSession.value.recordId)
+  message.success('转换成功')
+  router.push({
+    name: 'Chat',
+    params: {
+      id: formSession.value.recordId,
+    },
+  })
+}
+
+function createSession() {
   const prompt: Chat.ChatStatePrompt = {
     config: setting.value,
   }
@@ -211,61 +292,56 @@ onMounted(async () => {
   >
     <NTabs v-model:value="activedPromptTab" animated>
       <NTabPane v-if="showPromptData?.formConfig" name="form" tab="表单">
-        <NForm ref="form" :model="formData" :rules="formRules">
-          <NFormItemRow v-for="(item, index) of showPromptData.formConfig" :key="index" :path="item.id" :label="`${item.label}：`" :label-placement="FormItemType.SWITCH === item.type ? 'left' : 'top'">
-            <!-- 下拉 -->
-            <NSelect v-if="FormItemType.SELECT === item.type" v-model:value="formData[item.id]" :options="item.data" filterable tag />
-            <!-- 多行文本 -->
-            <NInput v-else-if="FormItemType.TEXTAREA === item.type" v-model:value="formData[item.id]" type="textarea" :rows="item.rows" :autosize="undefined === item.autosize ? (undefined !== item.minRows || undefined !== item.maxRows ? { minRows: item.minRows, maxRows: item.maxRows } : undefined) : item.autosize" />
-            <!-- 开关 -->
-            <NSwitch v-else-if="FormItemType.SWITCH === item.type" v-model:value="formData[item.id]" :checked-value="item.checkedValue" :unchecked-value="item.uncheckedValue" />
-            <!-- 单选 -->
-            <NRadioGroup v-else-if="FormItemType.RADIO === item.type" v-model:value="formData[item.id]" :name="item.id">
-              <NSpace>
-                <NRadio v-for="(dataItem, key) in item.data" :key="key" :value="dataItem.value">
-                  {{ dataItem.label }}
-                </NRadio>
-              </NSpace>
-            </NRadioGroup>
-            <!-- 多选 -->
-            <NCheckboxGroup v-else-if="FormItemType.CHECKBOX === item.type" v-model:value="formData[item.id]">
-              <NSpace item-style="display: flex;">
-                <NCheckbox v-for="(dataItem, key) in item.data" :key="key" :label="dataItem.label" :value="dataItem.value" />
-              </NSpace>
-            </NCheckboxGroup>
-            <!-- 单行文本 -->
-            <NInput v-else v-model:value="formData[item.id]" />
-          </NFormItemRow>
-          <NDivider />
-          <NFormItemRow label="提示语">
-            <NInput
-              :value="formPrompt"
-              type="textarea"
-              readonly
-              show-count
-              class="h-full"
-              :autosize="{
-                minRows: 4,
-                maxRows: 6,
-              }"
-              placeholder=""
-            />
-          </NFormItemRow>
-          <NFormItemRow label="首条消息内容">
-            <NInput
-              :value="firstMessageContent"
-              type="textarea"
-              readonly
-              show-count
-              class="h-full"
-              :autosize="{
-                minRows: 4,
-                maxRows: 6,
-              }"
-              placeholder=""
-            />
-          </NFormItemRow>
-        </NForm>
+        <NSpin :show="formLoading">
+          <NForm ref="form" :model="formData" :rules="formRules">
+            <NFormItemRow v-for="(item, index) of showPromptData.formConfig" :key="index" :path="item.id" :label="`${item.label}：`" :label-placement="FormItemType.SWITCH === item.type ? 'left' : 'top'">
+              <!-- 下拉 -->
+              <NSelect v-if="FormItemType.SELECT === item.type" v-model:value="formData[item.id]" :options="item.data" filterable tag />
+              <!-- 多行文本 -->
+              <NInput v-else-if="FormItemType.TEXTAREA === item.type" v-model:value="formData[item.id]" type="textarea" :rows="item.rows" :autosize="undefined === item.autosize ? (undefined !== item.minRows || undefined !== item.maxRows ? { minRows: item.minRows, maxRows: item.maxRows } : undefined) : item.autosize" />
+              <!-- 开关 -->
+              <NSwitch v-else-if="FormItemType.SWITCH === item.type" v-model:value="formData[item.id]" :checked-value="item.checkedValue" :unchecked-value="item.uncheckedValue" />
+              <!-- 单选 -->
+              <NRadioGroup v-else-if="FormItemType.RADIO === item.type" v-model:value="formData[item.id]" :name="item.id">
+                <NSpace>
+                  <NRadio v-for="(dataItem, key) in item.data" :key="key" :value="dataItem.value">
+                    {{ dataItem.label }}
+                  </NRadio>
+                </NSpace>
+              </NRadioGroup>
+              <!-- 多选 -->
+              <NCheckboxGroup v-else-if="FormItemType.CHECKBOX === item.type" v-model:value="formData[item.id]">
+                <NSpace item-style="display: flex;">
+                  <NCheckbox v-for="(dataItem, key) in item.data" :key="key" :label="dataItem.label" :value="dataItem.value" />
+                </NSpace>
+              </NCheckboxGroup>
+              <!-- 单行文本 -->
+              <NInput v-else v-model:value="formData[item.id]" />
+            </NFormItemRow>
+            <NSpace justify="center">
+              <NButton type="primary" @click="submitForm">
+                提交
+              </NButton>
+              <NButton v-show="formStreamContent.length > 0" @click="convertToChat">
+                转为会话
+              </NButton>
+            </NSpace>
+            <NFormItemRow label="结果：">
+              <NInput
+                :value="formStreamContent"
+                type="textarea"
+                readonly
+                show-count
+                class="h-full"
+                :autosize="{
+                  minRows: 4,
+                  maxRows: 6,
+                }"
+                placeholder=""
+              />
+            </NFormItemRow>
+          </NForm>
+        </NSpin>
       </NTabPane>
       <NTabPane name="prompt" tab="信息">
         <NForm>
@@ -303,8 +379,8 @@ onMounted(async () => {
         <SettingAdvanced :setting="setting" :models="models" readonly />
       </NTabPane>
     </NTabs>
-    <div class="text-center mt-4">
-      <NButton type="primary" @click="createSession()">
+    <div v-show="'form' !== activedPromptTab" class="text-center">
+      <NButton type="primary" @click="createSession">
         创建会话
       </NButton>
     </div>

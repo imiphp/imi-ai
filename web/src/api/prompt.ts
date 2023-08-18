@@ -1,4 +1,5 @@
-import { get } from '@/utils/request'
+import { decodeChatSessionSecureFields } from '.'
+import post, { get } from '@/utils/request'
 
 export async function promptCategoryList(
 ) {
@@ -31,6 +32,34 @@ export async function getPrompt(
     url: '/chat/prompt/get',
     data: {
       id,
+    },
+  })
+}
+
+export async function submitPromptForm(
+  id: string,
+  data: any,
+) {
+  const response = await post({
+    url: '/chat/prompt/submitForm',
+    data: {
+      id,
+      data,
+    },
+  })
+
+  decodeChatSessionSecureFields(response.data)
+
+  return response
+}
+
+export async function convertPromptFormToChat(
+  sessionId: string,
+) {
+  return await post({
+    url: '/chat/prompt/convertFormToChat',
+    data: {
+      sessionId,
     },
   })
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Chat\Model;
 
 use app\Module\Chat\Enum\QAStatus;
+use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\Base\ChatSessionBase;
 use app\Module\Common\Model\Traits\TRecordId;
 use app\Module\Common\Model\Traits\TSecureField;
@@ -61,4 +62,12 @@ class ChatSession extends ChatSessionBase
 
     #[Inherit(), JsonDecode(wrap: '')]
     protected $config = null;
+
+    #[Column(virtual: true)]
+    protected ?string $typeText = null;
+
+    public function getTypeText(): ?string
+    {
+        return SessionType::getText($this->type);
+    }
 }

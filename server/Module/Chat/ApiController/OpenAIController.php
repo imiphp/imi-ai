@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\ApiController;
 
+use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
@@ -41,7 +42,7 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $message = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), $prompt, IPUtil::getIP(), $config, $session);
+        $message = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), SessionType::CHAT, $prompt, IPUtil::getIP(), $config, $session);
         $session->__setSecureField(true);
         $message->__setSecureField(true);
 
@@ -117,7 +118,7 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $result = $this->openAIService->list($memberSession->getIntMemberId(), $page, $limit);
+        $result = $this->openAIService->list($memberSession->getIntMemberId(), SessionType::CHAT, $page, $limit);
         /** @var ChatSession $item */
         foreach ($result['list'] as $item)
         {
@@ -152,7 +153,7 @@ class OpenAIController extends HttpController
     public function delete(string $id)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->openAIService->delete($id, $memberSession->getIntMemberId());
+        $this->openAIService->delete($id, $memberSession->getIntMemberId(), SessionType::CHAT);
     }
 
     #[
@@ -162,7 +163,7 @@ class OpenAIController extends HttpController
     public function get(string $id, bool $withMessages = true): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $session = $this->openAIService->getByIdStr($id, $memberSession->getIntMemberId());
+        $session = $this->openAIService->getById($id, $memberSession->getIntMemberId(), SessionType::CHAT);
         $session->__setSecureField(true);
 
         $result = [

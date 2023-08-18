@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Chat\Enum\SessionType;
+use app\Module\Chat\Model\ChatMessage;
+use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Prompt;
 use app\Module\Chat\Model\PromptCategory;
+use Imi\Aop\Annotation\Inject;
 
 class PromptService
 {
+    #[Inject()]
+    protected OpenAIService $openAIService;
+
     public function create(array $categoryIds, string $title, string $prompt, string $firstMessageContent = '', int $index = 128, int $crawlerOriginId = 0, array $config = [], array $formConfig = []): Prompt
     {
         $record = Prompt::newInstance();
@@ -114,5 +121,33 @@ class PromptService
         return Prompt::query()->where('crawler_origin_id', '=', $crawlerOriginId)
                               ->where('title', '=', $title)
                               ->find();
+    }
+
+    public function submitForm(int $memberId, string $id, array $data, string $ip = '', ?ChatSession &$session = null): ChatMessage
+    {
+        $promptRecord = $this->get($id);
+        if (!$promptRecord->formConfig)
+        {
+            throw new \Exception('该提示语不支持表单');
+        }
+        $search = [];
+        $replaceData = [];
+        foreach ($promptRecord->formConfig as $item)
+        {
+            $search[] = '{' . $item['id'] . '}';
+            $replaceData[$item['id']] = $data[$item['id']] ?? '';
+        }
+
+        $message = str_replace($search, $replaceData, $promptRecord->firstMessageContent);
+        $prompt = str_replace($search, $replaceData, $promptRecord->prompt);
+
+        return $this->openAIService->sendMessage($message, '', $memberId, SessionType::PROMPT_FORM, $prompt, $ip, $promptRecord->config, $session);
+    }
+
+    public function convertFormToChat(int|string $sessionId, int $memberId = 0): void
+    {
+        $session = $this->openAIService->getById($sessionId, $memberId, SessionType::PROMPT_FORM);
+        $session->type = SessionType::CHAT;
+        $session->update();
     }
 }
