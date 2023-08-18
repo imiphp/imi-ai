@@ -127,6 +127,7 @@ export function deleteSession(
 
 export function decodeChatSessionSecureFields(data: any) {
   data.title = decodeSecureField(data.title)
+  data.prompt = decodeSecureField(data.prompt)
 }
 
 export function decodeChatMessageSecureFields(data: any) {

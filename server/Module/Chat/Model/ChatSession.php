@@ -34,7 +34,7 @@ class ChatSession extends ChatSessionBase
     /**
      * 安全处理字段.
      */
-    protected static array $__secureFields = ['title'];
+    protected static array $__secureFields = ['title', 'prompt'];
 
     /**
      * 创建时间.
