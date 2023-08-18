@@ -8,7 +8,10 @@ export interface UserInfo {
   phone: string
   nickname: string
   avatar: string | null
-  register_time: number
+  inviterId: number
+  inviterTime: number
+  invitationCode: string
+  registerTime: number
 }
 
 export interface UserState {
@@ -23,7 +26,10 @@ export function defaultSetting(): UserState {
       phone: '',
       nickname: '',
       avatar: null,
-      register_time: 0,
+      inviterId: 0,
+      inviterTime: 0,
+      invitationCode: '',
+      registerTime: 0,
     },
   }
 }

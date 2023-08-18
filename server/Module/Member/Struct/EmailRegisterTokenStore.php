@@ -6,7 +6,7 @@ namespace app\Module\Member\Struct;
 
 class EmailRegisterTokenStore
 {
-    public function __construct(private string $email, private string $password, private string $code, private string $verifyToken)
+    public function __construct(private string $email, private string $password, private string $code, private string $verifyToken, private string $invitationCode = '')
     {
     }
 
@@ -28,5 +28,10 @@ class EmailRegisterTokenStore
     public function getVerifyToken(): string
     {
         return $this->verifyToken;
+    }
+
+    public function getInvitationCode(): string
+    {
+        return $this->invitationCode;
     }
 }

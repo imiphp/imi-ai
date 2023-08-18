@@ -13,6 +13,9 @@ use app\Module\Member\Struct\EmailRegisterTokenStore;
 use app\Util\AppUtil;
 use app\Util\Generator;
 use Imi\Aop\Annotation\Inject;
+use Imi\Db\Annotation\Transaction;
+use Imi\Db\Db;
+use Imi\Swoole\Util\Coroutine;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Condition;
 use Imi\Validate\Annotation\Text;
@@ -33,12 +36,15 @@ class EmailAuthService
     #[Inject()]
     protected MemberService $memberService;
 
+    #[Inject()]
+    protected InvitationService $invitationService;
+
     #[
         AutoValidation(),
         Condition(name: 'email', callable: '\Imi\Validate\ValidatorHelper::email', message: '邮箱格式错误'),
         Text(name: 'password', min: 6, message: '密码最小长度为6位'),
     ]
-    public function sendRegisterEmail(string $email, string $password): array
+    public function sendRegisterEmail(string $email, string $password, string $invitationCode = ''): array
     {
         if ($this->isRegistered($email))
         {
@@ -51,7 +57,7 @@ class EmailAuthService
         }
         $code = Generator::generateCode(6);
         $verifyToken = Generator::generateToken(32);
-        $store = new EmailRegisterTokenStore($email, $password, $code, $verifyToken);
+        $store = new EmailRegisterTokenStore($email, $password, $code, $verifyToken, $invitationCode);
         $token = $this->tokenService->generateToken(self::REGISTER_TOKEN_TYPE, 32, $store, $config->getRegisterCodeTTL());
         $params = [
             'code' => $code,
@@ -77,17 +83,26 @@ class EmailAuthService
             throw new ErrorException('该邮箱已注册');
         }
 
-        return $this->emailRegister($email, $store->getPassword(), $ip);
+        return $this->emailRegister($email, $store->getPassword(), $ip, $store->getInvitationCode());
     }
 
-    public function emailRegister(string $email, string $password, string $ip): Member
+    #[Transaction()]
+    public function emailRegister(string $email, string $password, string $ip, string $invitationCode = ''): Member
     {
         if ($this->isRegistered($email))
         {
             throw new ErrorException('该邮箱已注册');
         }
 
-        return $this->memberService->create(email: $email, password: $this->authService->passwordHash($password), nickname: $email, ip: $ip);
+        $member = $this->memberService->create(email: $email, password: $this->authService->passwordHash($password), nickname: $email, ip: $ip);
+
+        $config = MemberConfig::__getConfig();
+        if ($config->getEnableInvitation() && '' !== $invitationCode)
+        {
+            Db::getInstance()->getTransaction()->onTransactionCommit(fn () => Coroutine::create(fn () => $this->invitationService->bind($member->id, $invitationCode)));
+        }
+
+        return $member;
     }
 
     public function hash(string $email): int

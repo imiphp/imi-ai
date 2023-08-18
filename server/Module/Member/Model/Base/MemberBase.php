@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.name", default="tb_member"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Member\Model\Member.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_member` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `status` tinyint unsigned NOT NULL COMMENT '状态',   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `register_time` int unsigned NOT NULL COMMENT '注册时间',   `register_ip_data` varbinary(16) NOT NULL COMMENT '注册IP数据',   `register_ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`register_ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`register_ip_data`) end)) VIRTUAL NOT NULL COMMENT '注册IP',   `last_login_time` int unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   `last_login_ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT '最后登录IP数据',   `last_login_ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`last_login_ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`last_login_ip_data`) end)) VIRTUAL NOT NULL COMMENT '最后登录IP',   PRIMARY KEY (`id`) USING BTREE,   KEY `phone` (`phone`) USING BTREE,   KEY `email_hash` (`email_hash`) USING BTREE,   KEY `status` (`status`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
+ * @DDL(sql="CREATE TABLE `tb_member` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `status` tinyint unsigned NOT NULL COMMENT '状态',   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址',   `email_hash` int unsigned NOT NULL COMMENT '邮箱哈希（crc32）',   `phone` bigint unsigned NOT NULL COMMENT '手机号码',   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',   `nickname` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '昵称',   `inviter_id` int unsigned NOT NULL DEFAULT '0' COMMENT '邀请人ID',   `inviter_time` int unsigned NOT NULL DEFAULT '0' COMMENT '邀请时间',   `register_time` int unsigned NOT NULL COMMENT '注册时间',   `register_ip_data` varbinary(16) NOT NULL COMMENT '注册IP数据',   `register_ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`register_ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`register_ip_data`) end)) VIRTUAL NOT NULL COMMENT '注册IP',   `last_login_time` int unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',   `last_login_ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT '最后登录IP数据',   `last_login_ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`last_login_ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`last_login_ip_data`) end)) VIRTUAL NOT NULL COMMENT '最后登录IP',   PRIMARY KEY (`id`) USING BTREE,   KEY `phone` (`phone`) USING BTREE,   KEY `email_hash` (`email_hash`) USING BTREE,   KEY `status` (`status`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户'")
  *
  * @property int|null    $id
  * @property int|null    $status          状态
@@ -27,6 +27,8 @@ use Imi\Model\Model;
  * @property int|null    $phone           手机号码
  * @property string|null $password        密码
  * @property string|null $nickname        昵称
+ * @property int|null    $inviterId       邀请人ID
+ * @property int|null    $inviterTime     邀请时间
  * @property int|null    $registerTime    注册时间
  * @property string|null $registerIpData  注册IP数据
  * @property string|null $registerIp      注册IP
@@ -263,6 +265,66 @@ abstract class MemberBase extends Model
             throw new \InvalidArgumentException('The maximum length of $nickname is 32');
         }
         $this->nickname = null === $nickname ? null : (string) $nickname;
+
+        return $this;
+    }
+
+    /**
+     * 邀请人ID.
+     * inviter_id.
+     *
+     * @Column(name="inviter_id", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $inviterId = 0;
+
+    /**
+     * 获取 inviterId - 邀请人ID.
+     */
+    public function getInviterId(): ?int
+    {
+        return $this->inviterId;
+    }
+
+    /**
+     * 赋值 inviterId - 邀请人ID.
+     *
+     * @param int|null $inviterId inviter_id
+     *
+     * @return static
+     */
+    public function setInviterId($inviterId)
+    {
+        $this->inviterId = null === $inviterId ? null : (int) $inviterId;
+
+        return $this;
+    }
+
+    /**
+     * 邀请时间.
+     * inviter_time.
+     *
+     * @Column(name="inviter_time", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $inviterTime = 0;
+
+    /**
+     * 获取 inviterTime - 邀请时间.
+     */
+    public function getInviterTime(): ?int
+    {
+        return $this->inviterTime;
+    }
+
+    /**
+     * 赋值 inviterTime - 邀请时间.
+     *
+     * @param int|null $inviterTime inviter_time
+     *
+     * @return static
+     */
+    public function setInviterTime($inviterTime)
+    {
+        $this->inviterTime = null === $inviterTime ? null : (int) $inviterTime;
 
         return $this;
     }

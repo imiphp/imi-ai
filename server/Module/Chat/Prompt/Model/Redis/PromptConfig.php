@@ -10,12 +10,14 @@ use app\Module\Config\Model\Redis\Traits\TConfigModel;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Entity;
 use Imi\Model\Annotation\RedisEntity;
+use Imi\Model\Annotation\Serializables;
 use Imi\Model\RedisModel;
 
 #[
     Entity(),
     RedisEntity(key: 'config:prompt', storage: 'hash_object'),
     ConfigModel(title: '提示语设置'),
+    Serializables(mode: 'deny', fields: ['crawlers']),
 ]
 class PromptConfig extends RedisModel
 {

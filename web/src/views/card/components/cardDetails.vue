@@ -41,7 +41,7 @@ const createColumns = (): DataTableColumns<any> => {
       title: '变动金额',
       key: 'changeAmount',
       render(row) {
-        return h('span', { class: row.changeAmount < 0 ? 'text-[#d03050]' : 'text-[#18a058]' }, `${row.changeAmount}`)
+        return h('span', { class: row.changeAmount < 0 ? 'text-[#18a058]' : 'text-[#d03050]' }, row.changeAmount < 0 ? `${row.changeAmount}` : `+${row.changeAmount}`)
       },
     },
     {

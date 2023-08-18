@@ -340,6 +340,10 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | registerEmailContent | 详见代码 | 注册邮件内容 |
 | registerEmailIsHtml | `1` | 注册邮件是否html，默认为 `true` |
 | tokenExpires | `2592000` | 登录Token有效时长，单位：秒，默认 `30` 天 |
+| enableInvitation | `true` | 启用邀请机制，默认为 `true` |
+| enableInputInvitation | `1` | 启用输入邀请机制，默认为 `true` |
+| inviterGiftAmount | `200000` | 邀请人获得奖励金额 |
+| inviteeGiftAmount | `100000` | 被邀请人获得奖励金额 |
 
 * 验证码设置
 

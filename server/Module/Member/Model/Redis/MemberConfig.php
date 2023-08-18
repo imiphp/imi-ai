@@ -136,4 +136,76 @@ class MemberConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 启用邀请机制.
+     */
+    #[Column]
+    protected bool $enableInvitation = true;
+
+    public function getEnableInvitation(): bool
+    {
+        return $this->enableInvitation;
+    }
+
+    public function setEnableInvitation(bool $enableInvitation): self
+    {
+        $this->enableInvitation = $enableInvitation;
+
+        return $this;
+    }
+
+    /**
+     * 启用输入邀请机制.
+     */
+    #[Column]
+    protected bool $enableInputInvitation = true;
+
+    public function getEnableInputInvitation(): bool
+    {
+        return $this->enableInputInvitation;
+    }
+
+    public function setEnableInputInvitation(bool $enableInputInvitation): self
+    {
+        $this->enableInputInvitation = $enableInputInvitation;
+
+        return $this;
+    }
+
+    /**
+     * 邀请人获得奖励金额.
+     */
+    #[Column]
+    protected int $inviterGiftAmount = 200000;
+
+    public function getInviterGiftAmount(): int
+    {
+        return $this->inviterGiftAmount;
+    }
+
+    public function setInviterGiftAmount(int $inviterGiftAmount): self
+    {
+        $this->inviterGiftAmount = $inviterGiftAmount;
+
+        return $this;
+    }
+
+    /**
+     * 被邀请人获得奖励金额.
+     */
+    #[Column]
+    protected int $inviteeGiftAmount = 100000;
+
+    public function getInviteeGiftAmount(): int
+    {
+        return $this->inviteeGiftAmount;
+    }
+
+    public function setInviteeGiftAmount(int $inviteeGiftAmount): self
+    {
+        $this->inviteeGiftAmount = $inviteeGiftAmount;
+
+        return $this;
+    }
 }

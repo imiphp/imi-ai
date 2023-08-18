@@ -7,6 +7,7 @@ namespace app\Module\Member\Model;
 use app\Module\Common\Model\Traits\TRecordId;
 use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Base\MemberBase;
+use Hashids\Hashids;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Serializables;
@@ -38,5 +39,39 @@ class Member extends MemberBase
     public function getStatusText(): ?string
     {
         return MemberStatus::getText($this->status);
+    }
+
+    public const INVITATION_ALPHABET = 'abcdefghijklmnopqrstuvwxyz1234567890';
+
+    public static function encodeInvitationCode(int $code): string
+    {
+        return (new Hashids(self::__getSalt(), 8, self::INVITATION_ALPHABET))->encode($code);
+    }
+
+    public static function decodeInvitationCode(string $code): int
+    {
+        $result = (new Hashids(self::__getSalt(), 8, self::INVITATION_ALPHABET))->decode($code);
+        if (!$result)
+        {
+            throw new \InvalidArgumentException('Invalid invitation code');
+        }
+
+        return $result[0];
+    }
+
+    /**
+     * 邀请码
+     */
+    #[Column(virtual: true)]
+    protected ?string $invitationCode = null;
+
+    public function getInvitationCode(): ?string
+    {
+        if (null === $this->invitationCode && null !== $this->id)
+        {
+            return $this->invitationCode = self::encodeInvitationCode($this->id);
+        }
+
+        return $this->invitationCode;
     }
 }

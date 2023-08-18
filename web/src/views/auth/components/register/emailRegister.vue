@@ -11,6 +11,7 @@ import { useAuthStore, useUserStore } from '@/store'
 
 interface Props {
   success: Boolean
+  invitationCode?: string
 }
 
 interface Emit {
@@ -19,7 +20,6 @@ interface Emit {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
-
 const success = computed({
   get: () => props.success,
   set: (success: Boolean) => emit('update:success', success),
@@ -37,6 +37,7 @@ const formData = ref({
   vcodeToken: '',
   emailVCodeToken: '',
   emailVCode: '',
+  invitationCode: '',
 })
 const sendRegisterEmailRules = {
   email: {
@@ -91,6 +92,7 @@ async function handleClickSendEmail() {
       loading.value = true
       const { confirmPassword: _, ...data } = { ...formData.value }
       data.password = hashPassword(data.password)
+      data.invitationCode = props.invitationCode ?? ''
       const response = await sendRegisterEmail({ ...data })
       formData.value.emailVCodeToken = response.token
       emailSent.value = true
@@ -136,6 +138,13 @@ async function handleClickRegister() {
       userStore.updateUserInfo(response.member)
       authStore.setToken(response.token)
       success.value = true
+    }
+    catch (e) {
+      vcode.value.loadVCode()
+      formData.value.vcode = ''
+      formData.value.emailVCode = ''
+      inputVcode.value.focus()
+      throw e
     }
     finally {
       loading.value = false

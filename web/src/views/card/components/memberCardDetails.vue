@@ -24,9 +24,9 @@ const createColumns = (): DataTableColumns<any> => {
       key: 'changeAmount',
       render(row) {
         if (row.isDeduct)
-          return h('span', { class: 'text-[#d03050]' }, `-${row.changeAmount}`)
+          return h('span', { class: 'text-[#18a058]' }, `-${row.changeAmount}`)
         else
-          return h('span', { class: 'text-[#18a058]' }, `+${row.changeAmount}`)
+          return h('span', { class: 'text-[#d03050]' }, `+${row.changeAmount}`)
       },
     },
     {

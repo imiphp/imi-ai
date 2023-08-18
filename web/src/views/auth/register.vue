@@ -1,13 +1,16 @@
 <script setup lang='ts'>
 import { NCard, NTabPane, NTabs, useMessage } from 'naive-ui'
 import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { EmailRegister } from './components'
 import { useAuthStore } from '@/store'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const message = useMessage()
+
+const invitationCode = route.params.invitationCode?.toString()
 
 if (authStore.hasToken())
   router.replace({ path: '/' })
@@ -36,7 +39,7 @@ watch(success, (val) => {
         animated
       >
         <NTabPane name="email" tab="邮箱注册">
-          <EmailRegister v-model:success="success" />
+          <EmailRegister v-model:success="success" :invitation-code="invitationCode" />
         </NTabPane>
       </NTabs>
     </NCard>

@@ -41,7 +41,7 @@ class EmbeddingConfig extends RedisModel
         return $this;
     }
 
-    #[Column]
+    #[Column(virtual: true)]
     protected ?string $maxCompressedFileSizeText = null;
 
     public function getMaxCompressedFileSizeText(): ?string
@@ -67,7 +67,7 @@ class EmbeddingConfig extends RedisModel
         return $this;
     }
 
-    #[Column]
+    #[Column(virtual: true)]
     protected ?string $maxSingleFileSizeText = null;
 
     public function getMaxSingleFileSizeText(): ?string
@@ -93,7 +93,7 @@ class EmbeddingConfig extends RedisModel
         return $this;
     }
 
-    #[Column]
+    #[Column(virtual: true)]
     protected ?string $maxTotalFilesSizeText = null;
 
     public function getMaxTotalFilesSizeText(): ?string

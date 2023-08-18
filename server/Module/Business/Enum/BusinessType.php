@@ -22,4 +22,10 @@ class BusinessType extends BaseEnum
 
     #[EnumItem(text: '模型训练对话')]
     public const EMBEDDING_CHAT = 4;
+
+    #[EnumItem(text: '邀请注册')]
+    public const INVITER = 100;
+
+    #[EnumItem(text: '受邀注册')]
+    public const INVITEE = 101;
 }

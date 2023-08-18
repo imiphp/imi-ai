@@ -112,9 +112,15 @@ class MemberCardService
     #[Cacheable(name: 'redisCache', key: 'card:memberBaseCardId:{memberId}', ttl: 86400)]
     public function getMemberBaseCardId(int $memberId): int
     {
-        return (int) Card::query()->where('member_id', '=', $memberId)
-                                  ->where('type', '=', CardTypeService::BASE_CARD_TYPE)
-                                  ->value('id');
+        $result = (int) Card::query()->where('member_id', '=', $memberId)
+                                     ->where('type', '=', CardTypeService::BASE_CARD_TYPE)
+                                     ->value('id');
+        if ($result)
+        {
+            return $result;
+        }
+
+        throw new \RuntimeException('未找到基础账户');
     }
 
     /**
@@ -229,18 +235,18 @@ class MemberCardService
     #[
         Transaction()
     ]
-    public function gift(string|int $cardId, int $amount): MemberCardOrder
+    public function gift(string|int $cardId, int $amount, int $businessType = BusinessType::OTHER): MemberCardOrder
     {
         $time = time();
         $card = $this->cardService->get($cardId);
         $order = MemberCardOrder::newInstance();
         $order->memberId = $card->memberId;
-        $order->operationType = OperationType::REFUND;
-        $order->businessType = BusinessType::OTHER;
+        $order->operationType = OperationType::GIFT;
+        $order->businessType = $businessType;
         $order->businessId = 0;
         $order->changeAmount = $amount;
         $order->detailIds = [
-            $this->cardService->change($cardId, OperationType::GIFT, $amount, BusinessType::OTHER, 0, time: $time)->id,
+            $this->cardService->change($cardId, OperationType::GIFT, $amount, $businessType, 0, time: $time)->id,
         ];
         $order->time = $time;
         $order->insert();
@@ -251,9 +257,9 @@ class MemberCardService
     /**
      * 赠送会员基础卡余额.
      */
-    public function giftMemberBaseCard(int $memberId, int $amount): MemberCardOrder
+    public function giftMemberBaseCard(int $memberId, int $amount, int $businessType = BusinessType::OTHER): MemberCardOrder
     {
-        return $this->gift($this->getMemberBaseCardId($memberId), $amount);
+        return $this->gift($this->getMemberBaseCardId($memberId), $amount, $businessType);
     }
 
     public function getOrder(string|int $orderId): MemberCardOrder

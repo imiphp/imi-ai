@@ -41,7 +41,7 @@ class AutoCreateBaseCard
         if (($tokens = $config->getRegisterGiftAmount()) > 0)
         {
             $service = App::getBean(MemberCardService::class);
-            $service->gift($service->getMemberBaseCardId($card->id), $tokens);
+            $service->gift($card->id, $tokens);
         }
 
         return $member;

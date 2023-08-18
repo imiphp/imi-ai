@@ -27,11 +27,11 @@ class EmailAuthController extends HttpController
         Action,
         Route(method: RequestMethod::POST)
     ]
-    public function sendRegisterEmail(string $email, string $password, string $vcodeToken, string $vcode): array
+    public function sendRegisterEmail(string $email, string $password, string $vcodeToken, string $vcode, string $invitationCode = ''): array
     {
         $this->vCodeService->autoCheck($vcodeToken, $vcode);
 
-        return $this->emailAuthService->sendRegisterEmail($email, $password);
+        return $this->emailAuthService->sendRegisterEmail($email, $password, $invitationCode);
     }
 
     #[
@@ -41,7 +41,7 @@ class EmailAuthController extends HttpController
     public function register(string $email, string $vcodeToken, string $vcode): array
     {
         $store = $this->emailAuthService->autoCheckRegisterCode($vcodeToken, $vcode, $email);
-        $member = $this->emailAuthService->emailRegister($email, $store->getPassword(), $ip = IPUtil::getIP());
+        $member = $this->emailAuthService->emailRegister($email, $store->getPassword(), $ip = IPUtil::getIP(), $store->getInvitationCode());
 
         return [
             'token'  => $this->emailAuthService->authService->doLogin($member->id, $ip)->toString(),

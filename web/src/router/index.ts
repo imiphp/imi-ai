@@ -71,7 +71,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/auth/register',
+        path: '/auth/register/:invitationCode?',
         name: 'Register',
         component: () => import('@/views/auth/register.vue'),
         meta: {

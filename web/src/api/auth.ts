@@ -8,6 +8,7 @@ export function sendRegisterEmail(
     password: string
     vcodeToken: string
     vcode: string
+    invitationCode?: string
   },
 ) {
   return post({

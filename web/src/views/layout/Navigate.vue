@@ -6,13 +6,13 @@ import type { FormInst, FormItemRule } from 'naive-ui'
 import { NBadge, NButton, NDropdown, NForm, NFormItem, NIcon, NInput, NMenu, NModal, NSpin, useMessage } from 'naive-ui'
 
 import { RouterLink, useRouter } from 'vue-router'
-import { LockClosedOutline, LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
-import { MemberAvatar } from './components'
+import { Gift, LockClosedOutline, LogInOutline, LogOutOutline, Menu, Person, PersonAddOutline, WalletOutline } from '@vicons/ionicons5'
+import { Invitation, MemberAvatar } from './components'
 import logo from '@/assets/logo.png'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAuthStore, useUserStore } from '@/store'
 import type { UserInfo } from '@/store/modules/user/helper'
-import { cardInfo, changePassword, updateProfile } from '@/api'
+import { cardInfo, changePassword, config, updateProfile } from '@/api'
 import { hashPassword } from '@/utils/functions'
 
 const { isMobile } = useBasicLayout()
@@ -20,8 +20,8 @@ const authStore = useAuthStore()
 const userStore = useUserStore()
 const router = useRouter()
 const message = useMessage()
-
 const balance = ref('0')
+const showInvitationMenu = ref(true)
 
 const menuOptions = [
   {
@@ -171,6 +171,9 @@ async function handleChangePassword() {
   })
 }
 
+// 邀请奖励
+const showInvitation = ref(false)
+
 const rightMenuOptions = ref([
   {
     label: () => [h(MemberAvatar, { style: 'display:inline-block; vertical-align: middle; margin-right: 0.5em' }), isMobile.value ? undefined : userStore.userInfo.nickname],
@@ -237,6 +240,16 @@ const rightMenuOptions = ref([
       {
         label: () => h('a', {
           onclick: () => {
+            showInvitation.value = true
+          },
+        }, '邀请奖励'),
+        key: 'Invitation',
+        show: computed(() => logined.value && showInvitationMenu.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(Gift) }),
+      },
+      {
+        label: () => h('a', {
+          onclick: () => {
             changePasswordData.value = changePasswordInitData
             showChangePassword.value = true
           },
@@ -291,11 +304,37 @@ watch(() => userStore.userInfo, (newValue: UserInfo) => {
 },
 { immediate: true })
 
+let promises: any = null
+
 async function onMouseEnter() {
   if (!logined.value)
     return
-  const response = await cardInfo(() => {})
-  balance.value = response.balanceText
+  if (promises)
+    return
+
+  promises = Promise.all([
+    (async () => {
+      try {
+        const response = await config()
+        showInvitationMenu.value = response.data['config:member'].config.enableInvitation
+      }
+      catch (e) {
+        window.console.log(e)
+      }
+    })(),
+    (async () => {
+      try {
+        const response = await cardInfo(() => {})
+        balance.value = response.balanceText
+      }
+      catch (e) {
+        balance.value = '加载失败'
+        window.console.log(e)
+      }
+    })(),
+  ])
+  await promises
+  promises = null
 }
 </script>
 
@@ -389,6 +428,17 @@ async function onMouseEnter() {
         </div>
       </NForm>
     </NSpin>
+  </NModal>
+
+  <!-- 邀请奖励 -->
+  <NModal
+    v-if="showInvitation"
+    v-model:show="showInvitation"
+    preset="card"
+    title="邀请奖励"
+    style="width: 95%; max-width: 640px"
+  >
+    <Invitation />
   </NModal>
 </template>
 
