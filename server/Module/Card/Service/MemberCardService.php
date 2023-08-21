@@ -166,11 +166,11 @@ class MemberCardService
                 {
                     throw new NoScoreException('余额不足');
                 }
-                // 余额不足，但是满足最小余额，直接扣除基础账户
-                $baseCardId = $this->getMemberBaseCardId($memberId);
-                $detail = $this->cardService->change($baseCardId, OperationType::PAY, -$leftAmount, $businessType, $businessId, null, $time);
-                $detailIds[] = $detail->id;
             }
+            // 余额不足，但是满足最小余额，直接扣除基础账户
+            $baseCardId = $this->getMemberBaseCardId($memberId);
+            $detail = $this->cardService->change($baseCardId, OperationType::PAY, -$leftAmount, $businessType, $businessId, null, $time);
+            $detailIds[] = $detail->id;
         }
         elseif ($leftAmount < 0)
         {
