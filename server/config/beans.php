@@ -27,6 +27,11 @@ return (function () {
                 $rootPath . 'vendor',
             ], // 要排除的路径数组，支持通配符*
         ],
+        'AutoRunProcessManager' => [
+            'processes' => [
+                'CronProcess',
+            ],
+        ],
         'JWT'   => [
             'list'  => [
                 'memberLoginStatus' => [

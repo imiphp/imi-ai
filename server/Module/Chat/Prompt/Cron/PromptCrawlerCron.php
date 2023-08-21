@@ -10,7 +10,7 @@ use Imi\Cron\Annotation\Cron;
 use Imi\Cron\Contract\ICronTask;
 
 #[
-    Cron(id: PromptCrawlerCron::class, second: '1h', type: 'task')
+    Cron(id: PromptCrawlerCron::class, hour: '1n', minute: '0', second: '0', type: 'random_worker')
 ]
 class PromptCrawlerCron implements ICronTask
 {
