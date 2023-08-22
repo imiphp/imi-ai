@@ -46,4 +46,24 @@ class PromptConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 临时记录保存时长.
+     *
+     * 单位：秒
+     */
+    #[Column]
+    protected int $tempRecordTTL = 3600;
+
+    public function getTempRecordTTL(): int
+    {
+        return $this->tempRecordTTL;
+    }
+
+    public function setTempRecordTTL(int $tempRecordTTL): self
+    {
+        $this->tempRecordTTL = $tempRecordTTL;
+
+        return $this;
+    }
 }

@@ -11,6 +11,7 @@ use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Prompt;
 use app\Module\Chat\Model\PromptCategory;
 use Imi\Aop\Annotation\Inject;
+use Imi\Db\Db;
 
 class PromptService
 {
@@ -149,5 +150,32 @@ class PromptService
         $session = $this->openAIService->getById($sessionId, $memberId, SessionType::PROMPT_FORM);
         $session->type = SessionType::CHAT;
         $session->update();
+    }
+
+    public function deleteTempRecords(int $ttl): int
+    {
+        $recordCount = 0;
+        while ($chunkRecordCount = Db::transUse(function () use ($ttl) {
+            $ids = ChatSession::query()->where('type', '=', SessionType::PROMPT_FORM)
+                                       ->where('create_time', '<', time() - $ttl)
+                                       ->field('id')
+                                       ->limit(1000)
+                                       ->select()
+                                       ->getColumn();
+            if ($ids)
+            {
+                ChatSession::query()->whereIn('id', $ids)->delete();
+                ChatMessage::query()->whereIn('session_id', $ids)->delete();
+
+                return \count($ids);
+            }
+
+            return 0;
+        }))
+        {
+            $recordCount += $chunkRecordCount;
+        }
+
+        return $recordCount;
     }
 }
