@@ -12,6 +12,7 @@
         "guzzlehttp/guzzle": "^7.5",
         "hashids/hashids": "^5.0",
         "imiphp/imi": "2.1.x-dev",
+        "imiphp/imi-email-blacklist": "~2.1.0",
         "imiphp/imi-jwt": "2.1.x-dev",
         "imiphp/imi-pgsql": "2.1.x-dev",
         "imiphp/imi-rate-limit": "2.1.x-dev",

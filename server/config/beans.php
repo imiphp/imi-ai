@@ -53,5 +53,10 @@ return (function () {
                 ],
             ],
         ],
+        // handler 配置
+        \Imi\Email\BlackList\Handler\RedisHandler::class => [
+            'key'      => 'email:blacklist', // 存储数据的键名
+            'poolName' => null, // 连接池
+        ],
     ];
 })();

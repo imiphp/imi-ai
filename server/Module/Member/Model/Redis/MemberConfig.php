@@ -208,4 +208,22 @@ class MemberConfig extends RedisModel
 
         return $this;
     }
+
+    /**
+     * 启用邮箱黑名单.
+     */
+    #[Column]
+    protected bool $enableEmailBlackList = true;
+
+    public function getEnableEmailBlackList(): bool
+    {
+        return $this->enableEmailBlackList;
+    }
+
+    public function setEnableEmailBlackList(bool $enableEmailBlackList): self
+    {
+        $this->enableEmailBlackList = $enableEmailBlackList;
+
+        return $this;
+    }
 }
