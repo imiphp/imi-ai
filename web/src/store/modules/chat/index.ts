@@ -12,6 +12,7 @@ export interface ModelConfig {
   enable: boolean
   inputTokenMultiple: string
   outputTokenMultiple: string
+  tips: string
 }
 
 export function defaultChatSetting(): Chat.ChatSetting {

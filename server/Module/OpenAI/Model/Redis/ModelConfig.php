@@ -26,4 +26,9 @@ class ModelConfig
      * 最大Token数.
      */
     public int $maxTokens = 0;
+
+    /**
+     * 提示文本.
+     */
+    public string $tips = '';
 }

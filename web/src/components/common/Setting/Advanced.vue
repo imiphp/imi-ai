@@ -76,10 +76,13 @@ function handleReset() {
               :disabled="!model.enable || readonly"
             />
           </NRadioGroup>
-          <div class="leading-10">
-            <b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].outputTokenMultiple }}</span>
-          </div>
         </div>
+      </div>
+      <div class="leading-10 !mt-2">
+        <p><b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].outputTokenMultiple }}</span></p>
+        <p v-show=" models[setting.model].tips.length > 0">
+          <b>提示：</b>{{ models[setting.model].tips }}
+        </p>
       </div>
       <div v-if="undefined !== props.prompt" class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[130px]">提示语</span>
