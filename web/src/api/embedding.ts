@@ -58,6 +58,7 @@ export function updateProject(
     sectionSeparator?: string
     sectionSplitLength?: number
     sectionSplitByTitle?: boolean
+    chatConfig?: any
   },
 ) {
   return post({
@@ -70,6 +71,7 @@ export function updateProject(
       sectionSeparator: data.sectionSeparator,
       sectionSplitLength: data.sectionSplitLength,
       sectionSplitByTitle: data.sectionSplitByTitle,
+      chatConfig: data.chatConfig,
     },
   })
 }

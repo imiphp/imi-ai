@@ -85,7 +85,7 @@ class EmbeddingService
     }
 
     #[Transaction()]
-    public function updateProject(string $projectId, ?string $name = null, ?bool $public = null, ?bool $publicList = null, ?string $sectionSeparator = null, ?int $sectionSplitLength = null, ?bool $sectionSplitByTitle = null, int $memberId = 0): void
+    public function updateProject(string $projectId, ?string $name = null, ?bool $public = null, ?bool $publicList = null, ?string $sectionSeparator = null, ?int $sectionSplitLength = null, ?bool $sectionSplitByTitle = null, array|object|null $chatConfig = null, int $memberId = 0): void
     {
         $record = $this->getProject($projectId, $memberId);
         if (null !== $name)
@@ -108,6 +108,10 @@ class EmbeddingService
         if (null !== $sectionSplitByTitle)
         {
             $record->sectionSplitByTitle = $sectionSplitByTitle;
+        }
+        if (null !== $chatConfig)
+        {
+            $record->chatConfig = $chatConfig;
         }
         $record->update();
         if (false === $public)

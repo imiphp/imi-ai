@@ -17,6 +17,7 @@ declare namespace Embedding {
         public: boolean
         publicProject: PublicProject | null
         publicList: boolean
+        chatConfig: any
     }
 
     interface PublicProject {

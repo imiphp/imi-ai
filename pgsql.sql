@@ -62,7 +62,8 @@ CACHE 1
   "public" bool NOT NULL DEFAULT false,
   "section_separator" varchar(16) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
   "section_split_length" int4 NOT NULL DEFAULT 512,
-  "section_split_by_title" bool NOT NULL DEFAULT true
+  "section_split_by_title" bool NOT NULL DEFAULT true,
+  "chat_config" json NOT NULL DEFAULT '{}'::json
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -78,6 +79,7 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."public" IS '是否公开使�
 COMMENT ON COLUMN "public"."tb_embedding_project"."section_separator" IS '段落分隔符';
 COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_length" IS '段落分割长度';
 COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_by_title" IS '使用标题分割段落';
+COMMENT ON COLUMN "public"."tb_embedding_project"."chat_config" IS '聊天对话推荐配置';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------

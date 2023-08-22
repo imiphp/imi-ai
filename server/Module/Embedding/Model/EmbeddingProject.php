@@ -10,6 +10,7 @@ use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\Model\Base\EmbeddingProjectBase;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\JsonDecode;
 use Imi\Model\Annotation\Relation\JoinFrom;
 use Imi\Model\Annotation\Relation\JoinTo;
 use Imi\Model\Annotation\Relation\OneToOne;
@@ -75,4 +76,7 @@ class EmbeddingProject extends EmbeddingProjectBase
     {
         return EmbeddingStatus::getText($this->status);
     }
+
+    #[Inherit(), JsonDecode(wrap: '')]
+    protected $chatConfig = null;
 }

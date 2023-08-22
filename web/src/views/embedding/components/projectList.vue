@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { NButton, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSpace, NSpin, NSwitch, useDialog } from 'naive-ui'
+import { NButton, NCard, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSpace, NSpin, NSwitch, NTabPane, NTabs, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
@@ -9,10 +9,13 @@ import { config, deleteProject, projectList, retryProject, updateProject } from 
 import { EmbeddingStatus, PublicProjectStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
 import { t } from '@/locales'
+import Advanced from '@/components/common/Setting/Advanced.vue'
+import { defaultChatSetting } from '@/store'
 
 const router = useRouter()
 const dialog = useDialog()
 const embeddingState = useEmbeddingStore()
+const models = ref({})
 
 const createColumns = ({
   chat,
@@ -237,7 +240,9 @@ const columns = createColumns({
     })
   },
   update(row: Embedding.Project) {
-    editProject.value = editData.value = { ...row }
+    editData.value = { ...row }
+    editData.value.chatConfig = { ...defaultChatSetting(), ...row.chatConfig }
+    editProject.value = editData.value
     indeterminate.value = PublicProjectStatus.WAIT_FOR_REVIEW === editData.value.publicProject?.status
     showEditModal.value = true
   },
@@ -345,6 +350,7 @@ function handleClickPublicProject() {
 async function loadConfig() {
   const response = await config()
   publicConfig.value = response.data
+  models.value = response.data['config:embedding'].config.chatModelConfig ?? []
 }
 
 onMounted(async () => {
@@ -389,25 +395,37 @@ onUnmounted(() => {
         label-width="auto"
         require-mark-placement="right-hanging"
       >
-        <NFormItem label="项目名称">
-          <NInput v-model:value="editData.name" />
-        </NFormItem>
-        <NFormItem label="权限">
-          <NCheckbox v-model:checked="editData.public" label="公开" />
-        </NFormItem>
-        <NFormItem label="在列表公开">
-          <NCheckbox v-model:checked="editData.publicList" :disabled="!editData.public" :indeterminate="indeterminate" label="公开" @click="handleClickPublicProject" />
-          <span v-if="PublicProjectStatus.WAIT_FOR_REVIEW === editProject?.publicProject?.status">（等待审核）</span>
-        </NFormItem>
-        <NFormItem label="分隔符">
-          <NInput v-model:value="editData.sectionSeparator" placeholder="用于分割段落，支持转义符" />
-        </NFormItem>
-        <NFormItem label="段落最大长度">
-          <NInputNumber v-model:value="editData.sectionSplitLength" :max="publicConfig['config:embedding'].config.maxSectionTokens" />
-        </NFormItem>
-        <NFormItem label="按标题分割段落">
-          <NCheckbox v-model:checked="editData.sectionSplitByTitle" />
-        </NFormItem>
+        <NCard :bordered="false" content-style="padding:0">
+          <NTabs
+            default-value="info"
+            animated
+          >
+            <NTabPane name="info" tab="基本信息">
+              <NFormItem label="项目名称">
+                <NInput v-model:value="editData.name" />
+              </NFormItem>
+              <NFormItem label="权限">
+                <NCheckbox v-model:checked="editData.public" label="公开" />
+              </NFormItem>
+              <NFormItem label="在列表公开">
+                <NCheckbox v-model:checked="editData.publicList" :disabled="!editData.public" :indeterminate="indeterminate" label="公开" @click="handleClickPublicProject" />
+                <span v-if="PublicProjectStatus.WAIT_FOR_REVIEW === editProject?.publicProject?.status">（等待审核）</span>
+              </NFormItem>
+              <NFormItem label="分隔符">
+                <NInput v-model:value="editData.sectionSeparator" placeholder="用于分割段落，支持转义符" />
+              </NFormItem>
+              <NFormItem label="段落最大长度">
+                <NInputNumber v-model:value="editData.sectionSplitLength" :max="publicConfig['config:embedding'].config.maxSectionTokens" />
+              </NFormItem>
+              <NFormItem label="按标题分割段落">
+                <NCheckbox v-model:checked="editData.sectionSplitByTitle" />
+              </NFormItem>
+            </NTabPane>
+            <NTabPane name="chatConfig" tab="对话配置">
+              <Advanced v-model:setting="editData.chatConfig" :models="models" :show-confirm="false" />
+            </NTabPane>
+          </NTabs>
+        </NCard>
         <div style="display: flex; justify-content: flex-end">
           <NButton round type="primary" @click="handleSaveButtonClient">
             保存

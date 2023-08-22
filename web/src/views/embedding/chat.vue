@@ -358,6 +358,7 @@ onMounted(async () => {
       _dataSources.push(currentChatReply.value)
       qaId = item.recordId
     }
+    setting.value = { ...setting.value, ...projectResponse.data.chatConfig }
     if (item) {
       setting.value = { ...setting.value, ...item.config }
       embeddingSetting.value = { ...embeddingSetting.value, topSections: item.topSections, similarity: item.similarity, prompt: item.prompt }

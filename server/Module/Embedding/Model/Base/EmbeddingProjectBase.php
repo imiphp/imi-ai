@@ -17,20 +17,21 @@ use Imi\Pgsql\Model\PgModel as Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Embedding\Model\EmbeddingProject.name", default="tb_embedding_project"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Embedding\Model\EmbeddingProject.poolName", default="pgsql"))
  *
- * @property int|null    $id
- * @property int|null    $memberId            用户ID
- * @property string|null $name                项目名称
- * @property int|null    $totalFileSize       文件总大小，单位：字节
- * @property int|null    $createTime          创建时间
- * @property int|null    $updateTime          更新时间
- * @property int|null    $status              状态
- * @property int|null    $tokens              Token数量
- * @property int|null    $payTokens           支付 Token 数量
- * @property string|null $ip                  IP地址
- * @property bool|null   $public              是否公开使用
- * @property string|null $sectionSeparator    段落分隔符
- * @property int|null    $sectionSplitLength  段落分割长度
- * @property bool|null   $sectionSplitByTitle 使用标题分割段落
+ * @property int|null                             $id
+ * @property int|null                             $memberId            用户ID
+ * @property string|null                          $name                项目名称
+ * @property int|null                             $totalFileSize       文件总大小，单位：字节
+ * @property int|null                             $createTime          创建时间
+ * @property int|null                             $updateTime          更新时间
+ * @property int|null                             $status              状态
+ * @property int|null                             $tokens              Token数量
+ * @property int|null                             $payTokens           支付 Token 数量
+ * @property string|null                          $ip                  IP地址
+ * @property bool|null                            $public              是否公开使用
+ * @property string|null                          $sectionSeparator    段落分隔符
+ * @property int|null                             $sectionSplitLength  段落分割长度
+ * @property bool|null                            $sectionSplitByTitle 使用标题分割段落
+ * @property \Imi\Util\LazyArrayObject|array|null $chatConfig          聊天对话推荐配置
  */
 abstract class EmbeddingProjectBase extends Model
 {
@@ -467,6 +468,40 @@ abstract class EmbeddingProjectBase extends Model
     public function setSectionSplitByTitle(?bool $sectionSplitByTitle)
     {
         $this->sectionSplitByTitle = $sectionSplitByTitle;
+
+        return $this;
+    }
+
+    /**
+     * 聊天对话推荐配置.
+     * chat_config.
+     *
+     * @Column(name="chat_config", type="json", length=-1, accuracy=0, nullable=false, default="'{}'::json", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     *
+     * @var \Imi\Util\LazyArrayObject|array|null
+     */
+    protected $chatConfig = null;
+
+    /**
+     * 获取 chatConfig - 聊天对话推荐配置.
+     *
+     * @return \Imi\Util\LazyArrayObject|array|null
+     */
+    public function &getChatConfig()
+    {
+        return $this->chatConfig;
+    }
+
+    /**
+     * 赋值 chatConfig - 聊天对话推荐配置.
+     *
+     * @param \Imi\Util\LazyArrayObject|array|null $chatConfig chat_config
+     *
+     * @return static
+     */
+    public function setChatConfig($chatConfig)
+    {
+        $this->chatConfig = $chatConfig;
 
         return $this;
     }
