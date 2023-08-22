@@ -106,6 +106,10 @@ class OpenAIService
         {
             $query->whereRaw('cosine_distance("vector", :keyword)>=:similarity', binds: [':similarity' => $similarity]);
         }
+        else
+        {
+            $query->whereRaw('cosine_distance("vector", :keyword)>0');
+        }
 
         return $query->bindValue(':keyword', (string) $vector)
                      ->paginate($page, $limit);
