@@ -76,11 +76,14 @@ class Prompt extends PromptBase
         foreach ($models as $model)
         {
             $modelCategorys = [];
-            foreach ($model->categoryIds as $categoryId)
+            if ($model->categoryIds)
             {
-                if (isset($categorys[$categoryId]))
+                foreach ($model->categoryIds as $categoryId)
                 {
-                    $modelCategorys[] = $categorys[$categoryId];
+                    if (isset($categorys[$categoryId]))
+                    {
+                        $modelCategorys[] = $categorys[$categoryId];
+                    }
                 }
             }
             $model->categorys = $modelCategorys;
