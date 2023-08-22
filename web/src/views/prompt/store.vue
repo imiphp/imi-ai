@@ -1,8 +1,8 @@
 <script setup lang='ts'>
 import type { FormInst } from 'naive-ui'
-import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NEllipsis, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag, useMessage } from 'naive-ui'
+import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NEllipsis, NEmpty, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag, useMessage } from 'naive-ui'
 
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { config, convertPromptFormToChat, fetchChatAPIProcess, promptList as getPromptList, promptCategoryList, submitPromptForm } from '@/api'
 import { FormItemType, defaultChatSetting, useChatStore } from '@/store'
@@ -22,6 +22,7 @@ const categoryId = ref('')
 watch(categoryId, () => {
   loadPromptList()
 })
+const search = ref('')
 const promptList = ref<any[]>([])
 const showPromptData = ref<any>(null)
 const form = ref<FormInst | null>(null)
@@ -72,7 +73,7 @@ async function loadPromptList(loading = true) {
       showLoading.value = true
     const response = await getPromptList(
       categoryId.value,
-      '',
+      search.value,
       page.value, pageSize.value,
     )
     promptList.value = response.list
@@ -253,29 +254,40 @@ onMounted(async () => {
     </NBreadcrumb>
     <NSpin :show="showLoading">
       <!-- 提示语分类 -->
-      <NSpace class="mt-2">
+      <NSpace class="mt-2" align="center">
         <NTag :checked="categoryId === ''" checkable @click="categoryId = ''">
           全部
         </NTag>
         <NTag v-for="(item, index) of categoryList" :key="index" :checked="categoryId === item.recordId" checkable @click="page = 1;categoryId = item.recordId">
           {{ item.title }}
         </NTag>
+        <NInput
+          v-model:value="search" clearable placeholder="关键词搜索" @keypress.enter="page = 1;loadPromptList()" @clear="nextTick(() => {
+            page = 1;loadPromptList()
+          })"
+        />
+        <NButton @click="loadPromptList()">
+          搜索
+        </NButton>
       </NSpace>
       <!-- 提示语列表 -->
-      <NGrid class="mt-2" x-gap="12" y-gap="16" cols="1 s:2 l:3" item-responsive responsive="screen">
-        <NGi v-for="(item, index) of promptList" :key="index">
-          <a class="block hover:!text-gray-500" href="javascript:;" @click="showPrompt(item)">
-            <NCard embedded class="prompt-list-card">
-              <template #header>
-                {{ item.title }}
-              </template>
-              <NEllipsis :line-clamp="8" :tooltip="false">
-                <p v-text="item.prompt" />
-              </NEllipsis>
-            </NCard>
-          </a>
-        </NGi>
-      </NGrid>
+      <div class="mt-2">
+        <NGrid v-if="promptList.length > 0" x-gap="12" y-gap="16" cols="1 s:2 l:3" item-responsive responsive="screen">
+          <NGi v-for="(item, index) of promptList" :key="index">
+            <a class="block hover:!text-gray-500" href="javascript:;" @click="showPrompt(item)">
+              <NCard embedded class="prompt-list-card">
+                <template #header>
+                  {{ item.title }}
+                </template>
+                <NEllipsis :line-clamp="8" :tooltip="false">
+                  <p v-text="item.prompt" />
+                </NEllipsis>
+              </NCard>
+            </a>
+          </NGi>
+        </NGrid>
+        <NEmpty v-else />
+      </div>
       <NPagination v-model:page="page" class="mt-4 float-right" :page-count="pageCount" :on-update:page="onUpdateChange" />
     </NSpin>
   </div>
