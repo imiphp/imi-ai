@@ -46,6 +46,7 @@ declare namespace Embedding {
 
     interface Section {
         recordId: string
+        title: string
         content: string
         beginTrainingTime: number
         completeTrainingTime: number

@@ -410,7 +410,7 @@ onUnmounted(() => {
             <NGi v-for="(item, index) of sectionListData" :key="index" span="4 m:2 l:1">
               <NCard embedded>
                 <template #header>
-                  <span :style="EmbeddingStatus.FAILED === item.status ? 'color:red' : ''" v-text="(index + 1).toString()" />
+                  <span :style="EmbeddingStatus.FAILED === item.status ? 'color:red' : ''" v-text="(index + 1).toString() + (item.title.length > 0 ? (`. ${item.title}`) : '')" />
                 </template>
                 <template #header-extra>
                   <NButton v-if="EmbeddingStatus.FAILED === item.status" size="tiny" @click="handleRetrySection(item.recordId)">

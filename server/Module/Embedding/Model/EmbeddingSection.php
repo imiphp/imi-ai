@@ -28,7 +28,7 @@ class EmbeddingSection extends EmbeddingSectionBase
     /**
      * 安全处理字段.
      */
-    protected static array $__secureFields = ['content'];
+    protected static array $__secureFields = ['title', 'content'];
 
     /**
      * 创建时间.

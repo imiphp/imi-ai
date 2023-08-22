@@ -247,6 +247,7 @@ function decodeEmbeddingFileSecureFields(data: any) {
 }
 
 function decodeEmbeddingSectionSecureFields(data: any) {
+  data.title = decodeSecureField(data.title)
   data.content = decodeSecureField(data.content)
 }
 
