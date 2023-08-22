@@ -18,9 +18,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 ## 示例
 
-演示地址：建设中...
-
-![pic001.jpg](doc/pic001.jpg)
+演示地址：<https://ai.imiphp.com>
 
 ## 功能列表
 
@@ -63,7 +61,7 @@ imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 
 
 * [x] Tokens 计费系统（卡）
 * [ ] 在线支付购买卡
-* [ ] 输入卡号激活
+* [x] 输入卡号激活
 
 更多功能计划中……
 
@@ -195,25 +193,29 @@ openssl rsa -in pri_key.pem -pubout -out pub_key.pem
         "enable": true, // 是否启用
         "inputTokenMultiple": "0.75", // 输入Token倍率
         "outputTokenMultiple": "1.0", // 输出Token倍率
-        "maxTokens": 4096 // 最大Token数
+        "maxTokens": 4096, // 最大Token数
+		"tips": "提示文本"
     },
     "gpt-3.5-turbo-16k": {
         "enable": true,
         "inputTokenMultiple": "1.5",
         "outputTokenMultiple": "2.0",
-        "maxTokens": 16384
+        "maxTokens": 16384,
+		"tips": "提示文本"
     },
     "gpt-4": {
         "enable": false,
         "inputTokenMultiple": "150",
         "outputTokenMultiple": "3.0",
-        "maxTokens": 8192
+        "maxTokens": 8192,
+		"tips": "提示文本"
     },
     "gpt-4-32k": {
         "enable": false,
         "inputTokenMultiple": "300",
         "outputTokenMultiple": "6.0",
-        "maxTokens": 32768
+        "maxTokens": 32768,
+		"tips": "提示文本"
     }
 }
 ```
@@ -231,6 +233,7 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | 名称 | 默认值 | 说明 |
 |-|-|-|
 | crawlers | 详见表格下方 | 提示语采集器列表 |
+| tempRecordTTL | `3600` | 临时记录保存时长 |
 
 **crawlers：**
 
@@ -344,6 +347,7 @@ OpenAI 官方价格表：<https://openai.com/pricing>
 | enableInputInvitation | `1` | 启用输入邀请机制，默认为 `true` |
 | inviterGiftAmount | `200000` | 邀请人获得奖励金额 |
 | inviteeGiftAmount | `100000` | 被邀请人获得奖励金额 |
+| enableEmailBlackList | `true` | 启用邮箱黑名单 |
 
 * 验证码设置
 
