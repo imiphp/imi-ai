@@ -1,20 +1,19 @@
 <template>
-  <n-modal v-model:show="modalVisible" preset="card" title="编辑用户" class="w-700px">
+  <n-modal v-model:show="modalVisible" preset="card" title="编辑用户" class="w-700px max-w-full">
     <n-form ref="formRef" label-placement="left" :label-width="80" :model="formModel" :rules="rules">
-      <n-grid :cols="24" :x-gap="18">
-        <n-form-item-grid-item :span="12" label="昵称" path="nickname">
+      <n-grid cols="1 s:2" :x-gap="18" item-responsive responsive="screen">
+        <n-form-item-grid-item label="昵称" path="nickname">
           <n-input v-model:value="formModel.nickname" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="12" label="邮箱" path="email">
+        <n-form-item-grid-item label="邮箱" path="email">
           <n-input v-model:value="formModel.email" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="12" label="密码" path="password">
+        <n-form-item-grid-item label="密码" path="password">
           <n-input v-model:value="formModel.password" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="12" label="状态" path="password">
+        <n-form-item-grid-item label="状态" path="password">
           <n-select
             v-model:value="formModel.status"
-            class="!w-[140px]"
             :options="enums.MemberStatus"
             label-field="text"
             value-field="value"

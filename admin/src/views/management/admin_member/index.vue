@@ -38,6 +38,7 @@
           :loading="loading"
           :pagination="pagination"
           :row-key="row => row.id"
+          scroll-x="1280"
           flex-height
           class="flex-1-hidden"
         />
@@ -114,18 +115,15 @@ async function getTableData() {
 const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
   {
     key: 'id',
-    title: 'ID',
-    align: 'center'
+    title: 'ID'
   },
   {
     key: 'account',
-    title: '用户名',
-    align: 'center'
+    title: '用户名'
   },
   {
     key: 'nickname',
-    title: '昵称',
-    align: 'center'
+    title: '昵称'
   },
   {
     key: 'status',
@@ -146,7 +144,6 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
   {
     key: 'createTime',
     title: '创建时间',
-    align: 'center',
     render: row => {
       return new Date(row.createTime * 1000).toLocaleString();
     }
@@ -154,15 +151,13 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
   {
     key: 'lastLoginTime',
     title: '最后登录时间',
-    align: 'center',
     render: row => {
       return row.lastLoginTime > 0 ? new Date(row.lastLoginTime * 1000).toLocaleString() : '';
     }
   },
   {
     key: 'lastLoginIp',
-    title: '最后登录IP',
-    align: 'center'
+    title: '最后登录IP'
   },
   {
     key: 'actions',

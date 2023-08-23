@@ -30,6 +30,7 @@
           :loading="loading"
           :pagination="pagination"
           :row-key="row => row.id"
+          scroll-x="1600"
           flex-height
           class="flex-1-hidden"
         />
@@ -120,25 +121,30 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
   {
     key: 'id',
     title: 'ID',
-    align: 'center',
+    width: 160,
     render: row => {
-      return `${row.recordId}（${row.id}）`;
+      return (
+        <>
+          <p>ID：{row.id}</p>
+          <p>加密ID：{row.recordId}</p>
+        </>
+      );
     }
   },
   {
     key: 'nickname',
     title: '昵称',
-    align: 'center'
+    width: 180
   },
   {
     key: 'email',
     title: '邮箱',
-    align: 'center'
+    width: 180
   },
   {
     key: 'balance',
     title: '余额',
-    align: 'center',
+    width: 100,
     render: row => {
       return (
         <span title={cardMemberInfos.value?.data[row.id]?.balance ?? ''}>
@@ -150,6 +156,7 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
   {
     key: 'status',
     title: '状态',
+    width: 100,
     align: 'center',
     render: row => {
       return (
@@ -178,35 +185,36 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
     }
   },
   {
-    key: 'registerTime',
-    title: '注册时间',
-    align: 'center',
+    key: 'registerInfo',
+    title: '注册信息',
+    width: 220,
     render: row => {
-      return new Date(row.registerTime * 1000).toLocaleString();
+      return (
+        <>
+          <p>注册时间：{new Date(row.registerTime * 1000).toLocaleString()}</p>
+          <p>注册IP：{row.registerIp}</p>
+        </>
+      );
     }
   },
   {
-    key: 'registerIp',
-    title: '注册IP',
-    align: 'center'
-  },
-  {
-    key: 'lastLoginTime',
-    title: '最后登录时间',
-    align: 'center',
+    key: 'lastLoginInfo',
+    title: '最后登录',
+    width: 220,
     render: row => {
-      return row.lastLoginTime > 0 ? new Date(row.lastLoginTime * 1000).toLocaleString() : '';
+      return (
+        <>
+          <p>最后登录时间：{row.lastLoginTime > 0 ? new Date(row.lastLoginTime * 1000).toLocaleString() : ''}</p>
+          <p>最后登录IP：{row.lastLoginIp}</p>
+        </>
+      );
     }
-  },
-  {
-    key: 'lastLoginIp',
-    title: '最后登录IP',
-    align: 'center'
   },
   {
     key: 'actions',
     title: '操作',
     align: 'center',
+    width: 100,
     render: row => {
       return (
         <NSpace justify={'center'}>
