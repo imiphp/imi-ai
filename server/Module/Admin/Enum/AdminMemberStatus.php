@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace app\Module\Admin\Enum;
 
-use Imi\Enum\BaseEnum;
-use Imi\Enum\Annotation\EnumItem;
-use app\Module\Config\Annotation\PublicEnum;
 use app\Module\Config\Annotation\AdminPublicEnum;
+use Imi\Enum\Annotation\EnumItem;
+use Imi\Enum\BaseEnum;
 
 #[AdminPublicEnum(name: 'AdminMemberStatus')]
 class AdminMemberStatus extends BaseEnum
