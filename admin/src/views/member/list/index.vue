@@ -1,14 +1,14 @@
 <template>
   <div class="overflow-hidden">
-    <n-card title="后台用户管理" :bordered="false" class="h-full rounded-8px shadow-sm">
+    <n-card title="用户管理" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="flex-col h-full">
-        <n-form label-placement="left" :show-feedback="false">
+        <n-form label-placement="left" :show-feedback="false" class="pb-2.5">
           <n-space class="flex flex-row flex-wrap">
             <n-form-item label="状态">
               <n-select
                 v-model:value="listParams.status"
                 class="!w-[140px]"
-                :options="parseEnumWithAll(enums.AdminMemberStatus ?? [])"
+                :options="parseEnumWithAll(enums.MemberStatus ?? [])"
                 label-field="text"
                 value-field="value"
               />
@@ -24,14 +24,6 @@
             </n-form-item>
           </n-space>
         </n-form>
-        <n-space class="py-12px" justify="space-between">
-          <n-space>
-            <n-button type="primary" @click="handleAddTable">
-              <icon-ic-round-plus class="mr-4px text-20px" />
-              新增
-            </n-button>
-          </n-space>
-        </n-space>
         <n-data-table
           :columns="columns"
           :data="tableData"
@@ -41,7 +33,7 @@
           flex-height
           class="flex-1-hidden"
         />
-        <edit-admin-member-modal v-model:visible="visible" :type="modalType" :edit-data="editData" :enums="enums" />
+        <edit-member-modal v-if="editData" v-model:visible="visible" :edit-data="editData" :enums="enums" />
       </div>
     </n-card>
   </div>
@@ -50,15 +42,15 @@
 <script setup lang="tsx">
 import { reactive, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
+import { NButton, NSpace, useDialog } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
-import { CreateOutline, SearchSharp, TrashOutline } from '@vicons/ionicons5';
-import { deleteAdminMember, fetchAdminMemberList } from '@/service';
+import { CreateOutline, SearchSharp } from '@vicons/ionicons5';
+import { fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
-import { useAdminEnums, parseEnumWithAll } from '~/src/store';
-import EditAdminMemberModal from './components/edit-admin-member-modal.vue';
-import type { ModalType } from './components/edit-admin-member-modal.vue';
+import { useEnums, parseEnumWithAll } from '~/src/store';
+import EditMemberModal from './components/edit-member-modal.vue';
 
+const dialog = useDialog();
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();
 watch(visible, () => {
@@ -73,8 +65,8 @@ const listParams = ref({
   search: ''
 });
 
-const tableData = ref<UserManagement.User[]>([]);
-function setTableData(response: Admin.AdminMemberListResponse) {
+const tableData = ref<Member.Member[]>([]);
+function setTableData(response: Member.MemberListResponse) {
   tableData.value = response.list;
 }
 
@@ -96,7 +88,7 @@ const pagination: PaginationProps = reactive({
 
 async function getTableData() {
   startLoading();
-  const { data } = await fetchAdminMemberList(
+  const { data } = await fetchMemberList(
     listParams.value.search,
     listParams.value.status,
     pagination.page,
@@ -111,16 +103,14 @@ async function getTableData() {
   }
 }
 
-const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
+const columns: Ref<DataTableColumns<Member.Member>> = ref([
   {
     key: 'id',
     title: 'ID',
-    align: 'center'
-  },
-  {
-    key: 'account',
-    title: '用户名',
-    align: 'center'
+    align: 'center',
+    render: row => {
+      return `${row.recordId}（${row.id}）`;
+    }
   },
   {
     key: 'nickname',
@@ -128,28 +118,52 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     align: 'center'
   },
   {
+    key: 'email',
+    title: '邮箱',
+    align: 'center'
+  },
+  {
     key: 'status',
     title: '状态',
     align: 'center',
     render: row => {
-      if (row.status) {
-        const tagTypes: Record<UserManagement.UserStatusKey, NaiveUI.ThemeColor> = {
-          '1': 'success',
-          '2': 'error'
-        };
-
-        return <NTag type={tagTypes[row.status] ?? 'success'}>{row.statusText}</NTag>;
-      }
-      return <span></span>;
+      return (
+        <n-switch
+          value={row.status === 1}
+          on-update:value={async (value: boolean) => {
+            dialog.warning({
+              title: '询问',
+              content: `是否${value ? '启用' : '禁用'}该用户？`,
+              positiveText: '确定',
+              negativeText: '取消',
+              onPositiveClick: async () => {
+                const { data } = await updateMember(row.id, { status: value ? 1 : 2 });
+                if (data?.code === 0) {
+                  getTableData();
+                }
+              }
+            });
+          }}
+          v-slots={{
+            checked: () => '启用',
+            unchecked: () => '禁用'
+          }}
+        ></n-switch>
+      );
     }
   },
   {
-    key: 'createTime',
-    title: '创建时间',
+    key: 'registerTime',
+    title: '注册时间',
     align: 'center',
     render: row => {
-      return new Date(row.createTime * 1000).toLocaleString();
+      return new Date(row.registerTime * 1000).toLocaleString();
     }
+  },
+  {
+    key: 'registerIp',
+    title: '注册IP',
+    align: 'center'
   },
   {
     key: 'lastLoginTime',
@@ -175,59 +189,30 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
             <n-icon component={CreateOutline} />
             编辑
           </NButton>
-          <NPopconfirm onPositiveClick={() => handleDeleteTable(row.id)}>
-            {{
-              default: () => '确认删除',
-              trigger: () => (
-                <NButton type="error" size={'small'}>
-                  <n-icon component={TrashOutline} />
-                  删除
-                </NButton>
-              )
-            }}
-          </NPopconfirm>
         </NSpace>
       );
     }
   }
-]) as Ref<DataTableColumns<UserManagement.User>>;
+]) as Ref<DataTableColumns<Member.Member>>;
 
-const modalType = ref<ModalType>('add');
+const editData = ref<Member.Member | null>(null);
 
-function setModalType(type: ModalType) {
-  modalType.value = type;
-}
-
-const editData = ref<UserManagement.User | null>(null);
-
-function setEditData(data: UserManagement.User | null) {
+function setEditData(data: Member.Member | null) {
   editData.value = data;
-}
-
-function handleAddTable() {
-  setModalType('add');
-  openModal();
 }
 
 function handleEditTable(rowId: number) {
   const findItem = tableData.value.find(item => item.id === rowId);
   if (findItem) {
-    setEditData({ ...findItem });
+    const data = { ...findItem };
+    data.password = '';
+    setEditData(data);
   }
-  setModalType('edit');
   openModal();
 }
 
-async function handleDeleteTable(rowId: number) {
-  const { data } = await deleteAdminMember(rowId);
-  if (data?.code === 0) {
-    window.$message?.info('删除成功');
-    getTableData();
-  }
-}
-
 async function init() {
-  enums.value = await useAdminEnums(['AdminMemberStatus']);
+  enums.value = await useEnums(['MemberStatus']);
   getTableData();
 }
 

@@ -29,7 +29,7 @@ const dashboard: AuthRoute.Route = {
   meta: {
     title: '仪表盘',
     icon: 'mdi:monitor-dashboard',
-    order: 1,
+    order: 0,
     i18nTitle: 'routes.dashboard._value'
   }
 };
