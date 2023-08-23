@@ -161,6 +161,12 @@ return [
     'tools'  => [
         'generate/model'    => [
             'namespace' => [
+                'app\Module\Admin\Model' => [
+                    'tables'    => [
+                        'tb_admin_member',
+                        'tb_admin_operation_log',
+                    ],
+                ],
                 'app\Module\Chat\Model' => [
                     'tables'    => [
                         'tb_chat_session',

@@ -1,6 +1,6 @@
 const locale: I18nType.Schema = {
   system: {
-    title: 'SoybeanAdmin'
+    title: 'imi AI Admin'
   },
   common: {
     add: 'Add',
@@ -53,11 +53,6 @@ const locale: I18nType.Schema = {
       print: 'Print',
       swiper: 'Swiper',
       video: 'Video'
-    },
-    'auth-demo': {
-      _value: 'Auth Demo',
-      permission: 'Toggle Permission',
-      super: 'Super Auth'
     },
     function: {
       _value: 'Function',
@@ -182,7 +177,7 @@ const locale: I18nType.Schema = {
         back: 'Back',
         validateSuccess: 'Verification passed',
         loginSuccess: 'Login success',
-        welcomeBack: 'Welcome back, {userName}!'
+        welcomeBack: 'Welcome back, {nickname}!'
       },
       pwdLogin: {
         title: 'Password Login',

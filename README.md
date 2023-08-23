@@ -104,6 +104,8 @@ jwt 签名需要，必须生成自己的证书！
 cd server/resource/jwt
 openssl genrsa -out pri_key.pem 2048
 openssl rsa -in pri_key.pem -pubout -out pub_key.pem
+openssl genrsa -out admin_pri_key.pem 2048
+openssl rsa -in admin_pri_key.pem -pubout -out admin_pub_key.pem
 ```
 
 **配置文件：**
@@ -414,7 +416,7 @@ APP_DEBUG=false
 
 其它设置根据自身需要进行配置。
 
-### 前端
+### 用户端H5
 
 **目录：**`web`
 
@@ -456,6 +458,54 @@ npm run dev
 
 ```shell
 npm run build-only
+```
+
+> `npm run build` 也可以，但会执行类型检查，不规范的代码编译不通过。
+
+#### 编译结果
+
+所有文件都在 `dist` 目录，内部文件放到站点根目录。
+
+### 管理后台
+
+**目录：**`admin`
+
+**环境要求：**
+
+`node` 需要 `^16 || ^18 || ^19` 版本（`node >= 14` 需要安装 [fetch polyfill](https://github.com/developit/unfetch#usage-as-a-polyfill)），使用 [nvm](https://github.com/nvm-sh/nvm) 可管理本地多个 `node` 版本
+
+```shell
+node -v
+```
+
+**安装依赖：**
+
+```shell
+npm install
+```
+
+> 也可以使用 yarn、pnpm 等。
+
+**配置：**
+
+复制 **.env.tpl** 改名为 **.env** 文件。
+
+编辑 **.env** 文件。
+
+* `VITE_API_URL`，服务端接口地址，如：`http://127.0.0.1:12333`
+
+**开发调试：**
+
+```shell
+npm run dev
+```
+
+**生产环境：**
+
+#### 编译
+
+```shell
+npm run build
 ```
 
 > `npm run build` 也可以，但会执行类型检查，不规范的代码编译不通过。

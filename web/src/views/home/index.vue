@@ -57,7 +57,7 @@ const moduleCards = [
       style="background: #fff;"
     >
       <div class="wrap relative text-center">
-        <p>Copyright &copy; 2023 imi-ai</p>
+        <p>Copyright &copy; 2023 imi AI</p>
       </div>
     </NLayoutFooter>
   </NLayout>

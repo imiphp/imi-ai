@@ -110,13 +110,13 @@ export const useRouteStore = defineStore('route-store', {
       const { resetAuthStore } = useAuthStore();
       const { initHomeTab } = useTabStore();
 
-      const { userId } = localStg.get('userInfo') || {};
+      const { id } = localStg.get('userInfo') || {};
 
-      if (!userId) {
-        throw new Error('userId 不能为空!');
+      if (!id) {
+        throw new Error('用户id不能为空!');
       }
 
-      const { error, data } = await fetchUserRoutes(userId);
+      const { error, data } = await fetchUserRoutes(id);
 
       if (!error) {
         this.routeHomeName = data.home;

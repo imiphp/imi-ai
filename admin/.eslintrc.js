@@ -128,6 +128,10 @@ module.exports = {
         ],
         pathGroupsExcludedImportTypes: ['vue', 'vue-router', 'pinia', 'naive-ui']
       }
-    ]
+    ],
+    'vue/multi-word-component-names': 'off',
+    radix: 'off',
+    'no-param-reassign': 'off',
+    'max-params': 'off'
   }
 };

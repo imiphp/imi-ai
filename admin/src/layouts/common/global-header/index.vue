@@ -11,8 +11,8 @@
       <github-site />
       <full-screen />
       <theme-mode />
-      <toggle-lang />
-      <system-message />
+      <!-- <toggle-lang /> -->
+      <!-- <system-message /> -->
       <setting-button v-if="showButton" />
       <user-avatar />
     </div>
@@ -31,10 +31,8 @@ import {
   HeaderMenu,
   MenuCollapse,
   SettingButton,
-  SystemMessage,
   ThemeMode,
-  UserAvatar,
-  ToggleLang
+  UserAvatar
 } from './components';
 
 defineOptions({ name: 'GlobalHeader' });

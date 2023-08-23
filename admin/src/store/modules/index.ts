@@ -4,3 +4,4 @@ export * from './auth';
 export * from './tab';
 export * from './route';
 export * from './setup-store';
+export * from './common';

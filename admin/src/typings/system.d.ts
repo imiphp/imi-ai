@@ -362,11 +362,6 @@ declare namespace I18nType {
         swiper: string;
         video: string;
       };
-      'auth-demo': {
-        _value: string;
-        permission: string;
-        super: string;
-      };
       function: {
         _value: string;
         tab: string;

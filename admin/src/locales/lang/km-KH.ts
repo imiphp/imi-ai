@@ -54,11 +54,6 @@ const locale: I18nType.Schema = {
       swiper: 'Swiper',
       video: 'វីដេអូ'
     },
-    'auth-demo': {
-      _value: 'ឌីមូ Auth',
-      permission: 'បិទ/បើកការអនុញ្ញាត',
-      super: 'Super Auth'
-    },
     function: {
       _value: 'មុខងារ',
       tab: 'ថេបប្រព័ន្ធ'
@@ -182,7 +177,7 @@ const locale: I18nType.Schema = {
         back: 'ត្រឡប់ក្រោយ',
         validateSuccess: 'បញ្ជាក់ជោគជ័យ',
         loginSuccess: 'ចូលជោគជ័យ',
-        welcomeBack: 'សូមស្វាគមន៍ម្តងទៀត, {userName}!'
+        welcomeBack: 'សូមស្វាគមន៍ម្តងទៀត, {nickname}!'
       },
       pwdLogin: {
         title: 'ចូលគណនី',

@@ -5,8 +5,8 @@ export default function setupVitePwa() {
     registerType: 'autoUpdate',
     includeAssets: ['favicon.ico'],
     manifest: {
-      name: 'SoybeanAdmin',
-      short_name: 'SoybeanAdmin',
+      name: 'imi AI 管理后台',
+      short_name: 'imi AI 管理后台',
       theme_color: '#fff',
       icons: [
         {

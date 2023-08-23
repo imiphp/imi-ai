@@ -1,6 +1,6 @@
 const locale: I18nType.Schema = {
   system: {
-    title: 'Soybean管理系统'
+    title: 'imi AI 管理后台'
   },
   common: {
     add: '添加',
@@ -53,11 +53,6 @@ const locale: I18nType.Schema = {
       print: '打印',
       swiper: 'Swiper',
       video: '视频'
-    },
-    'auth-demo': {
-      _value: '权限示例',
-      permission: '切换权限',
-      super: '超级管理员可见'
     },
     function: {
       _value: '功能',
@@ -182,7 +177,7 @@ const locale: I18nType.Schema = {
         back: '返回',
         validateSuccess: '验证成功',
         loginSuccess: '登录成功',
-        welcomeBack: '欢迎回来，{userName}!'
+        welcomeBack: '欢迎回来，{nickname}!'
       },
       pwdLogin: {
         title: '密码登录',
