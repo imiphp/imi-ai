@@ -45,7 +45,7 @@ import type { Ref } from 'vue';
 import { NButton, NSpace, useDialog } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
 import { CreateOutline, SearchSharp } from '@vicons/ionicons5';
-import { fetchMemberList, updateMember } from '@/service';
+import { fetchCardMemberInfos, fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { useEnums, parseEnumWithAll } from '~/src/store';
 import EditMemberModal from './components/edit-member-modal.vue';
@@ -65,9 +65,11 @@ const listParams = ref({
   search: ''
 });
 
+const cardMemberInfos = ref<Card.CardMemberInfosResponse | undefined>();
 const tableData = ref<Member.Member[]>([]);
 function setTableData(response: Member.MemberListResponse) {
   tableData.value = response.list;
+  getCardMemberInfos();
 }
 
 const pagination: PaginationProps = reactive({
@@ -88,18 +90,29 @@ const pagination: PaginationProps = reactive({
 
 async function getTableData() {
   startLoading();
-  const { data } = await fetchMemberList(
-    listParams.value.search,
-    listParams.value.status,
-    pagination.page,
-    pagination.pageSize
-  );
-  if (data) {
-    try {
+  try {
+    const { data } = await fetchMemberList(
+      listParams.value.search,
+      listParams.value.status,
+      pagination.page,
+      pagination.pageSize
+    );
+    if (data) {
       setTableData(data);
-    } finally {
-      endLoading();
     }
+  } finally {
+    endLoading();
+  }
+}
+
+async function getCardMemberInfos() {
+  const memberIds = [];
+  for (const item of tableData.value) {
+    memberIds.push(item.id);
+  }
+  const { data } = await fetchCardMemberInfos(memberIds);
+  if (data) {
+    cardMemberInfos.value = data;
   }
 }
 
@@ -121,6 +134,18 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
     key: 'email',
     title: '邮箱',
     align: 'center'
+  },
+  {
+    key: 'balance',
+    title: '余额',
+    align: 'center',
+    render: row => {
+      return (
+        <span title={cardMemberInfos.value?.data[row.id]?.balance ?? ''}>
+          {cardMemberInfos.value?.data[row.id]?.balanceText ?? '加载中...'}
+        </span>
+      );
+    }
   },
   {
     key: 'status',

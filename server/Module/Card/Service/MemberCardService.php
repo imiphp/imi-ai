@@ -11,6 +11,7 @@ use app\Module\Card\Enum\OperationType;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\MemberCardOrder;
 use app\Module\Card\Model\MemberCardRefundOrder;
+use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Cache\Annotation\Cacheable;
 use Imi\Db\Annotation\Transaction;
@@ -34,6 +35,33 @@ class MemberCardService
                                         ];
                                     })
                                     ->sum('left_amount');
+    }
+
+    public function getBalances(array $memberIds): array
+    {
+        $list = Card::query()->whereIn('member_id', $memberIds)
+                            ->whereBrackets(function () {
+                                return [
+                                    new Where('expire_time', '=', 0),
+                                    new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                ];
+                            })
+                            ->group('member_id')
+                            ->field('member_id as memberId')
+                            ->fieldRaw('sum(left_amount) as balance')
+                            ->select()
+                            ->getArray();
+        $result = [];
+        foreach ($list as $row)
+        {
+            $result[$row['memberId']] = [
+                'memberId'    => $row['memberId'],
+                'balance'     => $balance = (int) $row['balance'],
+                'balanceText' => TokensUtil::formatChinese($balance),
+            ];
+        }
+
+        return $result;
     }
 
     #[
