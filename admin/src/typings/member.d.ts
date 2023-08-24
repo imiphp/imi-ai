@@ -22,7 +22,8 @@ declare namespace Member {
     lastLoginIp: string;
   }
 
-  interface MemberListResponse extends Api.BaseResponse {
+  type MemberListResponse = {
     list: Member[];
-  }
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
 }

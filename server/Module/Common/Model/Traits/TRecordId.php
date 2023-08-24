@@ -19,7 +19,7 @@ trait TRecordId
     {
         if (null === $this->recordId && null !== $this->id)
         {
-            return $this->recordId = self::encodeId($this->id);
+            return $this->recordId = static::encodeId($this->id);
         }
 
         return $this->recordId;
@@ -27,12 +27,12 @@ trait TRecordId
 
     public static function encodeId(int $id): string
     {
-        return (new Hashids(self::__getSalt(), 8, self::__getAlphabet()))->encode($id);
+        return (new Hashids(static::__getSalt(), 8, static::__getAlphabet()))->encode($id);
     }
 
     public static function decodeId(string $id): int
     {
-        $result = (new Hashids(self::__getSalt(), 8, self::__getAlphabet()))->decode($id);
+        $result = (new Hashids(static::__getSalt(), 8, static::__getAlphabet()))->decode($id);
         if (!$result)
         {
             throw new \InvalidArgumentException('Invalid id');

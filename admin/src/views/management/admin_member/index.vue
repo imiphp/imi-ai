@@ -49,14 +49,14 @@
 </template>
 
 <script setup lang="tsx">
-import { reactive, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
-import type { DataTableColumns, PaginationProps } from 'naive-ui';
+import type { DataTableColumns } from 'naive-ui';
 import { CreateOutline, SearchSharp, TrashOutline } from '@vicons/ionicons5';
 import { deleteAdminMember, fetchAdminMemberList } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { useAdminEnums, parseEnumWithAll } from '~/src/store';
+import { defaultPaginationProps } from '~/src/utils';
 import EditAdminMemberModal from './components/edit-admin-member-modal.vue';
 import type { ModalType } from './components/edit-admin-member-modal.vue';
 
@@ -74,26 +74,14 @@ const listParams = ref({
   search: ''
 });
 
+const pagination = defaultPaginationProps(getTableData);
+
 const tableData = ref<UserManagement.User[]>([]);
 function setTableData(response: Admin.AdminMemberListResponse) {
   tableData.value = response.list;
+  pagination.pageCount = response.pageCount;
+  pagination.itemCount = response.total;
 }
-
-const pagination: PaginationProps = reactive({
-  page: 1,
-  pageSize: 10,
-  showSizePicker: true,
-  pageSizes: [10, 15, 20, 25, 30],
-  onChange: (page: number) => {
-    pagination.page = page;
-    getTableData();
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.pageSize = pageSize;
-    pagination.page = 1;
-    getTableData();
-  }
-});
 
 async function getTableData() {
   startLoading();
@@ -136,7 +124,7 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
           '2': 'error'
         };
 
-        return <NTag type={tagTypes[row.status] ?? 'success'}>{row.statusText}</NTag>;
+        return <n-tag type={tagTypes[row.status] ?? 'success'}>{row.statusText}</n-tag>;
       }
       return <span></span>;
     }
@@ -165,23 +153,23 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     align: 'center',
     render: row => {
       return (
-        <NSpace justify={'center'}>
-          <NButton size={'small'} onClick={() => handleEditTable(row.id)}>
-            <n-icon component={CreateOutline} />
+        <n-space justify={'center'}>
+          <n-button size={'small'} onClick={() => handleEditTable(row.id)}>
+            <n-icon component={CreateOutline} size="18" />
             编辑
-          </NButton>
-          <NPopconfirm onPositiveClick={() => handleDeleteTable(row.id)}>
+          </n-button>
+          <n-popconfirm onPositiveClick={() => handleDeleteTable(row.id)}>
             {{
               default: () => '确认删除',
               trigger: () => (
-                <NButton type="error" size={'small'}>
-                  <n-icon component={TrashOutline} />
+                <n-button type="error" size={'small'}>
+                  <n-icon component={TrashOutline} size="18" />
                   删除
-                </NButton>
+                </n-button>
               )
             }}
-          </NPopconfirm>
-        </NSpace>
+          </n-popconfirm>
+        </n-space>
       );
     }
   }

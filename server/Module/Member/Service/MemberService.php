@@ -101,7 +101,7 @@ class MemberService
                     new Where('email', '=', $search),
                 ], LogicalOperator::OR);
             }
-            if (ValidatorHelper::phone($search))
+            elseif (ValidatorHelper::phone($search))
             {
                 $wheres[] = new Where('phone', '=', (int) $search, LogicalOperator::OR);
             }
@@ -161,24 +161,26 @@ class MemberService
     /**
      * @return int[]
      */
-    public function queryIdsBySearch(string $queryString): array
+    public function queryIdsBySearch(string $search, int $limit = 0): array
     {
-        $query = Member::query();
-        if (ValidatorHelper::int($queryString))
+        $wheres = [];
+        if (ValidatorHelper::email($search))
         {
-            if (ValidatorHelper::phone($queryString))
-            {
-                $query->where('phone', '=', (int) $queryString);
-            }
-            else
-            {
-                return [(int) $queryString];
-            }
+            $wheres[] = new WhereBrackets(fn () => [
+                new Where('email_hash', '=', $this->emailAuthService->hash($search)),
+                new Where('email', '=', $search),
+            ], LogicalOperator::OR);
         }
-        elseif (ValidatorHelper::email($queryString))
+        elseif (ValidatorHelper::phone($search))
         {
-            $query->where('email_hash', '=', $this->emailAuthService->hash($queryString))
-                  ->where('email', '=', $queryString);
+            $wheres[] = new Where('phone', '=', (int) $search, LogicalOperator::OR);
+        }
+        $wheres[] = new Where('nickname', 'like', '%' . $search . '%', LogicalOperator::OR);
+        $query = Member::query()->whereBrackets(static fn () => $wheres);
+
+        if ($limit > 0)
+        {
+            $query->limit($limit);
         }
 
         return $query->column('id');

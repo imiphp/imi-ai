@@ -1,4 +1,4 @@
-const management: AuthRoute.Route = {
+const member: AuthRoute.Route = {
   name: 'member',
   path: '/member',
   component: 'basic',
@@ -21,4 +21,4 @@ const management: AuthRoute.Route = {
   }
 };
 
-export default management;
+export default member;

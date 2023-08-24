@@ -52,4 +52,10 @@ declare namespace Api {
     code: number;
     message: string;
   }
+
+  interface PaginationResponse {
+    pageCount: number;
+    total: number;
+    limit: number;
+  }
 }

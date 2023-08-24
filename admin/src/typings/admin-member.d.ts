@@ -18,7 +18,8 @@ declare namespace Admin {
     lastLoginIp: string;
   }
 
-  interface AdminMemberListResponse extends Api.BaseResponse {
+  type AdminMemberListResponse = {
     list: AdminMember[];
-  }
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
 }

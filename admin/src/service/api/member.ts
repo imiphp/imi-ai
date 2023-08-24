@@ -2,11 +2,13 @@ import { request } from '../request';
 
 /** 获取用户列表 */
 export const fetchMemberList = async (search = '', status = 0, page = 1, limit = 15) => {
-  return request.post<Member.MemberListResponse>('/admin/member/list', {
-    search,
-    status,
-    page,
-    limit
+  return request.get<Member.MemberListResponse>('/admin/member/list', {
+    params: {
+      search,
+      status,
+      page,
+      limit
+    }
   });
 };
 

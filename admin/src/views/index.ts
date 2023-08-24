@@ -11,6 +11,8 @@ export const views: Record<
   login: () => import('./_builtin/login/index.vue'),
   'not-found': () => import('./_builtin/not-found/index.vue'),
   about: () => import('./about/index.vue'),
+  chat_list: () => import('./chat/list/index.vue'),
+  chat_message_list: () => import('./chat/message_list/index.vue'),
   component_button: () => import('./component/button/index.vue'),
   component_card: () => import('./component/card/index.vue'),
   component_table: () => import('./component/table/index.vue'),

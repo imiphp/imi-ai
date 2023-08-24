@@ -41,14 +41,15 @@
 </template>
 
 <script setup lang="tsx">
-import { reactive, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { NButton, NSpace, useDialog } from 'naive-ui';
-import type { DataTableColumns, PaginationProps } from 'naive-ui';
+import { useDialog } from 'naive-ui';
+import type { DataTableColumns } from 'naive-ui';
 import { CreateOutline, SearchSharp } from '@vicons/ionicons5';
 import { fetchCardMemberInfos, fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { useEnums, parseEnumWithAll } from '~/src/store';
+import { defaultPaginationProps } from '~/src/utils';
 import EditMemberModal from './components/edit-member-modal.vue';
 
 const dialog = useDialog();
@@ -66,28 +67,16 @@ const listParams = ref({
   search: ''
 });
 
+const pagination = defaultPaginationProps(getTableData);
+
 const cardMemberInfos = ref<Card.CardMemberInfosResponse | undefined>();
 const tableData = ref<Member.Member[]>([]);
 function setTableData(response: Member.MemberListResponse) {
   tableData.value = response.list;
+  pagination.pageCount = response.pageCount;
+  pagination.itemCount = response.total;
   getCardMemberInfos();
 }
-
-const pagination: PaginationProps = reactive({
-  page: 1,
-  pageSize: 10,
-  showSizePicker: true,
-  pageSizes: [10, 15, 20, 25, 30],
-  onChange: (page: number) => {
-    pagination.page = page;
-    getTableData();
-  },
-  onUpdatePageSize: (pageSize: number) => {
-    pagination.pageSize = pageSize;
-    pagination.page = 1;
-    getTableData();
-  }
-});
 
 async function getTableData() {
   startLoading();
@@ -147,7 +136,7 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
     width: 100,
     render: row => {
       return (
-        <span title={cardMemberInfos.value?.data[row.id]?.balance ?? ''}>
+        <span title={cardMemberInfos.value?.data[row.id]?.balance.toString() ?? ''}>
           {cardMemberInfos.value?.data[row.id]?.balanceText ?? '加载中...'}
         </span>
       );
@@ -217,12 +206,12 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
     width: 100,
     render: row => {
       return (
-        <NSpace justify={'center'}>
-          <NButton size={'small'} onClick={() => handleEditTable(row.id)}>
-            <n-icon component={CreateOutline} />
+        <n-space justify={'center'}>
+          <n-button size={'small'} onClick={() => handleEditTable(row.id)}>
+            <n-icon component={CreateOutline} size="18" />
             编辑
-          </NButton>
-        </NSpace>
+          </n-button>
+        </n-space>
       );
     }
   }

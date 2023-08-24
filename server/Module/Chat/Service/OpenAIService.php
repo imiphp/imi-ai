@@ -5,31 +5,42 @@ declare(strict_types=1);
 namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Enum\QAStatus;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
+use app\Module\Member\Service\MemberService;
 use app\Module\OpenAI\Model\Redis\ModelConfig;
 use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
+use Imi\Db\Mysql\Consts\LogicalOperator;
+use Imi\Db\Query\Where\Where;
 use Imi\Log\Log;
 use Imi\Util\ObjectArrayHelper;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
+use Imi\Validate\ValidatorHelper;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
 class OpenAIService
 {
+    public const LOG_OBJECT = 'chat';
+
     public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 
     #[Inject()]
     protected MemberCardService $memberCardService;
+
+    #[Inject()]
+    protected MemberService $memberService;
 
     #[
         Transaction(),
@@ -249,6 +260,44 @@ class OpenAIService
                      ->toArray();
     }
 
+    public function adminList(string $search = '', int $type = 0, int $page = 1, int $limit = 15): array
+    {
+        $query = \app\Module\Chat\Model\Admin\ChatSession::query();
+        if ('' !== $search)
+        {
+            $wheres = [];
+            // 用户搜索
+            $memberIds = $this->memberService->queryIdsBySearch($search, 1000);
+            if ($memberIds)
+            {
+                $wheres[] = new Where('member_id', 'in', $memberIds, LogicalOperator::OR);
+            }
+            // 加密ID
+            try
+            {
+                $id = ChatSession::decodeId($search);
+                $wheres[] = new Where('id', '=', $id, LogicalOperator::OR);
+            }
+            catch (\Throwable $_)
+            {
+            }
+            // 数字ID
+            if (ValidatorHelper::int($search))
+            {
+                $wheres[] = new Where('id', '=', (int) $search, LogicalOperator::OR);
+            }
+            $query->whereBrackets(static fn () => $wheres);
+        }
+        if ($type)
+        {
+            $query->where('type', '=', $type);
+        }
+
+        return $query->order('update_time', 'desc')
+                     ->paginate($page, $limit)
+                     ->toArray();
+    }
+
     public function edit(string $id, ?string $title, ?string $prompt, array|object|null $config, int $memberId): void
     {
         $record = $this->getById($id, $memberId);
@@ -267,10 +316,16 @@ class OpenAIService
         $record->update();
     }
 
-    public function delete(string $id, int $memberId = 0, int $type = 0): void
+    #[Transaction()]
+    public function delete(string|int $id, int $memberId = 0, int $type = 0, int $operatorMemberId = 0, string $ip = ''): void
     {
         $record = $this->getById($id, $memberId, $type);
         $record->delete();
+        ChatMessage::query()->where('session_id', '=', $record->id)->delete();
+        if ($operatorMemberId)
+        {
+            OperationLog::log($operatorMemberId, self::LOG_OBJECT, OperationLogStatus::SUCCESS, sprintf('删除会话，id=%d, title=%s', $record->id, $record->title), $ip);
+        }
     }
 
     public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime, string $ip): ChatMessage
@@ -314,5 +369,16 @@ class OpenAIService
                      ->limit($limit)
                      ->select()
                      ->getArray();
+    }
+
+    /**
+     * @return ChatMessage[]
+     */
+    public function adminMessageList(int $sessionId, string $sort = 'asc', int $page = 1, int $limit = 15): array
+    {
+        return \app\Module\Chat\Model\Admin\ChatMessage::query()->where('session_id', '=', $sessionId)
+                                    ->order('id', $sort)
+                                    ->paginate($page, $limit)
+                                    ->toArray();
     }
 }
