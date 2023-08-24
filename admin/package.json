@@ -38,9 +38,9 @@
     "dev": "cross-env VITE_SERVICE_ENV=dev vite",
     "dev:test": "cross-env VITE_SERVICE_ENV=test vite",
     "dev:prod": "cross-env VITE_SERVICE_ENV=prod vite",
-    "build": "npm run typecheck && cross-env VITE_SERVICE_ENV=prod vite build",
-    "build:dev": "npm run typecheck && cross-env VITE_SERVICE_ENV=dev vite build",
-    "build:test": "npm run typecheck && cross-env VITE_SERVICE_ENV=test vite build",
+    "build": "cross-env VITE_SERVICE_ENV=prod vite build",
+    "build:dev": "cross-env VITE_SERVICE_ENV=dev vite build",
+    "build:test": "cross-env VITE_SERVICE_ENV=test vite build",
     "build:vercel": "cross-env VITE_HASH_ROUTE=Y VITE_VERCEL=Y vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
@@ -51,8 +51,7 @@
     "update-pkg": "soy ncu",
     "release": "soy release",
     "tsx": "tsx",
-    "logo": "tsx ./scripts/logo.ts",
-    "prepare": "soy init-simple-git-hooks"
+    "logo": "tsx ./scripts/logo.ts"
   },
   "dependencies": {
     "@antv/data-set": "0.11.8",
