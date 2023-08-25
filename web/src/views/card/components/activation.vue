@@ -82,6 +82,6 @@ async function handleActivation() {
         激活
       </NButton>
     </NForm>
-    <p class="leading-8" v-text="buyCardText" />
+    <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{{ buyCardText }}</pre>
   </div>
 </template>
