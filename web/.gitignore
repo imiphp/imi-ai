@@ -30,3 +30,5 @@ coverage
 *.sw?
 
 # Environment variables files
+/package-lock.json
+/pnpm-lock.yaml
