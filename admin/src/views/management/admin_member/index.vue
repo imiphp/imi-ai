@@ -40,6 +40,7 @@
           :row-key="row => row.id"
           scroll-x="1280"
           flex-height
+          remote
           class="flex-1-hidden"
         />
         <edit-admin-member-modal v-model:visible="visible" :type="modalType" :edit-data="editData" :enums="enums" />
@@ -85,18 +86,18 @@ function setTableData(response: Admin.AdminMemberListResponse) {
 
 async function getTableData() {
   startLoading();
-  const { data } = await fetchAdminMemberList(
-    listParams.value.search,
-    listParams.value.status,
-    pagination.page,
-    pagination.pageSize
-  );
-  if (data) {
-    try {
+  try {
+    const { data } = await fetchAdminMemberList(
+      listParams.value.search,
+      listParams.value.status,
+      pagination.page,
+      pagination.pageSize
+    );
+    if (data) {
       setTableData(data);
-    } finally {
-      endLoading();
     }
+  } finally {
+    endLoading();
   }
 }
 

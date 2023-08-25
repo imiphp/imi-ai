@@ -32,6 +32,7 @@
           :row-key="row => row.id"
           scroll-x="1600"
           flex-height
+          remote
           class="flex-1-hidden"
         />
         <edit-member-modal v-if="editData" v-model:visible="visible" :edit-data="editData" :enums="enums" />
