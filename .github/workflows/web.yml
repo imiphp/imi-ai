@@ -16,15 +16,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-
-      - name: Setup
-        run: npm i -g @antfu/ni
+          cache: pnpm
 
       - name: Install
-        run: nci
+        run: pnpm i
 
       - name: Lint
-        run: nr lint:fix
+        run: pnpm lint
 
   vue-tsc:
     runs-on: ubuntu-20.04
@@ -37,12 +35,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-
-      - name: Setup
-        run: npm i -g @antfu/ni
+          cache: pnpm
 
       - name: Install
-        run: nci
+        run: pnpm i
 
       - name: Typecheck
-        run: nr type-check
+        run: pnpm type-check
