@@ -3,28 +3,6 @@ const management: AuthRoute.Route = {
   path: '/management',
   component: 'basic',
   children: [
-    // {
-    //   name: 'management_auth',
-    //   path: '/management/auth',
-    //   component: 'self',
-    //   meta: {
-    //     title: '权限管理',
-    //     i18nTitle: 'routes.management.auth',
-    //     requiresAuth: true,
-    //     icon: 'ic:baseline-security'
-    //   }
-    // },
-    // {
-    //   name: 'management_role',
-    //   path: '/management/role',
-    //   component: 'self',
-    //   meta: {
-    //     title: '角色管理',
-    //     i18nTitle: 'routes.management.role',
-    //     requiresAuth: true,
-    //     icon: 'carbon:user-role'
-    //   }
-    // },
     {
       name: 'management_admin_member',
       path: '/management/admin/member',
@@ -35,17 +13,6 @@ const management: AuthRoute.Route = {
         icon: 'ic:round-manage-accounts'
       }
     }
-    // {
-    //   name: 'management_route',
-    //   path: '/management/route',
-    //   component: 'self',
-    //   meta: {
-    //     title: '路由管理',
-    //     i18nTitle: 'routes.management.route',
-    //     requiresAuth: true,
-    //     icon: 'material-symbols:route'
-    //   }
-    // }
   ],
   meta: {
     title: '系统管理',

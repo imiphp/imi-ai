@@ -35,7 +35,7 @@ const tableData = ref<Chat.Message[]>([]);
 const pagination = defaultPaginationProps(getTableData);
 
 function setTableData(response: Chat.MessageListResponse) {
-  tableData.value = response.list.reverse();
+  tableData.value = response.list;
   pagination.pageCount = response.pageCount;
   pagination.itemCount = response.total;
 }

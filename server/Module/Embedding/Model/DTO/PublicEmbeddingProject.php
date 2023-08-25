@@ -21,4 +21,13 @@ class PublicEmbeddingProject extends EmbeddingProject
     use TMemberInfo;
 
     protected static ?string $saltClass = EmbeddingProject::class;
+
+    public function __setSecureField(bool $secureField): self
+    {
+        parent::__setSecureField($secureField);
+        $this->memberInfo = null;
+        $this->member->__setSecureField($secureField);
+
+        return $this;
+    }
 }

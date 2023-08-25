@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Member\Model;
 
 use app\Module\Common\Model\Traits\TRecordId;
+use app\Module\Common\Model\Traits\TSecureField;
 use app\Module\Member\Enum\MemberStatus;
 use app\Module\Member\Model\Base\MemberBase;
 use Hashids\Hashids;
@@ -21,6 +22,12 @@ use Imi\Model\Annotation\Serializables;
 class Member extends MemberBase
 {
     use TRecordId;
+    use TSecureField;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['nickname'];
 
     /**
      * 注册时间.

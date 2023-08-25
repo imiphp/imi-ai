@@ -240,6 +240,7 @@ export function retrySection(
 
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name)
+  data.memberInfo.nickname = decodeSecureField(data.memberInfo.nickname)
   data.publicList = PublicProjectStatus.OPEN === data.publicProject?.status
 }
 

@@ -14,6 +14,10 @@ declare namespace Chat {
     ip: string;
     createTime: number;
     updateTime: number;
+    memberInfo: {
+      recordId: string;
+      nickname: string;
+    };
   }
 
   interface Message {

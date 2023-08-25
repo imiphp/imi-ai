@@ -14,6 +14,7 @@ export const fetchChatSessionList = async (search = '', type = 0, page = 1, limi
   (await response).data?.list.forEach(item => {
     item.title = decodeSecureField(item.title);
     item.prompt = decodeSecureField(item.prompt);
+    item.memberInfo.nickname = decodeSecureField(item.memberInfo.nickname);
   });
 
   return response;
@@ -26,7 +27,7 @@ export const deleteChatSession = async (id: number) => {
 };
 
 export const fetchChatMessageList = async (sessionId: number, page = 1, limit = 15) => {
-  const response = request.get<Chat.MessageListResponse>('/admin/chat/messageList', {
+  const response = await request.get<Chat.MessageListResponse>('/admin/chat/messageList', {
     params: {
       sessionId,
       page,
@@ -34,7 +35,7 @@ export const fetchChatMessageList = async (sessionId: number, page = 1, limit = 
     }
   });
 
-  (await response).data?.list.forEach(item => {
+  response.data?.list.forEach(item => {
     item.message = decodeSecureField(item.message);
   });
 

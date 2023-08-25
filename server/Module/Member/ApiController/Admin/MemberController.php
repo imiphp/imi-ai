@@ -6,6 +6,7 @@ namespace app\Module\Member\ApiController\Admin;
 
 use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Admin\Util\AdminMemberUtil;
+use app\Module\Member\Model\Admin\Member;
 use app\Module\Member\Service\MemberService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
@@ -27,7 +28,14 @@ class MemberController extends HttpController
     ]
     public function list(string $search = '', int $status = 0, int $page = 1, int $limit = 15): array
     {
-        return $this->memberService->list($search, $status, $page, $limit);
+        $result = $this->memberService->list($search, $status, $page, $limit);
+        /** @var Member $item */
+        foreach ($result['list'] as $item)
+        {
+            $item->__setSecureField(true);
+        }
+
+        return $result;
     }
 
     /**

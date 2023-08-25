@@ -30,7 +30,7 @@
           :loading="loading"
           :pagination="pagination"
           :row-key="row => row.id"
-          scroll-x="1000"
+          scroll-x="1200"
           flex-height
           remote
           class="flex-1-hidden"
@@ -105,6 +105,21 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
     key: 'typeText',
     title: '类型',
     width: 100
+  },
+  {
+    key: 'member',
+    title: '用户',
+    width: 140,
+    render: row => {
+      return (
+        <>
+          <p>
+            ID：{row.memberId} ({row.memberInfo.recordId})
+          </p>
+          <p>昵称：{row.memberInfo.nickname}</p>
+        </>
+      );
+    }
   },
   {
     key: 'title',

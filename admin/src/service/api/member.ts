@@ -1,8 +1,9 @@
+import { decodeSecureField } from '~/src/utils/crypto';
 import { request } from '../request';
 
 /** 获取用户列表 */
 export const fetchMemberList = async (search = '', status = 0, page = 1, limit = 15) => {
-  return request.get<Member.MemberListResponse>('/admin/member/list', {
+  const response = await request.get<Member.MemberListResponse>('/admin/member/list', {
     params: {
       search,
       status,
@@ -10,6 +11,12 @@ export const fetchMemberList = async (search = '', status = 0, page = 1, limit =
       limit
     }
   });
+
+  response.data?.list.forEach(item => {
+    item.nickname = decodeSecureField(item.nickname);
+  });
+
+  return response;
 };
 
 export const updateMember = async (
