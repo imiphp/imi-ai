@@ -6,6 +6,7 @@ on:
 
 jobs:
   php-cs-fixer:
+    if: github.repository == 'imiphp/imi-ai'
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -31,6 +32,7 @@ jobs:
         run: docker exec swoole composer check-format
 
   phpstan:
+    if: github.repository == 'imiphp/imi-ai'
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
