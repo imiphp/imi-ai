@@ -31,7 +31,7 @@ jobs:
         run: npm i
 
       - name: Lint
-        run: npm lint
+        run: npm run lint
 
   vue-tsc:
     runs-on: ubuntu-20.04
@@ -59,4 +59,4 @@ jobs:
         run: npm i
 
       - name: Typecheck
-        run: npm type-check
+        run: npm run type-check
