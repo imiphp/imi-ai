@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js';
-import pako from 'pako';
+import { inflate } from 'pako';
 
 const CryptoSecret = '__CryptoJS_Secret__';
 
@@ -28,7 +28,7 @@ export function decrypt(cipherText: string) {
 export function decodeSecureField(value: string): string {
   try {
     const input = Uint8Array.from(window.atob(value), m => m.codePointAt(0) ?? 0);
-    return pako.inflate(input, { raw: true, to: 'string' });
+    return inflate(input, { raw: true, to: 'string' });
   } catch (err) {
     window.console.log(err);
     return '';

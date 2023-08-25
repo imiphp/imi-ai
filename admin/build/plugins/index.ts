@@ -6,7 +6,6 @@ import progress from 'vite-plugin-progress';
 import VueDevtools from 'vite-plugin-vue-devtools';
 import pageRoute from '@soybeanjs/vite-plugin-vue-page-route';
 import unplugin from './unplugin';
-import mock from './mock';
 import visualizer from './visualizer';
 import compress from './compress';
 import pwa from './pwa';
@@ -26,7 +25,6 @@ export function setupVitePlugins(viteEnv: ImportMetaEnv): (PluginOption | Plugin
     VueDevtools(),
     ...unplugin(viteEnv),
     unocss(),
-    mock(viteEnv),
     progress()
   ];
 

@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { ROOT_ROUTE, constantRoutes, router, routes as staticRoutes } from '@/router';
-import { fetchUserRoutes } from '@/service';
 import {
   localStg,
   filterAuthRoutesByUserPermission,
@@ -11,8 +10,7 @@ import {
   transformAuthRouteToMenu,
   transformAuthRouteToSearchMenus,
   transformRouteNameToRoutePath,
-  transformRoutePathToRouteName,
-  sortRoutes
+  transformRoutePathToRouteName
 } from '@/utils';
 import { useAuthStore } from '../auth';
 import { useTabStore } from '../tab';
@@ -107,28 +105,25 @@ export const useRouteStore = defineStore('route-store', {
     },
     /** 初始化动态路由 */
     async initDynamicRoute() {
-      const { resetAuthStore } = useAuthStore();
-      const { initHomeTab } = useTabStore();
-
       const { id } = localStg.get('userInfo') || {};
 
       if (!id) {
         throw new Error('用户id不能为空!');
       }
 
-      const { error, data } = await fetchUserRoutes(id);
+      // const { error, data } = await fetchUserRoutes(id);
 
-      if (!error) {
-        this.routeHomeName = data.home;
-        this.handleUpdateRootRedirect(data.home);
-        this.handleAuthRoute(sortRoutes(data.routes));
+      // if (!error) {
+      // this.routeHomeName = data.home;
+      // this.handleUpdateRootRedirect(data.home);
+      // this.handleAuthRoute(sortRoutes(data.routes));
 
-        initHomeTab(data.home, router);
+      // initHomeTab(data.home, router);
 
-        this.isInitAuthRoute = true;
-      } else {
-        resetAuthStore();
-      }
+      this.isInitAuthRoute = true;
+      // } else {
+      //   resetAuthStore();
+      // }
     },
     /** 初始化静态路由 */
     async initStaticRoute() {

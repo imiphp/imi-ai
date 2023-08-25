@@ -62,24 +62,6 @@ declare namespace Service {
 
   /** 请求结果的适配器函数 */
   type ServiceAdapter<T = any, A extends any[] = any> = (...args: A) => T;
-
-  /** mock示例接口类型：后端接口返回的数据的类型 */
-  interface MockServiceResult<T = any> {
-    /** 状态码 */
-    code: string | number;
-    /** 接口数据 */
-    data: T;
-    /** 接口消息 */
-    message: string;
-  }
-
-  /** mock的响应option */
-  interface MockOption {
-    url: Record<string, any>;
-    body: Record<string, any>;
-    query: Record<string, any>;
-    headers: Record<string, any>;
-  }
 }
 
 /** 主题相关类型 */

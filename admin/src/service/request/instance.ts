@@ -9,7 +9,6 @@ import {
   handleServiceResult,
   transformRequestData
 } from '@/utils';
-import { handleRefreshToken } from './helpers';
 
 type RefreshRequestQueue = (config: AxiosRequestConfig) => void;
 
@@ -88,15 +87,15 @@ export default class CustomAxiosInstance {
               });
             });
 
-            if (!this.isRefreshing) {
-              this.isRefreshing = true;
-              const refreshConfig = await handleRefreshToken(response.config);
-              if (refreshConfig) {
-                this.retryQueues.map(cb => cb(refreshConfig));
-              }
-              this.retryQueues = [];
-              this.isRefreshing = false;
-            }
+            // if (!this.isRefreshing) {
+            //   this.isRefreshing = true;
+            //   const refreshConfig = await handleRefreshToken(response.config);
+            //   if (refreshConfig) {
+            //     this.retryQueues.map(cb => cb(refreshConfig));
+            //   }
+            //   this.retryQueues = [];
+            //   this.isRefreshing = false;
+            // }
             return originRequest;
           }
 

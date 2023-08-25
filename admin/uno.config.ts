@@ -5,7 +5,7 @@ import transformerDirectives from '@unocss/transformer-directives';
 export default defineConfig({
   content: {
     pipeline: {
-      exclude: ['node_modules', 'dist', '.git', '.husky', '.vscode', 'public', 'build', 'mock', './stats.html']
+      exclude: ['node_modules', 'dist', '.git', '.husky', '.vscode', 'public', 'build', './stats.html']
     }
   },
   presets: [presetUno({ dark: 'class' })],
