@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace app\Module\Chat\Model\Admin;
 
 use Imi\Bean\Annotation\Inherit;
-use Imi\Config;
 use Imi\Model\Annotation\Serializables;
 
 #[

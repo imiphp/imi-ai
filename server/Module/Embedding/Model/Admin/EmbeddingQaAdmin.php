@@ -7,7 +7,6 @@ namespace app\Module\Embedding\Model\Admin;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Member\Model\Traits\TMemberInfo;
 use Imi\Bean\Annotation\Inherit;
-use Imi\Config;
 use Imi\Model\Annotation\Serializables;
 
 /**
