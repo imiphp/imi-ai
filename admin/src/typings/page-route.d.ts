@@ -46,6 +46,8 @@ declare namespace PageRoute {
     | 'management'
     | 'management_admin'
     | 'management_admin_member'
+    | 'management_operation'
+    | 'management_operation_log'
     | 'member'
     | 'member_list';
 
@@ -74,6 +76,7 @@ declare namespace PageRoute {
     | 'exception_404'
     | 'exception_500'
     | 'management_admin_member'
+    | 'management_operation_log'
     | 'member_list'
   >;
 }

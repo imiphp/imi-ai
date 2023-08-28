@@ -42,3 +42,25 @@ export const deleteAdminMember = async (id: number) => {
     id
   });
 };
+
+export const fetchAdminOperationLogList = async (
+  memberId = 0,
+  object = '',
+  status = 0,
+  beginTime = 0,
+  endTime = 0,
+  page = 1,
+  limit = 15
+) => {
+  return request.get<AdminOperationLog.LogListResponse>('/admin/adminOperationLog/list', {
+    params: {
+      memberId,
+      object,
+      status,
+      beginTime,
+      endTime,
+      page,
+      limit
+    }
+  });
+};

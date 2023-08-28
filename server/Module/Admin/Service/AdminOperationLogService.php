@@ -28,4 +28,31 @@ class AdminOperationLogService
     {
         $this->log($memberId, $object, $status, $message, $ip, $time);
     }
+
+    public function list(int $memberId = 0, string $object = '', int $status = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $query = AdminOperationLog::query();
+        if ($memberId > 0)
+        {
+            $query->where('memberId', '=', $memberId);
+        }
+        if ('' !== $object)
+        {
+            $query->where('object', '=', $object);
+        }
+        if ($status > 0)
+        {
+            $query->where('status', '=', $status);
+        }
+        if ($beginTime > 0)
+        {
+            $query->where('time', '>=', $beginTime);
+        }
+        if ($endTime > 0)
+        {
+            $query->where('time', '<=', $endTime);
+        }
+
+        return $query->order('id', 'DESC')->paginate($page, $limit)->toArray();
+    }
 }

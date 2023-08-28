@@ -23,5 +23,6 @@ export const views: Record<
   exception_404: () => import('./exception/404/index.vue'),
   exception_500: () => import('./exception/500/index.vue'),
   management_admin_member: () => import('./management/admin_member/index.vue'),
+  management_operation_log: () => import('./management/operation_log/index.vue'),
   member_list: () => import('./member/list/index.vue')
 };

@@ -1,7 +1,5 @@
 import { request } from '../request';
 
-export const ENUM_ALL = { text: '全部', value: 0 };
-
 export async function config() {
   return request.get('/config/public');
 }

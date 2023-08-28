@@ -12,6 +12,16 @@ const management: AuthRoute.Route = {
         requiresAuth: true,
         icon: 'ic:round-manage-accounts'
       }
+    },
+    {
+      name: 'management_operation_log',
+      path: '/management/operation/log',
+      component: 'self',
+      meta: {
+        title: '后台操作日志',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
     }
   ],
   meta: {
