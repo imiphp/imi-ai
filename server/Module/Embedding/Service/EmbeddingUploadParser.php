@@ -131,6 +131,9 @@ class EmbeddingUploadParser
                 $project->memberId = $this->memberId;
                 $project->name = mb_substr($this->clientFileName, 0, 32);
                 $project->totalFileSize = $this->totalSize;
+                $project->sectionSeparator = $this->sectionSeparator;
+                $project->sectionSplitLength = $this->sectionSplitLength;
+                $project->sectionSplitByTitle = $this->sectionSplitByTitle;
                 $project->status = EmbeddingStatus::TRAINING;
                 $project->ip = $this->ip;
                 goWait(fn () => $project->insert(), 30, true);
