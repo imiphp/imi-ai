@@ -5,21 +5,34 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Embedding\Enum\EmbeddingStatus;
 use app\Module\Embedding\FileHandler\IFileHandler;
+use app\Module\Embedding\Model\Admin\EmbeddingFileAdmin;
+use app\Module\Embedding\Model\Admin\EmbeddingFileInListAdmin;
+use app\Module\Embedding\Model\Admin\EmbeddingProjectAdmin;
+use app\Module\Embedding\Model\Admin\EmbeddingSectionAdmin;
 use app\Module\Embedding\Model\DTO\EmbeddingFileInList;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
+use app\Module\Member\Service\MemberService;
 use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\App;
 use Imi\Db\Annotation\Transaction;
+use Imi\Db\Mysql\Consts\LogicalOperator;
+use Imi\Db\Query\Where\Where;
+use Imi\Validate\ValidatorHelper;
 
 class EmbeddingService
 {
     #[Inject()]
     protected EmbeddingPublicProjectService $embeddingPublicProjectService;
+
+    #[Inject()]
+    protected MemberService $memberService;
 
     public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = '', string $sectionSeparator = '', ?int $sectionSplitLength = null, bool $sectionSplitByTitle = true): EmbeddingProject
     {
@@ -72,8 +85,61 @@ class EmbeddingService
                      ->toArray();
     }
 
+    public function getAdminProject(int|string $id): EmbeddingProjectAdmin
+    {
+        if (\is_int($id))
+        {
+            $intId = $id;
+        }
+        else
+        {
+            $intId = EmbeddingProjectAdmin::decodeId($id);
+        }
+        $record = EmbeddingProjectAdmin::find($intId);
+        if (!$record)
+        {
+            throw new NotFoundException(sprintf('项目 %s 不存在', $id));
+        }
+
+        return $record;
+    }
+
+    public function projectAdminList(string $search = '', int $page = 1, int $limit = 15): array
+    {
+        $query = EmbeddingProjectAdmin::query();
+        if ('' !== $search)
+        {
+            $wheres = [];
+            // 用户搜索
+            $memberIds = $this->memberService->queryIdsBySearch($search, 1000);
+            if ($memberIds)
+            {
+                $wheres[] = new Where('member_id', 'in', $memberIds, LogicalOperator::OR);
+            }
+            // 加密ID
+            try
+            {
+                $id = EmbeddingProject::decodeId($search);
+                $wheres[] = new Where('id', '=', $id, LogicalOperator::OR);
+            }
+            catch (\Throwable $_)
+            {
+            }
+            // 数字ID
+            if (ValidatorHelper::int($search))
+            {
+                $wheres[] = new Where('id', '=', (int) $search, LogicalOperator::OR);
+            }
+            $query->whereBrackets(static fn () => $wheres);
+        }
+
+        return $query->order('update_time', 'desc')
+                     ->paginate($page, $limit)
+                     ->toArray();
+    }
+
     #[Transaction()]
-    public function deleteProject(string $projectId, int $memberId = 0): void
+    public function deleteProject(int|string $projectId, int $memberId = 0, int $operatorMemberId = 0, string $ip = ''): void
     {
         // 删除项目
         $record = $this->getProject($projectId, $memberId);
@@ -82,6 +148,10 @@ class EmbeddingService
         EmbeddingFile::query()->where('project_id', '=', $record->id)->delete();
         // 删除分段
         EmbeddingSection::query()->where('project_id', '=', $record->id)->delete();
+        if ($operatorMemberId)
+        {
+            OperationLog::log($operatorMemberId, 'embeddingProject', OperationLogStatus::SUCCESS, sprintf('删除模型文件，id=%d, name=%s', $record->id, $record->name), $ip);
+        }
     }
 
     #[Transaction()]
@@ -154,6 +224,25 @@ class EmbeddingService
         return $record;
     }
 
+    public function getAdminFile(string|int $fileId, int $projectId = 0): EmbeddingFileAdmin
+    {
+        if (\is_int($fileId))
+        {
+            $fileIntId = $fileId;
+        }
+        else
+        {
+            $fileIntId = EmbeddingFileAdmin::decodeId($fileId);
+        }
+        $record = EmbeddingFileAdmin::find($fileIntId);
+        if (!$record || ($projectId && $record->projectId !== $projectId))
+        {
+            throw new NotFoundException(sprintf('文件 %s 不存在', $fileId));
+        }
+
+        return $record;
+    }
+
     /**
      * @return EmbeddingFileInList[]
      */
@@ -174,9 +263,45 @@ class EmbeddingService
                      ->getArray();
     }
 
-    public function assocFileList(string $projectId, int $memberId = 0, bool $secureField = false): array
+    public function assocFileList(int|string $projectId, int $memberId = 0, bool $secureField = false): array
     {
         $list = $this->fileList($projectId, $memberId);
+
+        return $this->parseAssocFileList($list, $secureField);
+    }
+
+    /**
+     * @return EmbeddingFileInListAdmin[]
+     */
+    public function adminFileList(string|int $projectId, int $status = 0): array
+    {
+        $project = $this->getProject($projectId);
+        $query = EmbeddingFileInListAdmin::query();
+
+        $query = $query->where('project_id', '=', $project->id)
+                     ->order('id');
+
+        if ($status)
+        {
+            $query->where('status', '=', $status);
+        }
+
+        return $query->select()
+                     ->getArray();
+    }
+
+    public function adminAssocFileList(int|string $projectId, bool $secureField = false): array
+    {
+        $list = $this->adminFileList($projectId);
+
+        return $this->parseAssocFileList($list, $secureField);
+    }
+
+    /**
+     * @param EmbeddingFileInList[]|EmbeddingFileInListAdmin[] $list
+     */
+    public function parseAssocFileList(array $list, bool $secureField = false): array
+    {
         // 构建关联数组，以 fileName 作为键名
         $map = [];
         foreach ($list as $item)
@@ -256,6 +381,27 @@ class EmbeddingService
         $project = $this->getProject($projectId, $memberId);
         $file = $this->getFile($fileId, $project->id);
         $query = EmbeddingSection::query();
+
+        $query = $query->where('project_id', '=', $project->id)
+                        ->where('file_id', '=', $file->id)
+                        ->order('id');
+        if ($status)
+        {
+            $query->where('status', '=', $status);
+        }
+
+        return $query->select()
+                    ->getArray();
+    }
+
+    /**
+     * @return EmbeddingSectionAdmin[]
+     */
+    public function adminSectionList(string|int $projectId, string|int $fileId, int $status = 0): array
+    {
+        $project = $this->getProject($projectId);
+        $file = $this->getFile($fileId, $project->id);
+        $query = EmbeddingSectionAdmin::query();
 
         $query = $query->where('project_id', '=', $project->id)
                         ->where('file_id', '=', $file->id)

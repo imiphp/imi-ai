@@ -12,7 +12,7 @@
           :is="Component"
           v-if="app.reloadFlag"
           :key="route.fullPath"
-          :class="{ 'p-16px': showPadding }"
+          :class="isMobile ? ['p-2'] : { 'p-16px': showPadding }"
           class="flex-grow bg-#f6f9f8 dark:bg-#101014 transition duration-300 ease-in-out"
         />
       </keep-alive>
@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { useAppStore, useRouteStore, useThemeStore } from '@/store';
+import { useBasicLayout } from '~/src/composables';
 
 defineOptions({ name: 'GlobalContent' });
 
@@ -37,6 +38,7 @@ withDefaults(defineProps<Props>(), {
 const app = useAppStore();
 const theme = useThemeStore();
 const routeStore = useRouteStore();
+const { isMobile } = useBasicLayout();
 </script>
 
 <style scoped></style>

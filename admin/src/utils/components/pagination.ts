@@ -21,7 +21,7 @@ export function defaultPaginationProps(loadData: CallableFunction) {
     },
     simple: isMobile,
     prefix: () => {
-      return `共 ${pagination.itemCount}条数据`;
+      return `共 ${pagination.itemCount} 条数据`;
     }
   });
   return pagination;

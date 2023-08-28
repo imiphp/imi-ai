@@ -17,7 +17,7 @@
               <n-input v-model:value="listParams.search" clearable placeholder="关键词搜索" />
             </n-form-item>
             <n-form-item>
-              <n-button type="primary" @click="getTableData">
+              <n-button attr-type="submit" type="primary" @click="getTableData">
                 <n-icon :component="SearchSharp" size="20" />
                 查询
               </n-button>

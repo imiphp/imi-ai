@@ -2,7 +2,7 @@ import { decodeSecureField } from '~/src/utils/crypto';
 import { request } from '../request';
 
 export const fetchChatSessionList = async (search = '', type = 0, page = 1, limit = 15) => {
-  const response = request.get<Chat.SessionListResponse>('/admin/chat/list', {
+  const response = await request.get<Chat.SessionListResponse>('/admin/chat/list', {
     params: {
       search,
       type,
@@ -11,7 +11,7 @@ export const fetchChatSessionList = async (search = '', type = 0, page = 1, limi
     }
   });
 
-  (await response).data?.list.forEach(item => {
+  response.data?.list.forEach(item => {
     item.title = decodeSecureField(item.title);
     item.prompt = decodeSecureField(item.prompt);
     item.memberInfo.nickname = decodeSecureField(item.memberInfo.nickname);

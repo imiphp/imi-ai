@@ -28,6 +28,7 @@ import { useLoading } from '@/hooks';
 import { defaultPaginationProps } from '~/src/utils';
 
 const route = useRoute();
+const sessionId = parseInt(route.query.sessionId?.toString() ?? '0');
 const { loading, startLoading, endLoading } = useLoading(false);
 
 const tableData = ref<Chat.Message[]>([]);
@@ -43,11 +44,7 @@ function setTableData(response: Chat.MessageListResponse) {
 async function getTableData() {
   startLoading();
   try {
-    const { data } = await fetchChatMessageList(
-      parseInt(route.query.sessionId?.toString() ?? '0'),
-      pagination.page,
-      pagination.pageSize
-    );
+    const { data } = await fetchChatMessageList(sessionId, pagination.page, pagination.pageSize);
     if (data) {
       setTableData(data);
     }

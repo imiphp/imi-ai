@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Service\MemberCardService;
 use app\Module\Embedding\Enum\EmbeddingQAStatus;
 use app\Module\Embedding\Enum\EmbeddingStatus;
+use app\Module\Embedding\Model\Admin\EmbeddingQaAdmin;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
@@ -228,6 +231,25 @@ class OpenAIService
         yield ['message' => $record];
     }
 
+    public function get(string|int $id, int $memberId = 0): EmbeddingQa
+    {
+        if (\is_string($id))
+        {
+            $intId = EmbeddingQa::decodeId($id);
+        }
+        else
+        {
+            $intId = $id;
+        }
+        $record = EmbeddingQa::find($intId);
+        if (!$record || ($memberId && $record->memberId !== $memberId))
+        {
+            throw new NotFoundException(sprintf('会话 %s 不存在', $id));
+        }
+
+        return $record;
+    }
+
     public function getByIdStr(string $id, int $memberId = 0): EmbeddingQa
     {
         $intId = EmbeddingQa::decodeId($id);
@@ -240,13 +262,16 @@ class OpenAIService
         return $record;
     }
 
-    public function list(string $projectId = '', int $memberId = 0, int $page = 1, int $limit = 15): array
+    public function list(int|string $projectId = '', int $memberId = 0, int $page = 1, int $limit = 15): array
     {
         $query = EmbeddingQa::query();
-        if ('' !== $projectId)
+        if ($projectId)
         {
-            $intId = EmbeddingProject::decodeId($projectId);
-            $query->where('project_id', '=', $intId);
+            if (!\is_int($projectId))
+            {
+                $projectId = EmbeddingProject::decodeId($projectId);
+            }
+            $query->where('project_id', '=', $projectId);
         }
         if ($memberId)
         {
@@ -269,5 +294,29 @@ class OpenAIService
     {
         $record = $this->getByIdStr($id, $memberId);
         $record->delete();
+    }
+
+    public function adminChatList(int $projectId, int $page = 1, int $limit = 15): array
+    {
+        $query = EmbeddingQaAdmin::query();
+        if ($projectId > 0)
+        {
+            $query->where('project_id', '=', $projectId);
+        }
+
+        return $query->order('id', 'desc')
+                        ->paginate($page, $limit)
+                        ->toArray();
+    }
+
+    #[Transaction()]
+    public function deleteChat(int|string $id, int $operatorMemberId = 0, string $ip = ''): void
+    {
+        $record = $this->get($id);
+        $record->delete();
+        if ($operatorMemberId)
+        {
+            OperationLog::log($operatorMemberId, 'embeddingQA', OperationLogStatus::SUCCESS, sprintf('删除模型对话，id=%d', $record->id), $ip);
+        }
     }
 }

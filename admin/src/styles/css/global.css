@@ -6,3 +6,19 @@ body,
 #app {
 	height: 100%;
 }
+
+@media screen and (max-width: 1280px) {
+	.n-card>.n-card-header{
+		--n-padding-left: 0.618em;
+		--n-padding-right: 0.618em;
+		--n-padding-top: 0.618em;
+		--n-padding-bottom: 0.618em;
+	}
+	.n-card>.n-card__content,
+	.n-card>.n-card__footer {
+		--n-padding-left: 0.618em;
+		--n-padding-right: 0.618em;
+		--n-padding-top: 0;
+		--n-padding-bottom: 0.618em;
+	}
+}

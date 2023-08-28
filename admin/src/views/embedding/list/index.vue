@@ -1,18 +1,9 @@
 <template>
   <div class="overflow-hidden">
-    <n-card title="AI聊天管理" :bordered="false" class="h-full rounded-8px shadow-sm">
+    <n-card title="模型训练管理" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="flex-col h-full">
         <n-form label-placement="left" :show-feedback="false" class="pb-2.5">
           <n-space class="flex flex-row flex-wrap">
-            <n-form-item label="类型">
-              <n-select
-                v-model:value="listParams.type"
-                class="!w-[140px]"
-                :options="parseEnumWithAll(enums.SessionType ?? [])"
-                label-field="text"
-                value-field="value"
-              />
-            </n-form-item>
             <n-form-item>
               <n-input v-model:value="listParams.memberSearch" clearable placeholder="ID/用户搜索" />
             </n-form-item>
@@ -45,26 +36,24 @@ import { ref } from 'vue';
 import type { Ref } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
 import { EyeOutline, SearchSharp, TrashOutline } from '@vicons/ionicons5';
-import { deleteChatSession, fetchChatSessionList } from '@/service';
+import { deleteEmbeddingProject, fetchEmbeddingProjectList } from '@/service';
 import { useLoading } from '@/hooks';
-import { parseEnumWithAll, useAdminEnums } from '~/src/store';
 import { useRouterPush } from '~/src/composables';
 import { defaultPaginationProps } from '~/src/utils';
+import { formatByte } from '~/src/utils/auth';
 
 const { routerPush } = useRouterPush();
 const { loading, startLoading, endLoading } = useLoading(false);
 
-const enums = ref<any>({});
 const listParams = ref({
-  type: 0,
   memberSearch: ''
 });
 
-const tableData = ref<Chat.Session[]>([]);
+const tableData = ref<Embedding.Project[]>([]);
 
 const pagination = defaultPaginationProps(getTableData);
 
-function setTableData(response: Chat.SessionListResponse) {
+function setTableData(response: Embedding.ProjectListResponse) {
   tableData.value = response.list;
   pagination.pageCount = response.pageCount;
   pagination.itemCount = response.total;
@@ -73,9 +62,8 @@ function setTableData(response: Chat.SessionListResponse) {
 async function getTableData() {
   startLoading();
   try {
-    const { data } = await fetchChatSessionList(
+    const { data } = await fetchEmbeddingProjectList(
       listParams.value.memberSearch,
-      listParams.value.type,
       pagination.page,
       pagination.pageSize
     );
@@ -87,7 +75,7 @@ async function getTableData() {
   }
 }
 
-const columns: Ref<DataTableColumns<Chat.Session>> = ref([
+const columns: Ref<DataTableColumns<Embedding.Project>> = ref([
   {
     key: 'id',
     title: 'ID',
@@ -100,11 +88,6 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
         </>
       );
     }
-  },
-  {
-    key: 'typeText',
-    title: '类型',
-    width: 100
   },
   {
     key: 'member',
@@ -122,16 +105,21 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
     }
   },
   {
-    key: 'title',
-    title: '内容',
-    width: 240,
-    render: row => {
-      return (
-        <>
-          <p>标题：{row.title}</p>
-          <p>提示语：{row.prompt}</p>
-        </>
-      );
+    key: 'name',
+    title: '名称',
+    width: 150
+  },
+  {
+    key: 'statusText',
+    title: '状态',
+    width: 100
+  },
+  {
+    key: 'totalFileSize',
+    title: '文件总大小',
+    width: 100,
+    render(row) {
+      return formatByte(row.totalFileSize);
     }
   },
   {
@@ -155,8 +143,8 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
       return (
         <>
           <p>IP：{row.ip}</p>
-          <p>创建时间：{row.createTime > 0 ? new Date(row.createTime * 1000).toLocaleString() : ''}</p>
-          <p>更新时间：{row.updateTime > 0 ? new Date(row.updateTime * 1000).toLocaleString() : ''}</p>
+          <p>创建时间：{row.createTime > 0 ? new Date(row.createTime).toLocaleString() : ''}</p>
+          <p>更新时间：{row.updateTime > 0 ? new Date(row.updateTime).toLocaleString() : ''}</p>
         </>
       );
     }
@@ -169,9 +157,13 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
     render: row => {
       return (
         <n-space justify={'center'}>
-          <n-button type="primary" size={'small'} onClick={() => handleViewMessages(row.id)}>
+          <n-button type="primary" size={'small'} onClick={() => handleViewFiles(row.id)}>
             <n-icon component={EyeOutline} size="18" />
-            查看
+            文件
+          </n-button>
+          <n-button type="success" size={'small'} onClick={() => handleViewQA(row.id)}>
+            <n-icon component={EyeOutline} size="18" />
+            对话
           </n-button>
           <n-popconfirm onPositiveClick={() => handleDeleteTable(row.id)}>
             {{
@@ -188,22 +180,25 @@ const columns: Ref<DataTableColumns<Chat.Session>> = ref([
       );
     }
   }
-]) as Ref<DataTableColumns<Chat.Session>>;
+]) as Ref<DataTableColumns<Embedding.Project>>;
 
 async function handleDeleteTable(rowId: number) {
-  const { data } = await deleteChatSession(rowId);
+  const { data } = await deleteEmbeddingProject(rowId);
   if (data?.code === 0) {
     window.$message?.info('删除成功');
     getTableData();
   }
 }
 
-function handleViewMessages(rowId: number) {
-  routerPush({ name: 'chat_message_list', query: { sessionId: rowId } });
+function handleViewFiles(rowId: number) {
+  routerPush({ name: 'embedding_file_list', query: { projectId: rowId } });
+}
+
+function handleViewQA(rowId: number) {
+  routerPush({ name: 'embedding_qa_list', query: { projectId: rowId } });
 }
 
 async function init() {
-  enums.value = await useAdminEnums(['SessionType']);
   getTableData();
 }
 
