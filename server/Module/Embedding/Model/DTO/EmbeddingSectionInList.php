@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace app\Module\Embedding\Model\Admin;
+namespace app\Module\Embedding\Model\DTO;
 
 use app\Module\Embedding\Model\EmbeddingSection;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Serializables;
 
 /**
- * 文件训练项目.
+ * 训练内容段落.
  */
 #[
     Inherit,
-    Serializables(mode: 'deny'),
+    Serializables(mode: 'deny', fields: ['id', 'projectId', 'fileId', 'vector']),
 ]
-class EmbeddingSectionAdmin extends EmbeddingSection
+class EmbeddingSectionInList extends EmbeddingSection
 {
     protected static ?string $saltClass = parent::class;
 }

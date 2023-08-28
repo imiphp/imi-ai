@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\Model\Admin;
 
-use app\Module\Embedding\Model\EmbeddingSection;
+use app\Module\Embedding\Model\DTO\EmbeddingSectionInList;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Serializables;
 
@@ -13,9 +13,8 @@ use Imi\Model\Annotation\Serializables;
  */
 #[
     Inherit,
-    Serializables(mode: 'deny'),
+    Serializables(mode: 'deny', fields: ['vector']),
 ]
-class EmbeddingSectionAdmin extends EmbeddingSection
+class EmbeddingSectionInListAdmin extends EmbeddingSectionInList
 {
-    protected static ?string $saltClass = parent::class;
 }

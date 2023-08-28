@@ -133,6 +133,20 @@ class EmbeddingController extends HttpController
         Action,
         AdminLoginRequired()
     ]
+    public function getSection(int $id): array
+    {
+        $file = $this->embeddingService->adminGetSection($id);
+        $file->__setSecureField(true);
+
+        return [
+            'data' => $file,
+        ];
+    }
+
+    #[
+        Action,
+        AdminLoginRequired()
+    ]
     public function chatList(int $id = 0, int $page = 1, int $limit = 15): array
     {
         $result = $this->openAIService->adminChatList($id, $page, $limit);

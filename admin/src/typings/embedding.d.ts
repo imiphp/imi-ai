@@ -86,6 +86,11 @@ declare namespace Embedding {
   } & Api.BaseResponse &
     Api.PaginationResponse;
 
+  type GetSectionResponse = {
+    data: Section;
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
+
   interface QA {
     id: number;
     recordId: string;

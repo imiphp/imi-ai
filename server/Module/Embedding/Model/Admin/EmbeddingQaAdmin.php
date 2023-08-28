@@ -21,10 +21,7 @@ class EmbeddingQaAdmin extends EmbeddingQa
 {
     use TMemberInfo;
 
-    public static function __getSalt(): string
-    {
-        return (static::$saltClass ?? parent::class) . ':' . Config::get('@app.ai.idSalt');
-    }
+    protected static ?string $saltClass = parent::class;
 
     public function __setSecureField(bool $secureField): self
     {

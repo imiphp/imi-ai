@@ -120,6 +120,21 @@ export async function sectionList(
   return response
 }
 
+export async function getSection(
+  id: string,
+) {
+  const response = await get({
+    url: '/embedding/openai/getSection',
+    data: {
+      id,
+    },
+  })
+
+  decodeEmbeddingSectionSecureFields(response.data)
+
+  return response
+}
+
 export async function getFile(
   id: string,
 ) {

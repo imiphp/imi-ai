@@ -13,7 +13,9 @@ use app\Module\Embedding\Model\Admin\EmbeddingFileAdmin;
 use app\Module\Embedding\Model\Admin\EmbeddingFileInListAdmin;
 use app\Module\Embedding\Model\Admin\EmbeddingProjectAdmin;
 use app\Module\Embedding\Model\Admin\EmbeddingSectionAdmin;
+use app\Module\Embedding\Model\Admin\EmbeddingSectionInListAdmin;
 use app\Module\Embedding\Model\DTO\EmbeddingFileInList;
+use app\Module\Embedding\Model\DTO\EmbeddingSectionInList;
 use app\Module\Embedding\Model\EmbeddingFile;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingSection;
@@ -373,14 +375,25 @@ class EmbeddingService
         return $record;
     }
 
+    public function adminGetSection(int $sectionId): EmbeddingSectionAdmin
+    {
+        $record = EmbeddingSectionAdmin::find($sectionId);
+        if (!$record)
+        {
+            throw new NotFoundException(sprintf('段落 %s 不存在', $sectionId));
+        }
+
+        return $record;
+    }
+
     /**
-     * @return EmbeddingSection[]
+     * @return EmbeddingSectionInList[]
      */
     public function sectionList(string|int $projectId, string|int $fileId, int $memberId = 0, int $status = 0): array
     {
         $project = $this->getProject($projectId, $memberId);
         $file = $this->getFile($fileId, $project->id);
-        $query = EmbeddingSection::query();
+        $query = EmbeddingSectionInList::query();
 
         $query = $query->where('project_id', '=', $project->id)
                         ->where('file_id', '=', $file->id)
@@ -395,17 +408,16 @@ class EmbeddingService
     }
 
     /**
-     * @return EmbeddingSectionAdmin[]
+     * @return EmbeddingSectionInListAdmin[]
      */
     public function adminSectionList(string|int $projectId, string|int $fileId, int $status = 0): array
     {
         $project = $this->getProject($projectId);
         $file = $this->getFile($fileId, $project->id);
-        $query = EmbeddingSectionAdmin::query();
 
-        $query = $query->where('project_id', '=', $project->id)
-                        ->where('file_id', '=', $file->id)
-                        ->order('id');
+        $query = EmbeddingSectionInListAdmin::query()->where('project_id', '=', $project->id)
+                                                        ->where('file_id', '=', $file->id)
+                                                        ->order('id');
         if ($status)
         {
             $query->where('status', '=', $status);

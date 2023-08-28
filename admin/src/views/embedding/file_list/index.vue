@@ -205,7 +205,8 @@ import {
   fetchEmbeddingProject,
   fetchEmbeddingSectionList,
   EmbeddingStatus,
-  fetchEmbeddingFile
+  fetchEmbeddingFile,
+  fetchEmbeddingSection
 } from '@/service';
 import { useLoading } from '@/hooks';
 import { useBasicLayout } from '~/src/composables';
@@ -333,6 +334,18 @@ async function viewFileContent() {
 }
 
 async function viewSection(section: Embedding.Section) {
+  if (!section.vector) {
+    loadingFile.value = true;
+    try {
+      const { data } = await fetchEmbeddingSection(section.id);
+      if (!data) {
+        return;
+      }
+      nextTick(() => (section.vector = data.data.vector));
+    } finally {
+      loadingFile.value = false;
+    }
+  }
   currentSection.value = section;
   showViewSection.value = true;
 }

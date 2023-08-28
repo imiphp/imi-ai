@@ -8,7 +8,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowBackOutline, BookOutline, CloudUploadOutline, Refresh } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
-import { assocFileList, getFile, getProject, retryFile, retrySection, sectionList } from '@/api'
+import { assocFileList, getFile, getProject, getSection, retryFile, retrySection, sectionList } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useAppStore, useAuthStore, useRuntimeStore } from '@/store'
 import { EmbeddingStatus, useEmbeddingStore } from '@/store/modules/embedding'
@@ -113,6 +113,16 @@ watch(selectedFileId, async () => {
 })
 
 async function viewSection(section: Embedding.Section) {
+  if (!section.vector) {
+    loadingFile.value = true
+    try {
+      const response = await getSection(section.recordId)
+      section.vector = response.data.vector
+    }
+    finally {
+      loadingFile.value = false
+    }
+  }
   currentSection.value = section
   showViewSection.value = true
 }
@@ -271,9 +281,13 @@ async function viewFileContent() {
     return
   if (!selectedFile.value.content) {
     loadingFile.value = true
-    const response = await getFile(selectedFile.value.recordId)
-    selectedFile.value = response.data
-    loadingFile.value = false
+    try {
+      const response = await getFile(selectedFile.value.recordId)
+      selectedFile.value = response.data
+    }
+    finally {
+      loadingFile.value = false
+    }
   }
   showViewContent.value = true
 }

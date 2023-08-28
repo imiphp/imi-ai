@@ -14,8 +14,5 @@ use Imi\Model\Annotation\Serializables;
 ]
 class ChatMessage extends \app\Module\Chat\Model\ChatMessage
 {
-    public static function __getSalt(): string
-    {
-        return (static::$saltClass ?? parent::class) . ':' . Config::get('@app.ai.idSalt');
-    }
+    protected static ?string $saltClass = parent::class;
 }

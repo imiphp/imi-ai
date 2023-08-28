@@ -84,6 +84,18 @@ export const fetchEmbeddingSectionList = async (projectId: number, fileId: numbe
   return response;
 };
 
+export const fetchEmbeddingSection = async (id: number) => {
+  const response = await request.get<Embedding.GetSectionResponse>('/admin/embedding/getSection', {
+    params: {
+      id
+    }
+  });
+
+  decodeEmbeddingSectionSecureFields(response.data?.data);
+
+  return response;
+};
+
 export const fetchEmbeddingQAList = async (id = 0, page = 1, limit = 15) => {
   const response = await request.get<Embedding.QAListResponse>('/admin/embedding/chatList', {
     params: {
