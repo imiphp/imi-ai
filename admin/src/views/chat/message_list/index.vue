@@ -80,7 +80,14 @@ const columns: Ref<DataTableColumns<Chat.Message>> = ref([
   {
     key: 'message',
     title: '消息',
-    width: 520
+    width: 520,
+    render: row => {
+      return (
+        <n-ellipsis expand-trigger="click" line-clamp="5" tooltip={false}>
+          <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.message}</pre>
+        </n-ellipsis>
+      );
+    }
   },
   {
     key: 'time',

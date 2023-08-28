@@ -82,7 +82,6 @@ const columns: Ref<DataTableColumns<Embedding.QA>> = ref([
     title: '回答',
     width: 450,
     render: row => {
-      // return <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.answer}</pre>;
       return (
         <n-ellipsis expand-trigger="click" line-clamp="5" tooltip={false}>
           <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.answer}</pre>
