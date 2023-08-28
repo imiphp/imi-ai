@@ -8,6 +8,7 @@ use app\Exception\NoScoreException;
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Enum\OperationType;
+use app\Module\Card\Model\Admin\MemberCardOrderAdmin;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\MemberCardOrder;
 use app\Module\Card\Model\MemberCardRefundOrder;
@@ -322,6 +323,33 @@ class MemberCardService
     public function details(int $memberId = 0, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
     {
         $query = MemberCardOrder::query();
+        if ($memberId)
+        {
+            $query->where('member_id', '=', $memberId);
+        }
+        if ($operationType)
+        {
+            $query->where('operation_type', '=', $operationType);
+        }
+        if ($businessType)
+        {
+            $query->where('business_type', '=', $businessType);
+        }
+        if ($beginTime)
+        {
+            $query->where('time', '>=', $beginTime);
+        }
+        if ($endTime)
+        {
+            $query->where('time', '<=', $endTime);
+        }
+
+        return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
+    }
+
+    public function adminDetails(int $memberId = 0, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $query = MemberCardOrderAdmin::query();
         if ($memberId)
         {
             $query->where('member_id', '=', $memberId);

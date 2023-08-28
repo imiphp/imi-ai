@@ -32,4 +32,13 @@ class CardController extends HttpController
             'data' => $this->memberCardService->getBalances(RequestUtil::parseArrayParams($memberIds)),
         ];
     }
+
+    #[
+        Action,
+        AdminLoginRequired()
+    ]
+    public function memberDetails(int $memberId, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        return $this->memberCardService->adminDetails($memberId, $operationType, $businessType, $beginTime, $endTime, $page, $limit);
+    }
 }

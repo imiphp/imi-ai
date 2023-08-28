@@ -46,13 +46,15 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useDialog } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { CreateOutline, SearchSharp } from '@vicons/ionicons5';
+import { CreateOutline, SearchSharp, WalletOutline } from '@vicons/ionicons5';
 import { fetchCardMemberInfos, fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { useEnums, parseEnumWithAll } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
+import { useRouterPush } from '~/src/composables';
 import EditMemberModal from './components/edit-member-modal.vue';
 
+const { routerPush } = useRouterPush();
 const dialog = useDialog();
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();
@@ -212,6 +214,10 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
             <n-icon component={CreateOutline} size="18" />
             编辑
           </n-button>
+          <n-button type="success" size={'small'} onClick={() => handleMemberCardDetail(row.id)}>
+            <n-icon component={WalletOutline} size="18" />
+            明细
+          </n-button>
         </n-space>
       );
     }
@@ -232,6 +238,13 @@ function handleEditTable(rowId: number) {
     setEditData(data);
   }
   openModal();
+}
+
+function handleMemberCardDetail(rowId: number) {
+  const findItem = tableData.value.find(item => item.id === rowId);
+  if (findItem) {
+    routerPush({ name: 'card_memberCardDetails', query: { memberId: rowId } });
+  }
 }
 
 async function init() {
