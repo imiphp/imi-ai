@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Embedding\Enum\PublicProjectStatus;
+use app\Module\Embedding\Model\Admin\EmbeddingProjectAdminWithPublic;
 use app\Module\Embedding\Model\DTO\PublicEmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingPublicProject;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use Imi\Db\Annotation\Transaction;
 
 class EmbeddingPublicProjectService
 {
+    public const LOG_OBJECT = 'embeddingProject';
+
     public function get(int|string $id): ?EmbeddingPublicProject
     {
         if (\is_string($id))
@@ -75,7 +81,10 @@ class EmbeddingPublicProjectService
         return $project;
     }
 
-    public function review(int|string $projectId, bool $pass): EmbeddingPublicProject
+    #[
+        Transaction()
+    ]
+    public function review(int|string $projectId, bool $pass, int $operatorMemberId = 0, string $ip = ''): EmbeddingPublicProject
     {
         $project = $this->get($projectId);
         if (!$project)
@@ -101,6 +110,7 @@ class EmbeddingPublicProjectService
         }
         $project->time = (int) (microtime(true) * 1000);
         $project->update();
+        OperationLog::log($operatorMemberId, self::LOG_OBJECT, OperationLogStatus::SUCCESS, sprintf('审核项目可见性，id=%d, status=%s', $project->projectId, $project->getStatusText()), $ip);
 
         return $project;
     }
@@ -109,7 +119,23 @@ class EmbeddingPublicProjectService
     {
         $projectTableName = PublicEmbeddingProject::__getMeta()->getTableName();
         $publicProjectTableName = EmbeddingPublicProject::__getMeta()->getTableName();
-        $query = PublicEmbeddingProject::query()->rightJoin($publicProjectTableName, 'id', '=', 'project_id')
+        $query = PublicEmbeddingProject::query()->join($publicProjectTableName, 'id', '=', 'project_id')
+                                                ->field($projectTableName . '.*')
+                                                ->order($publicProjectTableName . '.index')
+                                                ->order($publicProjectTableName . '.time', 'desc');
+        if ($status)
+        {
+            $query->where($publicProjectTableName . '.status', '=', $status);
+        }
+
+        return $query->paginate($page, $limit)->toArray();
+    }
+
+    public function adminList(int $status = 0, int $page = 1, int $limit = 15): array
+    {
+        $projectTableName = EmbeddingProjectAdminWithPublic::__getMeta()->getTableName();
+        $publicProjectTableName = EmbeddingPublicProject::__getMeta()->getTableName();
+        $query = EmbeddingProjectAdminWithPublic::query()->join($publicProjectTableName, 'id', '=', 'project_id')
                                                 ->field($projectTableName . '.*')
                                                 ->order($publicProjectTableName . '.index')
                                                 ->order($publicProjectTableName . '.time', 'desc');

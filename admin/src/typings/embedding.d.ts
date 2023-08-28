@@ -121,4 +121,21 @@ declare namespace Embedding {
     list: QA[];
   } & Api.BaseResponse &
     Api.PaginationResponse;
+
+  interface PublicProjectRecord {
+    projectId: number;
+    status: number;
+    statusText: string;
+    time: number;
+    index: number;
+  }
+
+  interface PublicProject extends Project {
+    publicProject: PublicProjectRecord;
+  }
+
+  type PublicProjectListResponse = {
+    list: PublicProject[];
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
 }

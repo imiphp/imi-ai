@@ -17,6 +17,7 @@ export const views: Record<
   dashboard_analysis: () => import('./dashboard/analysis/index.vue'),
   embedding_file_list: () => import('./embedding/file_list/index.vue'),
   embedding_list: () => import('./embedding/list/index.vue'),
+  embedding_public_list: () => import('./embedding/public_list/index.vue'),
   embedding_qa_list: () => import('./embedding/qa_list/index.vue'),
   exception_403: () => import('./exception/403/index.vue'),
   exception_404: () => import('./exception/404/index.vue'),

@@ -6,8 +6,10 @@ namespace app\Module\Embedding\ApiController\Admin;
 
 use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Admin\Util\AdminMemberUtil;
+use app\Module\Embedding\Model\Admin\EmbeddingProjectAdminWithPublic;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
+use app\Module\Embedding\Service\EmbeddingPublicProjectService;
 use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Embedding\Service\OpenAIService;
 use app\Util\IPUtil;
@@ -26,6 +28,9 @@ class EmbeddingController extends HttpController
 
     #[Inject()]
     protected OpenAIService $openAIService;
+
+    #[Inject()]
+    protected EmbeddingPublicProjectService $embeddingPublicProjectService;
 
     #[
         Action,
@@ -170,5 +175,33 @@ class EmbeddingController extends HttpController
     public function deleteChat(int $id)
     {
         $this->openAIService->deleteChat($id, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+    }
+
+    #[
+        Action(),
+    ]
+    public function publicProjectList(int $status = 0, int $page = 1, int $limit = 15): array
+    {
+        $result = $this->embeddingPublicProjectService->adminList($status, $page, $limit);
+        /** @var EmbeddingProjectAdminWithPublic $project */
+        foreach ($result['list'] as $project)
+        {
+            $project->__setSecureField(true);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        AdminLoginRequired()
+    ]
+    public function reviewPublicProject(int $id, bool $pass)
+    {
+        $this->embeddingPublicProjectService->review($id, $pass, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 }

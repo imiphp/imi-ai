@@ -118,6 +118,29 @@ export const deleteEmbeddingChat = async (id: number) => {
   });
 };
 
+export const fetchEmbeddingPublicProjectList = async (status = 0, page = 1, limit = 15) => {
+  const response = await request.get<Embedding.PublicProjectListResponse>('/admin/embedding/publicProjectList', {
+    params: {
+      status,
+      page,
+      limit
+    }
+  });
+
+  response.data?.list.forEach(item => {
+    decodeEmbeddingProjectSecureFields(item);
+  });
+
+  return response;
+};
+
+export const reviewEmbeddingPublicProject = async (id: number, pass: boolean) => {
+  return request.post<Api.BaseResponse>('/admin/embedding/reviewPublicProject', {
+    id,
+    pass
+  });
+};
+
 function decodeEmbeddingProjectSecureFields(data: any) {
   data.name = decodeSecureField(data.name);
   if (data.memberInfo) data.memberInfo.nickname = decodeSecureField(data.memberInfo.nickname);

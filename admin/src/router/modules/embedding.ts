@@ -33,6 +33,16 @@ const embedding: AuthRoute.Route = {
         requiresAuth: true,
         icon: 'ic:round-manage-accounts'
       }
+    },
+    {
+      name: 'embedding_public_list',
+      path: '/embedding/public/list',
+      component: 'self',
+      meta: {
+        title: '公开项目管理',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
     }
   ],
   meta: {
