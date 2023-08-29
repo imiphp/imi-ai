@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace app\Module\Card\ApiController\Admin;
 
 use app\Module\Admin\Annotation\AdminLoginRequired;
+use app\Module\Admin\Util\AdminMemberUtil;
 use app\Module\Card\Service\CardService;
 use app\Module\Card\Service\MemberCardService;
+use app\Util\IPUtil;
 use app\Util\RequestUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -69,7 +71,7 @@ class CardController extends HttpController
     ]
     public function generate(int $type, int $count): array
     {
-        $cardIds = $this->cardService->generate($type, $count);
+        $cardIds = $this->cardService->generate($type, $count, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
 
         return [
             'list' => $cardIds,

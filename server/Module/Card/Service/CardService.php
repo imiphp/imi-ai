@@ -6,6 +6,9 @@ namespace app\Module\Card\Service;
 
 use app\Exception\NoScoreException;
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Model\Admin\CardDetailAdmin;
 use app\Module\Card\Model\Card;
@@ -142,7 +145,7 @@ class CardService
      * @return string[]
      */
     #[Transaction()]
-    public function generate(int $type, int $count): array
+    public function generate(int $type, int $count, int $operatorMemberId = 0, string $ip = ''): array
     {
         $typeRecord = $this->cardTypeService->get($type);
         if (!$typeRecord->enable)
@@ -155,6 +158,8 @@ class CardService
             $card = $this->create($typeRecord);
             $cardIds[] = $card->getRecordId();
         }
+
+        OperationLog::log($operatorMemberId, OperationLogObject::CARD_TYPE, OperationLogStatus::SUCCESS, sprintf('批量生成卡，类型=[%d], 名称=%s, 数量=%d', $typeRecord->id, $typeRecord->name, $count), $ip);
 
         return $cardIds;
     }
