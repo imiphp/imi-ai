@@ -11,7 +11,7 @@
                 :options="[
                   {
                     text: '全部',
-                    value: undefined
+                    value: -1
                   },
                   {
                     text: '可用',
@@ -19,6 +19,28 @@
                   },
                   {
                     text: '已过期',
+                    value: 1
+                  }
+                ]"
+                label-field="text"
+                value-field="value"
+              />
+            </n-form-item>
+            <n-form-item label="激活">
+              <n-select
+                v-model:value="listParams.activationed"
+                class="!w-[140px]"
+                :options="[
+                  {
+                    text: '全部',
+                    value: -1
+                  },
+                  {
+                    text: '未激活',
+                    value: 0
+                  },
+                  {
+                    text: '已激活',
                     value: 1
                   }
                 ]"
@@ -34,6 +56,12 @@
             </n-form-item>
           </n-space>
         </n-form>
+        <n-space class="py-12px" justify="space-between">
+          <n-button v-if="listParams.type > 0" type="primary" @click="handleGenerate">
+            <icon-ic-round-plus class="mr-4px text-20px" />
+            批量生成
+          </n-button>
+        </n-space>
         <n-data-table
           :columns="columns"
           :data="tableData"
@@ -47,11 +75,16 @@
         />
       </div>
     </n-card>
+    <generate-card-modal
+      v-if="listParams.type > 0"
+      v-model:visible="showGenerateCardModal"
+      :card-type="listParams.type"
+    ></generate-card-modal>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { DataTableColumns } from 'naive-ui';
@@ -61,6 +94,7 @@ import { useLoading } from '@/hooks';
 import { useEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
+import GenerateCardModal from './components/generate-card-modal.vue';
 
 const { routerPush } = useRouterPush();
 const route = useRoute();
@@ -70,7 +104,15 @@ const enums = ref<any>({});
 const listParams = ref({
   memberId: parseInt(route.query.memberId?.toString() ?? '0'),
   expired: 0,
-  type: 0
+  activationed: -1,
+  type: parseInt(route.query.type?.toString() ?? '0')
+});
+
+const showGenerateCardModal = ref(false);
+watch(showGenerateCardModal, () => {
+  if (!showGenerateCardModal.value) {
+    getTableData();
+  }
 });
 
 const pagination = defaultPaginationProps(getTableData);
@@ -88,7 +130,8 @@ async function getTableData() {
     const { data } = await fetchCardList(
       listParams.value.memberId,
       listParams.value.type,
-      listParams.value.expired,
+      listParams.value.activationed >= 0 ? Boolean(listParams.value.activationed) : undefined,
+      listParams.value.expired >= 0 ? Boolean(listParams.value.expired) : undefined,
       pagination.page,
       pagination.pageSize
     );
@@ -117,25 +160,29 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     key: 'member',
     title: '用户',
+    width: 140,
     render: row => {
-      return (
-        <>
-          <p>
-            ID：{row.memberId} ({row.memberInfo.recordId})
-          </p>
-          <p>昵称：{row.memberInfo.nickname}</p>
-        </>
-      );
+      if (row.memberInfo)
+        return (
+          <>
+            <p>
+              ID：{row.memberId} ({row.memberInfo.recordId})
+            </p>
+            <p>昵称：{row.memberInfo.nickname}</p>
+          </>
+        );
+      return '';
     }
   },
   {
     title: '名称',
-    key: 'cardType.name'
+    key: 'cardType.name',
+    width: 100
   },
   {
     title: '余额/面额',
     key: 'amount',
-    minWidth: 250,
+    minWidth: 300,
     render(row) {
       if (row.type === 1) {
         return row.leftAmountText;
@@ -165,15 +212,26 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     }
   },
   {
+    title: '创建时间',
+    key: 'activationTime',
+    width: 200,
+    render(row) {
+      return new Date(row.createTime * 1000).toLocaleString();
+    }
+  },
+  {
     title: '激活时间',
     key: 'activationTime',
+    width: 200,
     render(row) {
-      return new Date(row.activationTime * 1000).toLocaleString();
+      if (row.activationTime > 0) return new Date(row.activationTime * 1000).toLocaleString();
+      return '未激活';
     }
   },
   {
     title: '过期时间',
     key: 'expireTime',
+    width: 250,
     render(row) {
       return row.expireTime > 0
         ? new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')
@@ -183,7 +241,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     key: 'actions',
     title: '操作',
-    width: 160,
+    width: 100,
     render: row => {
       return (
         <n-space>
@@ -202,6 +260,10 @@ function handleCardDetail(rowId: number) {
   if (findItem) {
     routerPush({ name: 'card_details', query: { cardId: rowId } });
   }
+}
+
+function handleGenerate() {
+  showGenerateCardModal.value = true;
 }
 
 async function init() {

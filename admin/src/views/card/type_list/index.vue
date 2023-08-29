@@ -1,6 +1,6 @@
 <template>
   <div class="overflow-hidden">
-    <n-card title="用户管理" :bordered="false" class="h-full rounded-8px shadow-sm">
+    <n-card title="卡类型管理" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="flex-col h-full">
         <n-form label-placement="left" :show-feedback="false" class="pb-2.5">
           <n-space class="flex flex-row flex-wrap">
@@ -64,13 +64,15 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useDialog } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { CreateOutline, SearchSharp } from '@vicons/ionicons5';
+import { CreateOutline, SearchSharp, WalletOutline } from '@vicons/ionicons5';
 import { fetchCardTypeList, updateCardType } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { defaultPaginationProps } from '~/src/utils';
+import { useRouterPush } from '~/src/composables';
 import EditTypeModal from './components/edit-type-modal.vue';
 import type { ModalType } from './components/edit-type-modal.vue';
 
+const { routerPush } = useRouterPush();
 const dialog = useDialog();
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();
@@ -210,6 +212,10 @@ const columns: Ref<DataTableColumns<Card.CardType>> = ref([
             <n-icon component={CreateOutline} size="18" />
             编辑
           </n-button>
+          <n-button type="primary" size={'small'} onClick={() => handleCardList(row.id)}>
+            <n-icon component={WalletOutline} size="18" />
+            卡包
+          </n-button>
         </n-space>
       );
     }
@@ -240,6 +246,10 @@ function handleEditTable(rowId: number) {
   }
   setModalType('edit');
   openModal();
+}
+
+function handleCardList(rowId: number) {
+  routerPush({ name: 'card_list', query: { type: rowId } });
 }
 
 async function init() {

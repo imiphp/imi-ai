@@ -97,4 +97,8 @@ declare namespace Card {
     list: CardType[];
   } & Api.BaseResponse &
     Api.PaginationResponse;
+
+  type GenerateCardResponse = {
+    list: string[];
+  } & Api.BaseResponse;
 }

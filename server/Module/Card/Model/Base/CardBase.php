@@ -18,16 +18,17 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.name", default="tb_card"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` int unsigned NOT NULL COMMENT '卡类型',   `member_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint NOT NULL COMMENT '初始金额',   `left_amount` bigint NOT NULL COMMENT '剩余金额',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `activation_time` int unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `member_id` (`member_id`,`expire_time`,`left_amount`) USING BTREE,   KEY `type` (`member_id`,`type`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡'")
+ * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` int unsigned NOT NULL COMMENT '卡类型',   `member_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint NOT NULL COMMENT '初始金额',   `left_amount` bigint NOT NULL COMMENT '剩余金额',   `enable` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否启用',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `activation_time` int unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `type` (`member_id`,`type`) USING BTREE,   KEY `member_id` (`member_id`,`expire_time`,`left_amount`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡'")
  *
- * @property int|null $id
- * @property int|null $type           卡类型
- * @property int|null $memberId       用户ID
- * @property int|null $amount         初始金额
- * @property int|null $leftAmount     剩余金额
- * @property int|null $createTime     创建时间
- * @property int|null $activationTime 激活时间
- * @property int|null $expireTime     过期时间
+ * @property int|null  $id
+ * @property int|null  $type           卡类型
+ * @property int|null  $memberId       用户ID
+ * @property int|null  $amount         初始金额
+ * @property int|null  $leftAmount     剩余金额
+ * @property bool|null $enable         是否启用
+ * @property int|null  $createTime     创建时间
+ * @property int|null  $activationTime 激活时间
+ * @property int|null  $expireTime     过期时间
  */
 abstract class CardBase extends Model
 {
@@ -186,6 +187,36 @@ abstract class CardBase extends Model
     public function setLeftAmount($leftAmount)
     {
         $this->leftAmount = null === $leftAmount ? null : (int) $leftAmount;
+
+        return $this;
+    }
+
+    /**
+     * 是否启用.
+     * enable.
+     *
+     * @Column(name="enable", type="bit", length=1, accuracy=0, nullable=false, default="b'1'", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?bool $enable = true;
+
+    /**
+     * 获取 enable - 是否启用.
+     */
+    public function getEnable(): ?bool
+    {
+        return $this->enable;
+    }
+
+    /**
+     * 赋值 enable - 是否启用.
+     *
+     * @param bool|null $enable enable
+     *
+     * @return static
+     */
+    public function setEnable($enable)
+    {
+        $this->enable = null === $enable ? null : (bool) $enable;
 
         return $this;
     }

@@ -12,6 +12,8 @@ use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Route\Annotation\Action;
 use Imi\Server\Http\Route\Annotation\Controller;
+use Imi\Server\Http\Route\Annotation\Route;
+use Imi\Util\Http\Consts\RequestMethod;
 
 #[Controller(prefix: '/admin/card/')]
 class CardController extends HttpController
@@ -26,9 +28,9 @@ class CardController extends HttpController
         Action,
         AdminLoginRequired()
     ]
-    public function list(int $memberId = 0, int $type = 0, bool $expired = null, int $page = 1, int $limit = 15): array
+    public function list(int $memberId = 0, int $type = 0, ?bool $activationed = null, ?bool $expired = null, int $page = 1, int $limit = 15): array
     {
-        return $this->memberCardService->adminList($memberId, $type, $expired, $page, $limit);
+        return $this->memberCardService->adminList($memberId, $type, $activationed, $expired, $page, $limit);
     }
 
     #[
@@ -58,5 +60,19 @@ class CardController extends HttpController
     public function memberDetails(int $memberId, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
     {
         return $this->memberCardService->adminDetails($memberId, $operationType, $businessType, $beginTime, $endTime, $page, $limit);
+    }
+
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        AdminLoginRequired()
+    ]
+    public function generate(int $type, int $count): array
+    {
+        $cardIds = $this->cardService->generate($type, $count);
+
+        return [
+            'list' => $cardIds,
+        ];
     }
 }

@@ -182,6 +182,10 @@ class CardService
         {
             throw new \RuntimeException('此卡已被激活');
         }
+        if (!$card->enable)
+        {
+            throw new \RuntimeException('此卡已被禁用');
+        }
 
         $time = time();
         $type = $this->cardTypeService->get($card->type);

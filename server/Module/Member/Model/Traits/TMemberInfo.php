@@ -39,7 +39,7 @@ trait TMemberInfo
 
     public function getMemberInfo(): ?array
     {
-        if (null === $this->memberInfo)
+        if (null === $this->memberInfo && $this->member)
         {
             return $this->memberInfo = [
                 'recordId' => $this->member->getRecordId(),

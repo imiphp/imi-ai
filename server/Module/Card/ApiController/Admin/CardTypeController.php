@@ -12,6 +12,8 @@ use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
 use Imi\Server\Http\Route\Annotation\Action;
 use Imi\Server\Http\Route\Annotation\Controller;
+use Imi\Server\Http\Route\Annotation\Route;
+use Imi\Util\Http\Consts\RequestMethod;
 
 #[Controller(prefix: '/admin/card/type/')]
 class CardTypeController extends HttpController
@@ -33,6 +35,7 @@ class CardTypeController extends HttpController
      */
     #[
         Action(),
+        Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
     public function create(string $name, int $amount, int $expireSeconds, bool $enable = true)
@@ -45,6 +48,7 @@ class CardTypeController extends HttpController
      */
     #[
         Action(),
+        Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
     public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null)

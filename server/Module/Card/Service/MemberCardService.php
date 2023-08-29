@@ -112,7 +112,7 @@ class MemberCardService
                      ->toArray();
     }
 
-    public function adminList(int $memberId = 0, int $type = 0, bool $expired = null, int $page = 1, int $limit = 15): array
+    public function adminList(int $memberId = 0, int $type = 0, ?bool $activationed = null, bool $expired = null, int $page = 1, int $limit = 15): array
     {
         $query = CardAdmin::query();
         if ($memberId > 0)
@@ -122,6 +122,17 @@ class MemberCardService
         if ($type > 0)
         {
             $query->where('type', '=', $type);
+        }
+        if (null !== $activationed)
+        {
+            if ($activationed)
+            {
+                $query->where('activation_time', '>', 0);
+            }
+            else
+            {
+                $query->where('activation_time', '=', 0);
+            }
         }
         if (null !== $expired)
         {

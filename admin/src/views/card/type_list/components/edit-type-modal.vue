@@ -112,14 +112,11 @@ type FormModel = Pick<Card.CardType, 'name' | 'amount' | 'expireSeconds' | 'enab
 
 const formModel = reactive<FormModel>(createDefaultFormModel());
 
-const constRules: Record<string, FormItemRule | FormItemRule[]> = {
-  account: createRequiredFormRule('请输入用户名'),
-  nickname: createRequiredFormRule('请输入昵称')
+const rules: Record<string, FormItemRule | FormItemRule[]> = {
+  name: createRequiredFormRule('请输入名称'),
+  amount: createRequiredFormRule('请输入初始余额'),
+  expireSeconds: createRequiredFormRule('请输入有效期')
 };
-const rules = computed(() => {
-  const result = { ...constRules };
-  return result;
-});
 
 function createDefaultFormModel(): FormModel {
   return {
