@@ -27,7 +27,7 @@ class CardTypeService
         return $record;
     }
 
-    #[Cacheable(name: 'redisCacheSerialize', key: 'card:type:{memberId}', ttl: 60)]
+    #[Cacheable(name: 'redisCacheSerialize', key: 'card:type:{id}', ttl: 60)]
     public function getArray(int $id): array
     {
         return $this->getNoCache($id)->toArray();
