@@ -483,7 +483,6 @@ onMounted(async () => {
     }
     chatStore.updateHistory(id, { ...response.data })
     chatStore.setChatsById(id, result)
-    chatStore.setActive(id, null)
     setting.value = { ...setting.value, ...response.data.config }
     if (currentChatHistory.value)
       currentChatHistory.value.prompt = response.data.prompt
