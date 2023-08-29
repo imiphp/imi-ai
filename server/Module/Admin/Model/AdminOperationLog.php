@@ -13,6 +13,7 @@ use Imi\Model\Annotation\Relation\JoinFrom;
 use Imi\Model\Annotation\Relation\JoinTo;
 use Imi\Model\Annotation\Relation\OneToOne;
 use Imi\Model\Annotation\Serializable;
+use Imi\Model\Annotation\Serializables;
 use Imi\Model\Enum\RelationPoolName;
 
 /**
@@ -20,6 +21,9 @@ use Imi\Model\Enum\RelationPoolName;
  *
  * @Inherit
  */
+#[
+    Serializables(mode: 'deny', fields: ['ipData']),
+]
 class AdminOperationLog extends AdminOperationLogBase
 {
     #[Column(virtual: true)]
