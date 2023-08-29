@@ -111,12 +111,14 @@ const columns: Ref<DataTableColumns<AdminOperationLog.Log>> = ref([
     title: '用户',
     width: 140,
     render: row => {
-      return (
-        <>
-          <p>ID：{row.memberId}</p>
-          <p>昵称：{row.memberInfo.nickname}</p>
-        </>
-      );
+      if (row.memberInfo)
+        return (
+          <>
+            <p>ID：{row.memberId}</p>
+            <p>昵称：{row.memberInfo.nickname}</p>
+          </>
+        );
+      return '';
     }
   },
   {
