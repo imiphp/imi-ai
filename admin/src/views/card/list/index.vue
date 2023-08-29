@@ -55,12 +55,14 @@ import { ref } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { DataTableColumns } from 'naive-ui';
-import { SearchSharp } from '@vicons/ionicons5';
+import { List, SearchSharp } from '@vicons/ionicons5';
 import { fetchCardList } from '@/service';
 import { useLoading } from '@/hooks';
 import { useEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
+import { useRouterPush } from '~/src/composables';
 
+const { routerPush } = useRouterPush();
 const route = useRoute();
 const { loading, startLoading, endLoading } = useLoading(false);
 
@@ -177,8 +179,30 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
         ? new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')
         : '永久有效';
     }
+  },
+  {
+    key: 'actions',
+    title: '操作',
+    width: 160,
+    render: row => {
+      return (
+        <n-space>
+          <n-button type="success" size={'small'} onClick={() => handleCardDetail(row.id)}>
+            <n-icon component={List} size="18" />
+            明细
+          </n-button>
+        </n-space>
+      );
+    }
   }
 ]) as Ref<DataTableColumns<Card.Card>>;
+
+function handleCardDetail(rowId: number) {
+  const findItem = tableData.value.find(item => item.id === rowId);
+  if (findItem) {
+    routerPush({ name: 'card_details', query: { cardId: rowId } });
+  }
+}
 
 async function init() {
   enums.value = await useEnums(['BusinessType', 'OperationType']);

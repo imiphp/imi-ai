@@ -7,6 +7,7 @@ namespace app\Module\Card\Service;
 use app\Exception\NoScoreException;
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Model\Admin\CardDetailAdmin;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\CardDetail;
 use app\Module\Card\Model\CardType;
@@ -306,6 +307,31 @@ class CardService
     {
         $card = $this->get($cardId, $memberId);
         $query = CardDetail::query();
+        $query->where('card_id', '=', $card->id);
+        if ($operationType)
+        {
+            $query->where('operation_type', '=', $operationType);
+        }
+        if ($businessType)
+        {
+            $query->where('business_type', '=', $businessType);
+        }
+        if ($beginTime)
+        {
+            $query->where('time', '>=', $beginTime);
+        }
+        if ($endTime)
+        {
+            $query->where('time', '<=', $endTime);
+        }
+
+        return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
+    }
+
+    public function adminDetails(int|string $cardId, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        $card = $this->get($cardId);
+        $query = CardDetailAdmin::query();
         $query->where('card_id', '=', $card->id);
         if ($operationType)
         {

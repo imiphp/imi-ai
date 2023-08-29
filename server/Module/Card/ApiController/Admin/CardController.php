@@ -35,6 +35,15 @@ class CardController extends HttpController
         Action,
         AdminLoginRequired()
     ]
+    public function details(int $cardId, int $operationType = 0, int $businessType = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
+    {
+        return $this->cardService->adminDetails($cardId, $operationType, $businessType, $beginTime, $endTime, $page, $limit);
+    }
+
+    #[
+        Action,
+        AdminLoginRequired()
+    ]
     public function memberInfos(string|int|array $memberIds): array
     {
         return [

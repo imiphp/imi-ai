@@ -62,4 +62,24 @@ declare namespace Card {
     list: Card[];
   } & Api.BaseResponse &
     Api.PaginationResponse;
+
+  interface CardDetail {
+    id: number;
+    recordId: string;
+    cardId: number;
+    operationType: number;
+    operationTypeText: string;
+    businessType: number;
+    businessTypeText: string;
+    businessId: number;
+    changeAmount: number;
+    beforeAmount: number;
+    afterAmount: number;
+    time: number;
+  }
+
+  type CardDetailListResponse = {
+    list: CardDetail[];
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
 }

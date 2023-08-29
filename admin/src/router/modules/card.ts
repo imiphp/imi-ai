@@ -22,6 +22,16 @@ const card: AuthRoute.Route = {
         requiresAuth: true,
         icon: 'ic:round-manage-accounts'
       }
+    },
+    {
+      name: 'card_details',
+      path: '/card/details',
+      component: 'self',
+      meta: {
+        title: '卡交易明细',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
     }
   ],
   meta: {

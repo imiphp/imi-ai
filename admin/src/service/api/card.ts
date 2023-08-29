@@ -47,3 +47,25 @@ export const fetchCardList = async (
     }
   });
 };
+
+export const fetchCardDetails = async (
+  cardId = 0,
+  operationType = 0,
+  businessType = 0,
+  beginTime = 0,
+  endTime = 0,
+  page = 1,
+  limit = 15
+) => {
+  return request.get<Card.CardDetailListResponse>('/admin/card/details', {
+    params: {
+      cardId,
+      operationType,
+      businessType,
+      beginTime,
+      endTime,
+      page,
+      limit
+    }
+  });
+};
