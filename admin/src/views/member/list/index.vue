@@ -46,7 +46,7 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useDialog } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { CreateOutline, SearchSharp, WalletOutline } from '@vicons/ionicons5';
+import { CreateOutline, SearchSharp, WalletOutline, List } from '@vicons/ionicons5';
 import { fetchCardMemberInfos, fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { useEnums, parseEnumWithAll } from '~/src/store';
@@ -205,18 +205,21 @@ const columns: Ref<DataTableColumns<Member.Member>> = ref([
   {
     key: 'actions',
     title: '操作',
-    align: 'center',
-    width: 100,
+    width: 160,
     render: row => {
       return (
-        <n-space justify={'center'}>
+        <n-space>
           <n-button size={'small'} onClick={() => handleEditTable(row.id)}>
             <n-icon component={CreateOutline} size="18" />
             编辑
           </n-button>
           <n-button type="success" size={'small'} onClick={() => handleMemberCardDetail(row.id)}>
-            <n-icon component={WalletOutline} size="18" />
+            <n-icon component={List} size="18" />
             明细
+          </n-button>
+          <n-button type="primary" size={'small'} onClick={() => handleMemberCardList(row.id)}>
+            <n-icon component={WalletOutline} size="18" />
+            卡包
           </n-button>
         </n-space>
       );
@@ -244,6 +247,13 @@ function handleMemberCardDetail(rowId: number) {
   const findItem = tableData.value.find(item => item.id === rowId);
   if (findItem) {
     routerPush({ name: 'card_memberCardDetails', query: { memberId: rowId } });
+  }
+}
+
+function handleMemberCardList(rowId: number) {
+  const findItem = tableData.value.find(item => item.id === rowId);
+  if (findItem) {
+    routerPush({ name: 'card_list', query: { memberId: rowId } });
   }
 }
 

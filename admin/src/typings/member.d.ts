@@ -26,4 +26,9 @@ declare namespace Member {
     list: Member[];
   } & Api.BaseResponse &
     Api.PaginationResponse;
+
+  interface MemberInfo {
+    recordId: string;
+    nickname: string;
+  }
 }

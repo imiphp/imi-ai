@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Card\Model\Admin;
 
-use app\Module\Card\Model\MemberCardOrder;
+use app\Module\Card\Model\Card;
 use app\Module\Member\Model\Traits\TMemberInfo;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Serializables;
@@ -13,7 +13,7 @@ use Imi\Model\Annotation\Serializables;
     Inherit(),
     Serializables(mode: 'deny')
 ]
-class MemberCardOrderAdmin extends MemberCardOrder
+class CardAdmin extends Card
 {
     use TMemberInfo;
 

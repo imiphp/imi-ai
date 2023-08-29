@@ -17,10 +17,7 @@ declare namespace Embedding {
     sectionSplitLength: number;
     sectionSplitByTitle: boolean;
     chatConfig: any;
-    memberInfo: {
-      recordId: string;
-      nickname: string;
-    };
+    memberInfo: Member.MemberInfo;
   }
 
   type ProjectListResponse = {
@@ -111,10 +108,7 @@ declare namespace Embedding {
     similarity: number;
     topSections: number;
     prompt: string;
-    memberInfo: {
-      recordId: string;
-      nickname: string;
-    };
+    memberInfo: Member.MemberInfo;
   }
 
   type QAListResponse = {

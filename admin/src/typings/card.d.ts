@@ -22,14 +22,44 @@ declare namespace Card {
     detailIds: number[];
     time: number;
     isDeduct: boolean;
-    memberInfo: {
-      recordId: string;
-      nickname: string;
-    };
+    memberInfo: Member.MemberInfo;
   }
 
   type MemberCardOrderListResponse = {
     list: MemberCardOrder[];
+  } & Api.BaseResponse &
+    Api.PaginationResponse;
+
+  interface CardType {
+    id: number;
+    name: string;
+    amount: number;
+    expireSeconds: number;
+    enable: boolean;
+    system: boolean;
+    createTime: number;
+  }
+
+  interface Card {
+    id: number;
+    recordId: string;
+    type: number;
+    typeText: string;
+    memberId: number;
+    amount: number;
+    amountText: string;
+    leftAmount: number;
+    leftAmountText: string;
+    createTime: number;
+    activationTime: number;
+    expireTime: number;
+    cardType: CardType;
+    expired: boolean;
+    memberInfo: Member.MemberInfo;
+  }
+
+  type CardListResponse = {
+    list: Card[];
   } & Api.BaseResponse &
     Api.PaginationResponse;
 }

@@ -1,29 +1,30 @@
 <template>
   <div class="overflow-hidden">
-    <n-card title="用户交易明细" :bordered="false" class="h-full rounded-8px shadow-sm">
+    <n-card title="卡包列表" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="flex-col h-full">
         <n-form label-placement="left" :show-feedback="false" class="pb-2.5">
           <n-space class="flex flex-row flex-wrap">
-            <n-form-item label="业务类型">
+            <n-form-item label="过期">
               <n-select
-                v-model:value="listParams.businessType"
+                v-model:value="listParams.expired"
                 class="!w-[140px]"
-                :options="parseEnumWithAll(enums.BusinessType ?? [])"
+                :options="[
+                  {
+                    text: '不限',
+                    value: undefined
+                  },
+                  {
+                    text: '可用',
+                    value: 0
+                  },
+                  {
+                    text: '已过期',
+                    value: 1
+                  }
+                ]"
                 label-field="text"
                 value-field="value"
               />
-            </n-form-item>
-            <n-form-item label="操作类型">
-              <n-select
-                v-model:value="listParams.operationType"
-                class="!w-[140px]"
-                :options="parseEnumWithAll(enums.OperationType ?? [])"
-                label-field="text"
-                value-field="value"
-              />
-            </n-form-item>
-            <n-form-item label="时间">
-              <NDatePicker v-model:value="listParams.timeRange" class="pr-2 flex-1" type="daterange" clearable />
             </n-form-item>
             <n-form-item>
               <n-button attr-type="submit" type="primary" @click="getTableData">
@@ -55,26 +56,25 @@ import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { DataTableColumns } from 'naive-ui';
 import { SearchSharp } from '@vicons/ionicons5';
-import { fetchMemberCardDetails } from '@/service';
+import { fetchCardList } from '@/service';
 import { useLoading } from '@/hooks';
-import { useEnums, parseEnumWithAll } from '~/src/store';
+import { useEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 
 const route = useRoute();
-const memberId = parseInt(route.query.memberId?.toString() ?? '0');
 const { loading, startLoading, endLoading } = useLoading(false);
 
 const enums = ref<any>({});
 const listParams = ref({
-  operationType: 0,
-  businessType: 0,
-  timeRange: ref<[number, number] | null>(null)
+  memberId: parseInt(route.query.memberId?.toString() ?? '0'),
+  expired: 0,
+  type: 0
 });
 
 const pagination = defaultPaginationProps(getTableData);
 
-const tableData = ref<Card.MemberCardOrder[]>([]);
-function setTableData(response: Card.MemberCardOrderListResponse) {
+const tableData = ref<Card.Card[]>([]);
+function setTableData(response: Card.CardListResponse) {
   tableData.value = response.list;
   pagination.pageCount = response.pageCount;
   pagination.itemCount = response.total;
@@ -83,12 +83,10 @@ function setTableData(response: Card.MemberCardOrderListResponse) {
 async function getTableData() {
   startLoading();
   try {
-    const { data } = await fetchMemberCardDetails(
-      memberId,
-      listParams.value.operationType,
-      listParams.value.businessType,
-      listParams.value.timeRange ? parseInt((listParams.value.timeRange[0] / 1000).toString()) : 0,
-      listParams.value.timeRange ? parseInt((listParams.value.timeRange[1] / 1000 + 86399).toString()) : 0,
+    const { data } = await fetchCardList(
+      listParams.value.memberId,
+      listParams.value.type,
+      listParams.value.expired,
       pagination.page,
       pagination.pageSize
     );
@@ -100,9 +98,9 @@ async function getTableData() {
   }
 }
 
-const columns: Ref<DataTableColumns<Card.MemberCardOrder>> = ref([
+const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
-    title: 'ID',
+    title: '卡号',
     key: 'recordId',
     width: 160,
     render: row => {
@@ -129,32 +127,58 @@ const columns: Ref<DataTableColumns<Card.MemberCardOrder>> = ref([
     }
   },
   {
-    title: '业务类型',
-    key: 'businessTypeText'
+    title: '名称',
+    key: 'cardType.name'
   },
   {
-    title: '操作类型',
-    key: 'operationTypeText'
-  },
-  {
-    title: '变动金额',
-    key: 'changeAmount',
+    title: '余额/面额',
+    key: 'amount',
+    minWidth: 250,
     render(row) {
-      return row.isDeduct ? (
-        <span class="text-[#18a058]">-{row.changeAmount}</span>
-      ) : (
-        <span class="text-[#d03050]">+{row.changeAmount}</span>
+      if (row.type === 1) {
+        return row.leftAmountText;
+      }
+
+      const percent = (row.leftAmount / row.amount) * 100;
+      let status = 'default';
+      let color;
+      if (row.expired) {
+        color = 'gray';
+      } else if (percent <= 60) status = 'warning';
+      else if (percent <= 20) status = 'error';
+
+      return (
+        <n-progress
+          color={color}
+          /* naive-ui bug，下个版本修复 */
+          /* indicatorPlacement="inside" */
+          percentage={parseFloat(percent.toFixed(2))}
+          status={status}
+        >
+          {{
+            default: () => `${row.leftAmountText}/${row.amountText}`
+          }}
+        </n-progress>
       );
     }
   },
   {
-    title: '时间',
-    key: 'time',
+    title: '激活时间',
+    key: 'activationTime',
     render(row) {
-      return new Date(row.time * 1000).toLocaleString();
+      return new Date(row.activationTime * 1000).toLocaleString();
+    }
+  },
+  {
+    title: '过期时间',
+    key: 'expireTime',
+    render(row) {
+      return row.expireTime > 0
+        ? new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')
+        : '永久有效';
     }
   }
-]) as Ref<DataTableColumns<Card.MemberCardOrder>>;
+]) as Ref<DataTableColumns<Card.Card>>;
 
 async function init() {
   enums.value = await useEnums(['BusinessType', 'OperationType']);

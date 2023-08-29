@@ -9,10 +9,7 @@ declare namespace AdminOperationLog {
     message: string;
     ip: string;
     time: number;
-    memberInfo: {
-      recordId: string;
-      nickname: string;
-    };
+    memberInfo: Member.MemberInfo;
   }
 
   type LogListResponse = {

@@ -29,3 +29,21 @@ export const fetchMemberCardDetails = async (
     }
   });
 };
+
+export const fetchCardList = async (
+  memberId = 0,
+  type = 0,
+  expired: number | undefined = undefined,
+  page = 1,
+  limit = 15
+) => {
+  return request.get<Card.CardListResponse>('/admin/card/list', {
+    params: {
+      memberId,
+      type,
+      expired,
+      page,
+      limit
+    }
+  });
+};

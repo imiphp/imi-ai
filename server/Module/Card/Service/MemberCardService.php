@@ -8,6 +8,7 @@ use app\Exception\NoScoreException;
 use app\Exception\NotFoundException;
 use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Enum\OperationType;
+use app\Module\Card\Model\Admin\CardAdmin;
 use app\Module\Card\Model\Admin\MemberCardOrderAdmin;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\MemberCardOrder;
@@ -108,6 +109,39 @@ class MemberCardService
         }
 
         return $query->paginate($page, $limit)
+                     ->toArray();
+    }
+
+    public function adminList(int $memberId = 0, int $type = 0, bool $expired = null, int $page = 1, int $limit = 15): array
+    {
+        $query = CardAdmin::query();
+        if ($memberId > 0)
+        {
+            $query->where('member_id', '=', $memberId);
+        }
+        if ($type > 0)
+        {
+            $query->where('type', '=', $type);
+        }
+        if (null !== $expired)
+        {
+            if ($expired)
+            {
+                $query->whereBetween('expire_time', 1, time());
+            }
+            else
+            {
+                $query->whereBrackets(function () {
+                    return [
+                        new Where('expire_time', '=', 0),
+                        new Where('expire_time', '>', time(), LogicalOperator::OR),
+                    ];
+                });
+            }
+        }
+
+        return $query->order('id', 'desc')
+                     ->paginate($page, $limit)
                      ->toArray();
     }
 
