@@ -28,7 +28,7 @@
           <n-space>
             <n-button type="primary" @click="handleAddTable">
               <icon-ic-round-plus class="mr-4px text-20px" />
-              新增
+              创建
             </n-button>
           </n-space>
         </n-space>

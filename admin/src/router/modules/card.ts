@@ -4,6 +4,16 @@ const card: AuthRoute.Route = {
   component: 'basic',
   children: [
     {
+      name: 'card_type_list',
+      path: '/card/type/list',
+      component: 'self',
+      meta: {
+        title: '卡类型管理',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
+    },
+    {
       name: 'card_memberCardDetails',
       path: '/card/memberCardDetails',
       component: 'self',
@@ -30,7 +40,8 @@ const card: AuthRoute.Route = {
       meta: {
         title: '卡交易明细',
         requiresAuth: true,
-        icon: 'ic:round-manage-accounts'
+        icon: 'ic:round-manage-accounts',
+        hide: true
       }
     }
   ],

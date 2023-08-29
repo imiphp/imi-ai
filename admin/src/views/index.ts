@@ -14,6 +14,7 @@ export const views: Record<
   card_details: () => import('./card/details/index.vue'),
   card_list: () => import('./card/list/index.vue'),
   card_memberCardDetails: () => import('./card/memberCardDetails/index.vue'),
+  card_type_list: () => import('./card/type_list/index.vue'),
   chat_list: () => import('./chat/list/index.vue'),
   chat_message_list: () => import('./chat/message_list/index.vue'),
   dashboard_analysis: () => import('./dashboard/analysis/index.vue'),

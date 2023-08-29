@@ -10,7 +10,7 @@
                 class="!w-[140px]"
                 :options="[
                   {
-                    text: '不限',
+                    text: '全部',
                     value: undefined
                   },
                   {

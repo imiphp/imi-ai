@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace app\Module\Card\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Card\Model\CardType;
 use Imi\Cache\Annotation\Cacheable;
+use Imi\Db\Annotation\Transaction;
 
 class CardTypeService
 {
@@ -42,37 +46,64 @@ class CardTypeService
             $query->where('enable', '=', $enable);
         }
 
-        return $query->paginate($page, $limit)->toArray();
+        return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
     }
 
-    public function create(string $name, int $expireSeconds, bool $enable = true, bool $system = false, ?int $id = null): CardType
+    #[
+        Transaction()
+    ]
+    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, bool $system = false, ?int $id = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = CardType::newInstance();
         $record->id = $id;
         $record->name = $name;
+        $record->amount = $amount;
         $record->expireSeconds = $expireSeconds;
         $record->enable = $enable;
         $record->system = $system;
         $record->insert();
 
+        if ($operatorMemberId > 0)
+        {
+            OperationLog::log($operatorMemberId, OperationLogObject::CARD_TYPE, OperationLogStatus::SUCCESS, sprintf('创建卡类型，id=%d, name=%s', $record->id, $record->name), $ip);
+        }
+
         return $record;
     }
 
-    public function update(int $id, string $name, int $expireSeconds, bool $enable = true, bool $system = false): CardType
+    #[
+        Transaction()
+    ]
+    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?bool $system = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = $this->getNoCache($id);
-        $record->name = $name;
-        $record->expireSeconds = $expireSeconds;
-        $record->enable = $enable;
-        $record->system = $system;
+        if (null !== $name)
+        {
+            $record->name = $name;
+        }
+        if (null !== $amount)
+        {
+            $record->amount = $amount;
+        }
+        if (null !== $expireSeconds)
+        {
+            $record->expireSeconds = $expireSeconds;
+        }
+        if (null !== $enable)
+        {
+            $record->enable = $enable;
+        }
+        if (null !== $system)
+        {
+            $record->system = $system;
+        }
         $record->update();
 
-        return $record;
-    }
+        if ($operatorMemberId > 0)
+        {
+            OperationLog::log($operatorMemberId, OperationLogObject::CARD_TYPE, OperationLogStatus::SUCCESS, sprintf('更新卡类型，id=%d, name=%s', $record->id, $record->name), $ip);
+        }
 
-    public function delete(int $id): void
-    {
-        $record = $this->getNoCache($id);
-        $record->delete();
+        return $record;
     }
 }

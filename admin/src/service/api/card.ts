@@ -69,3 +69,36 @@ export const fetchCardDetails = async (
     }
   });
 };
+
+export const fetchCardTypeList = async (enable: boolean | undefined = undefined, page = 1, limit = 15) => {
+  let enableParam;
+  if (enable !== undefined) {
+    enableParam = enable ? '1' : '0';
+  }
+  return request.get<Card.CardTypeListResponse>('/admin/card/type/list', {
+    params: {
+      enable: enableParam,
+      page,
+      limit
+    }
+  });
+};
+
+export const createCardType = async (name: string, amount: number, expireSeconds: number, enable = true) => {
+  return request.post<Api.BaseResponse>('/admin/card/type/create', {
+    name,
+    amount,
+    expireSeconds,
+    enable
+  });
+};
+
+export const updateCardType = async (
+  id: number,
+  data: { name?: string; amount?: number; expireSeconds?: number; enable?: boolean }
+) => {
+  return request.post<Api.BaseResponse>('/admin/card/type/update', {
+    id,
+    ...data
+  });
+};
