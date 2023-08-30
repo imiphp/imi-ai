@@ -74,7 +74,11 @@ const columns: Ref<DataTableColumns<Embedding.QA>> = ref([
     title: '问题',
     width: 300,
     render: row => {
-      return <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.question}</pre>;
+      return (
+        <n-ellipsis expand-trigger="click" line-clamp="5" tooltip={false}>
+          <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.question}</pre>
+        </n-ellipsis>
+      );
     }
   },
   {
