@@ -1,5 +1,6 @@
 <script setup lang='ts'>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { ScrollbarInst } from 'naive-ui'
 import { NButton, NIcon, NInput, NPopconfirm, NScrollbar } from 'naive-ui'
 import { ChatboxEllipsesOutline, ChatbubblesSharp, PencilOutline, SaveOutline, TrashOutline } from '@vicons/ionicons5'
 import { useAppStore, useChatStore } from '@/store'
@@ -15,6 +16,8 @@ const chatStore = useChatStore()
 const dataSources = computed(() => chatStore.history)
 
 const nextPageLoading = ref(false)
+
+const scrollBar = ref<ScrollbarInst | null>(null)
 
 let beforeEditHistory: Chat.History | null = null
 
@@ -89,7 +92,7 @@ function onScroll(e: Event) {
   if (nextPageLoading.value)
     return
   const { scrollTop, scrollHeight, clientHeight } = (e.target as HTMLElement)
-  if (scrollTop + clientHeight >= scrollHeight - 10)
+  if (scrollHeight > 0 && scrollTop + clientHeight >= scrollHeight - 10)
     handleNextPage()
 }
 
@@ -102,10 +105,18 @@ async function handleNextPage() {
     nextPageLoading.value = false
   }
 }
+
+onMounted(() => {
+  if (scrollBar.value) {
+    const element = document.querySelector<HTMLElement>(`.session-item[data-id="${chatStore.active}"]`)
+    if (element)
+      scrollBar.value.scrollTo({ top: element.offsetTop - window.innerHeight * (1 - 0.618) })
+  }
+})
 </script>
 
 <template>
-  <NScrollbar class="px-4" :on-scroll="onScroll">
+  <NScrollbar ref="scrollBar" class="px-4" :on-scroll="onScroll">
     <div class="flex flex-col gap-2 text-sm">
       <template v-if="!dataSources.length">
         <div class="flex flex-col items-center mt-4 text-center text-neutral-300">
@@ -114,7 +125,7 @@ async function handleNextPage() {
         </div>
       </template>
       <template v-else>
-        <div v-for="(item, index) of dataSources" :key="index">
+        <div v-for="(item, index) of dataSources" :key="index" class="session-item" :data-id="item.id">
           <a
             class="relative flex items-center gap-3 px-3 py-3 break-all border rounded-md cursor-pointer hover:bg-neutral-100 group dark:border-neutral-800 dark:hover:bg-[#24272e]"
             :class="isActive(item.id) && ['border-[#4b9e5f]', 'bg-neutral-100', 'text-[#4b9e5f]', 'dark:bg-[#24272e]', 'dark:border-[#4b9e5f]', 'pr-14']"
