@@ -80,7 +80,12 @@
       v-model:visible="showGenerateCardModal"
       :card-type="listParams.type"
     />
-    <edit-remark-modal v-model:visible="showEditRemarkModal" :card-id="editRemarkCardId" :remark="editRemark" />
+    <edit-remark-modal
+      v-if="showEditRemarkModal"
+      v-model:visible="showEditRemarkModal"
+      :card-id="editRemarkCardId"
+      :remark="editRemark"
+    />
   </div>
 </template>
 
@@ -255,12 +260,12 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     render(row) {
       return (
         <>
-          <p>
-            {row.ex?.adminRemark}
-            <n-button size={'small'} bordered={false} class="align-bottom" onClick={() => handleUpdateRemark(row)}>
-              <n-icon component={CreateOutline} size="18" />
-            </n-button>
-          </p>
+          <n-ellipsis expand-trigger="click" line-clamp="5" tooltip={false}>
+            <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{row.ex?.adminRemark}</pre>
+          </n-ellipsis>
+          <n-button size={'small'} bordered={false} class="align-super" onClick={() => handleUpdateRemark(row)}>
+            <n-icon component={CreateOutline} size="18" />
+          </n-button>
         </>
       );
     }
