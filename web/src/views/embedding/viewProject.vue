@@ -208,7 +208,8 @@ async function loadInfo(allowNewTimer = true) {
         if (timer)
           clearInterval(timer)
         timer = setInterval(async () => {
-          loadInfo(false)
+          if (!showLoading.value)
+            loadInfo(false)
         }, 1500)
       }
     }
