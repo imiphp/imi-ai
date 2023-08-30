@@ -198,8 +198,16 @@ class CardService
             throw new \RuntimeException('此卡已被禁用');
         }
 
-        $time = time();
         $type = $this->cardTypeService->get($card->type);
+        if ($type->memberActivationLimit > 0 && Card::exists([
+            'member_id' => $memberId,
+            'type'      => $type->id,
+        ]))
+        {
+            throw new \RuntimeException('此卡类型每人只能激活一次');
+        }
+
+        $time = time();
         $card->memberId = $memberId;
         $card->expireTime = $type->expireSeconds > 0 ? ($time + $type->expireSeconds) : 0;
         $card->activationTime = $time;

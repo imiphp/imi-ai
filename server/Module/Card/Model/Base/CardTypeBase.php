@@ -18,15 +18,16 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.name", default="tb_card_type"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardType.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `amount` bigint unsigned NOT NULL DEFAULT '0' COMMENT '初始余额',   `expire_seconds` int unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `status` (`enable`,`create_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
+ * @DDL(sql="CREATE TABLE `tb_card_type` (   `id` int unsigned NOT NULL AUTO_INCREMENT,   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',   `amount` bigint unsigned NOT NULL DEFAULT '0' COMMENT '初始余额',   `expire_seconds` int unsigned NOT NULL COMMENT '激活后增加的有效时长，单位：秒',   `enable` bit(1) NOT NULL COMMENT '是否启用',   `system` bit(1) NOT NULL DEFAULT b'0' COMMENT '系统内置',   `member_activation_limit` int unsigned NOT NULL DEFAULT '0' COMMENT '每个用户最多激活次数，0代表不限制',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `status` (`enable`,`create_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='卡类型'")
  *
  * @property int|null    $id
- * @property string|null $name          名称
- * @property int|null    $amount        初始余额
- * @property int|null    $expireSeconds 激活后增加的有效时长，单位：秒
- * @property bool|null   $enable        是否启用
- * @property bool|null   $system        系统内置
- * @property int|null    $createTime    创建时间
+ * @property string|null $name                  名称
+ * @property int|null    $amount                初始余额
+ * @property int|null    $expireSeconds         激活后增加的有效时长，单位：秒
+ * @property bool|null   $enable                是否启用
+ * @property bool|null   $system                系统内置
+ * @property int|null    $memberActivationLimit 每个用户最多激活次数，0代表不限制
+ * @property int|null    $createTime            创建时间
  */
 abstract class CardTypeBase extends Model
 {
@@ -219,6 +220,36 @@ abstract class CardTypeBase extends Model
     public function setSystem($system)
     {
         $this->system = null === $system ? null : (bool) $system;
+
+        return $this;
+    }
+
+    /**
+     * 每个用户最多激活次数，0代表不限制.
+     * member_activation_limit.
+     *
+     * @Column(name="member_activation_limit", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $memberActivationLimit = 0;
+
+    /**
+     * 获取 memberActivationLimit - 每个用户最多激活次数，0代表不限制.
+     */
+    public function getMemberActivationLimit(): ?int
+    {
+        return $this->memberActivationLimit;
+    }
+
+    /**
+     * 赋值 memberActivationLimit - 每个用户最多激活次数，0代表不限制.
+     *
+     * @param int|null $memberActivationLimit member_activation_limit
+     *
+     * @return static
+     */
+    public function setMemberActivationLimit($memberActivationLimit)
+    {
+        $this->memberActivationLimit = null === $memberActivationLimit ? null : (int) $memberActivationLimit;
 
         return $this;
     }

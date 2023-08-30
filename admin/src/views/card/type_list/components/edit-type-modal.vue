@@ -1,6 +1,6 @@
 <template>
-  <n-modal v-model:show="modalVisible" preset="card" :title="title" class="w-700px max-w-full">
-    <n-form ref="formRef" label-placement="left" :label-width="80" :model="formModel" :rules="rules">
+  <n-modal v-model:show="modalVisible" preset="card" :title="title" class="w-800px max-w-full">
+    <n-form ref="formRef" label-placement="left" :label-width="150" :model="formModel" :rules="rules">
       <n-grid cols="1 s:2" :x-gap="18" item-responsive responsive="screen">
         <n-form-item-grid-item label="名称" path="name">
           <n-input v-model:value="formModel.name" />
@@ -9,31 +9,12 @@
           <n-input-number v-model:value="formModel.amount" :precision="0" />
         </n-form-item-grid-item>
         <n-form-item-grid-item label="有效期(秒)" path="expireSeconds">
-          <n-input-number
-            v-model:value="formModel.expireSeconds"
-            :min="0"
-            :precision="0"
-            :disabled="expireSecondsDisable"
-            @update:value="
-              value => {
-                if (formModel.expireSeconds == 0) {
-                  expireSecondsDisable = true;
-                }
-              }
-            "
-          />
+          <n-input-number v-model:value="formModel.expireSeconds" :min="0" :precision="0" class="w-[120px]" />
+          <span class="ml-2">0为永久</span>
         </n-form-item-grid-item>
-        <n-form-item-grid-item label="永久">
-          <n-checkbox
-            v-model:checked="expireSecondsDisable"
-            @update:checked="
-              value => {
-                if (expireSecondsDisable) {
-                  formModel.expireSeconds = 0;
-                }
-              }
-            "
-          ></n-checkbox>
+        <n-form-item-grid-item label="每用户最多激活次数" path="memberActivationLimit" >
+          <n-input-number v-model:value="formModel.memberActivationLimit" :min="0" :precision="0" class="w-[120px]" />
+          <span class="ml-2">0为不限制</span>
         </n-form-item-grid-item>
         <n-form-item-grid-item label="状态" path="password">
           <n-switch v-model:value="formModel.enable">
@@ -84,8 +65,6 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const expireSecondsDisable = ref(false);
-
 const modalVisible = computed({
   get() {
     return props.visible;
@@ -108,14 +87,15 @@ const title = computed(() => {
 
 const formRef = ref<HTMLElement & FormInst>();
 
-type FormModel = Pick<Card.CardType, 'name' | 'amount' | 'expireSeconds' | 'enable'>;
+type FormModel = Pick<Card.CardType, 'name' | 'amount' | 'expireSeconds' | 'enable' | 'memberActivationLimit'>;
 
 const formModel = reactive<FormModel>(createDefaultFormModel());
 
 const rules: Record<string, FormItemRule | FormItemRule[]> = {
   name: createRequiredFormRule('请输入名称'),
   amount: createRequiredFormRule('请输入初始余额'),
-  expireSeconds: createRequiredFormRule('请输入有效期')
+  expireSeconds: createRequiredFormRule('请输入有效期'),
+  memberActivationLimit: createRequiredFormRule('请输入每个用户最多激活次数')
 };
 
 function createDefaultFormModel(): FormModel {
@@ -123,13 +103,13 @@ function createDefaultFormModel(): FormModel {
     name: '',
     amount: 0,
     expireSeconds: 0,
-    enable: true
+    enable: true,
+    memberActivationLimit: 0
   };
 }
 
 function handleUpdateFormModel(model: Partial<FormModel>) {
   Object.assign(formModel, { ...createDefaultFormModel(), ...model });
-  expireSecondsDisable.value = formModel.expireSeconds === 0;
 }
 
 function handleUpdateFormModelByModalType() {
@@ -152,7 +132,13 @@ async function handleSubmit() {
   await formRef.value?.validate();
   let response;
   if (props.type === 'add') {
-    response = await createCardType(formModel.name, formModel.amount, formModel.expireSeconds, formModel.enable);
+    response = await createCardType(
+      formModel.name,
+      formModel.amount,
+      formModel.expireSeconds,
+      formModel.enable,
+      formModel.memberActivationLimit
+    );
   } else if (props.editData) {
     response = await updateCardType(props.editData.id, formModel);
   } else {

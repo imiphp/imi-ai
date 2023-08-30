@@ -38,9 +38,9 @@ class CardTypeController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
-    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true)
+    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, int $memberActivationLimit = 0)
     {
-        $this->cardTypeService->create($name, $amount, $expireSeconds, $enable, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->cardTypeService->create($name, $amount, $expireSeconds, $enable, false, $memberActivationLimit, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 
     /**

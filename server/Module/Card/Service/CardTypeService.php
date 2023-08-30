@@ -52,7 +52,7 @@ class CardTypeService
     #[
         Transaction()
     ]
-    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, bool $system = false, ?int $id = null, int $operatorMemberId = 0, string $ip = ''): CardType
+    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, bool $system = false, int $memberActivationLimit = 0, ?int $id = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = CardType::newInstance();
         $record->id = $id;
@@ -61,6 +61,7 @@ class CardTypeService
         $record->expireSeconds = $expireSeconds;
         $record->enable = $enable;
         $record->system = $system;
+        $record->memberActivationLimit = $memberActivationLimit;
         $record->insert();
 
         if ($operatorMemberId > 0)

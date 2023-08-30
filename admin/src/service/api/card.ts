@@ -94,12 +94,19 @@ export const fetchCardTypeList = async (enable: boolean | undefined = undefined,
   });
 };
 
-export const createCardType = async (name: string, amount: number, expireSeconds: number, enable = true) => {
+export const createCardType = async (
+  name: string,
+  amount: number,
+  expireSeconds: number,
+  enable = true,
+  memberActivationLimit = 0
+) => {
   return request.post<Api.BaseResponse>('/admin/card/type/create', {
     name,
     amount,
     expireSeconds,
-    enable
+    enable,
+    memberActivationLimit
   });
 };
 

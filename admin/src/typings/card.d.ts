@@ -96,6 +96,7 @@ declare namespace Card {
     enable: boolean;
     system: boolean;
     createTime: number;
+    memberActivationLimit: number;
   }
 
   type CardTypeListResponse = {
