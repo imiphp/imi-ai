@@ -10,6 +10,8 @@ export function defaultState(): Chat.ChatState {
     usingContext: true,
     history: [{ id, title: 'New Chat', isEdit: false, createTime: 0, updateTime: 0, qaStatus: QAStatus.ASK, tokens: 0 }],
     chat: [{ id, data: [] }],
+    page: 1,
+    pageSize: 15,
   }
 }
 

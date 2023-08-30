@@ -29,6 +29,8 @@ declare namespace Chat {
 		history: History[]
 		chat: { id: string; data: Chat[] }[]
 		prompt?: ChatStatePrompt
+		page: number
+		pageSize: number
 	}
 
 	interface ChatSetting {

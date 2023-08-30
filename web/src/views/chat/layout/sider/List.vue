@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { computed } from 'vue'
-import { NIcon, NInput, NPopconfirm, NScrollbar } from 'naive-ui'
+import { computed, ref } from 'vue'
+import { NButton, NIcon, NInput, NPopconfirm, NScrollbar } from 'naive-ui'
 import { ChatboxEllipsesOutline, ChatbubblesSharp, PencilOutline, SaveOutline, TrashOutline } from '@vicons/ionicons5'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -13,6 +13,8 @@ const appStore = useAppStore()
 const chatStore = useChatStore()
 
 const dataSources = computed(() => chatStore.history)
+
+const nextPageLoading = ref(false)
 
 let beforeEditHistory: Chat.History | null = null
 
@@ -82,10 +84,28 @@ function handleEnter(chat: Chat.History, isEdit: boolean, event: KeyboardEvent) 
 function isActive(id: string) {
   return chatStore.active === id
 }
+
+function onScroll(e: Event) {
+  if (nextPageLoading.value)
+    return
+  const { scrollTop, scrollHeight, clientHeight } = (e.target as HTMLElement)
+  if (scrollTop + clientHeight >= scrollHeight - 10)
+    handleNextPage()
+}
+
+async function handleNextPage() {
+  nextPageLoading.value = true
+  try {
+    await chatStore.loadListNextPage()
+  }
+  finally {
+    nextPageLoading.value = false
+  }
+}
 </script>
 
 <template>
-  <NScrollbar class="px-4">
+  <NScrollbar class="px-4" :on-scroll="onScroll">
     <div class="flex flex-col gap-2 text-sm">
       <template v-if="!dataSources.length">
         <div class="flex flex-col items-center mt-4 text-center text-neutral-300">
@@ -117,7 +137,6 @@ function isActive(id: string) {
               </template>
               <template v-else>
                 <button class="p-1" @click="handleEdit(item, true, $event)">
-                  <!-- border-bottom: 1px solid rgb(75, 158, 95); -->
                   <NIcon class="align-middle border-b-[1px] border-b-[#4b9e5f] top-[-1px]" :component="PencilOutline" size="14" />
                 </button>
                 <NPopconfirm placement="bottom" @positive-click="handleDeleteDebounce(index, $event)">
@@ -131,6 +150,11 @@ function isActive(id: string) {
               </template>
             </div>
           </a>
+        </div>
+        <div>
+          <NButton block :loading="nextPageLoading" @click="handleNextPage">
+            加载更多...
+          </NButton>
         </div>
       </template>
     </div>

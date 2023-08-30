@@ -9,18 +9,6 @@ export * from './config'
 export * from './prompt'
 export * from './invitation'
 
-export function fetchChatAPI(
-  prompt: string,
-  options?: { conversationId?: string; parentMessageId?: string },
-  signal?: GenericAbortSignal,
-) {
-  return post({
-    url: '/chat',
-    data: { prompt, options },
-    signal,
-  })
-}
-
 export function fetchChatAPIProcess(
   id: string,
   params: {

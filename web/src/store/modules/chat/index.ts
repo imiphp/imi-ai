@@ -46,15 +46,43 @@ export const useChatStore = defineStore('chat-store', {
   },
 
   actions: {
-    async loadChatList() {
-      const response = await sessionList(1, 1000)
+    async loadChatList(limit = 15) {
+      this.page = 1
+      this.pageSize = limit
+      const response = await sessionList(this.page, this.pageSize)
       const historys = []
+
       for (const item of response.list) {
         const history = { ...item }
         history.id = history.recordId
         historys.push(history)
       }
       this.history = historys
+    },
+
+    async loadListNextPage() {
+      ++this.page
+      try {
+        const response = await sessionList(this.page, this.pageSize)
+        if (response.list.length > 0) {
+          const historys = []
+
+          for (const item of response.list) {
+            const history = { ...item }
+            history.id = history.recordId
+            historys.push(history)
+          }
+
+          this.history.push(...historys)
+        }
+        else {
+          --this.page
+        }
+      }
+      catch (e) {
+        --this.page
+        throw e
+      }
     },
 
     setUsingContext(context: boolean) {
@@ -81,39 +109,34 @@ export const useChatStore = defineStore('chat-store', {
     async deleteHistory(index: number) {
       const id = this.history[index].id
       await deleteSession(id)
-      try {
-        this.history.splice(index, 1)
-        this.chat.splice(index, 1)
+      this.history.splice(index, 1)
+      this.chat.splice(index, 1)
 
-        if (this.history.length === 0) {
-          this.active = null
-          this.reloadRoute(undefined, null)
-          return
-        }
+      if (this.history.length === 0) {
+        this.active = null
+        this.reloadRoute(undefined, null)
+        return
+      }
 
-        if (index > 0 && index <= this.history.length) {
-          const id = this.history[index - 1].id
-          this.active = id
-          this.reloadRoute(id, null)
-          return
-        }
+      if (index > 0 && index <= this.history.length) {
+        const id = this.history[index - 1].id
+        this.active = id
+        this.reloadRoute(id, null)
+        return
+      }
 
-        if (index === 0) {
-          if (this.history.length > 0) {
-            const id = this.history[0].id
-            this.active = id
-            this.reloadRoute(id, null)
-          }
-        }
-
-        if (index > this.history.length) {
-          const id = this.history[this.history.length - 1].id
+      if (index === 0) {
+        if (this.history.length > 0) {
+          const id = this.history[0].id
           this.active = id
           this.reloadRoute(id, null)
         }
       }
-      finally {
-        await this.loadChatList()
+
+      if (index > this.history.length) {
+        const id = this.history[this.history.length - 1].id
+        this.active = id
+        this.reloadRoute(id, null)
       }
     },
 
