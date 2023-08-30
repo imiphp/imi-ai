@@ -9,6 +9,7 @@ use app\Module\Common\Model\Traits\TRecordId;
 use app\Util\TokensUtil;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\Relation\AutoSave;
 use Imi\Model\Annotation\Relation\JoinFrom;
 use Imi\Model\Annotation\Relation\JoinTo;
 use Imi\Model\Annotation\Relation\OneToOne;
@@ -27,6 +28,26 @@ class Card extends CardBase
     public static function __getAlphabet(): string
     {
         return 'abcdefghijklmnopqrstuvwxyz1234567890';
+    }
+
+    #[
+        OneToOne(model: CardEx::class, with: true),
+        JoinFrom(field: 'id'),
+        JoinTo(field: 'card_id'),
+        AutoSave()
+    ]
+    protected ?CardEx $ex = null;
+
+    public function getEx(): ?CardEx
+    {
+        return $this->ex;
+    }
+
+    public function setEx(?CardEx $ex): self
+    {
+        $this->ex = $ex;
+
+        return $this;
     }
 
     /**

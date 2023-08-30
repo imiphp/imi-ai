@@ -113,9 +113,10 @@ export const updateCardType = async (
   });
 };
 
-export const generateCard = async (type: number, count: number) => {
+export const generateCard = async (type: number, count: number, remark = '') => {
   return request.post<Card.GenerateCardResponse>('/admin/card/generate', {
     type,
-    count
+    count,
+    remark
   });
 };

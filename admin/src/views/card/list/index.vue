@@ -239,6 +239,10 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     }
   },
   {
+    title: '备注',
+    key: 'ex.adminRemark'
+  },
+  {
     key: 'actions',
     title: '操作',
     width: 100,

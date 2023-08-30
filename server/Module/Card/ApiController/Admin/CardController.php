@@ -69,9 +69,9 @@ class CardController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired()
     ]
-    public function generate(int $type, int $count): array
+    public function generate(int $type, int $count, string $remark = ''): array
     {
-        $cardIds = $this->cardService->generate($type, $count, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
+        $cardIds = $this->cardService->generate($type, $count, $remark, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
 
         return [
             'list' => $cardIds,

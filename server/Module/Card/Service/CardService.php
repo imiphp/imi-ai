@@ -13,6 +13,7 @@ use app\Module\Business\Enum\BusinessType;
 use app\Module\Card\Model\Admin\CardDetailAdmin;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\CardDetail;
+use app\Module\Card\Model\CardEx;
 use app\Module\Card\Model\CardType;
 use app\Module\Card\Model\Redis\CardConfig;
 use app\Module\Member\Service\MemberService;
@@ -116,7 +117,7 @@ class CardService
      * 创建卡
      */
     #[Transaction()]
-    public function create(int|CardType $type, int $memberId = 0): Card
+    public function create(int|CardType $type, int $memberId = 0, string $adminRemark = ''): Card
     {
         if (!$type instanceof CardType)
         {
@@ -130,6 +131,9 @@ class CardService
         $record->type = $type->id;
         $record->amount = $record->leftAmount = $type->amount;
         $record->expireTime = 0;
+        $ex = CardEx::newInstance();
+        $ex->setAdminRemark($adminRemark);
+        $record->setEx($ex);
         $record->insert();
         if ($memberId > 0)
         {
@@ -145,7 +149,7 @@ class CardService
      * @return string[]
      */
     #[Transaction()]
-    public function generate(int $type, int $count, int $operatorMemberId = 0, string $ip = ''): array
+    public function generate(int $type, int $count, string $adminRemark = '', int $operatorMemberId = 0, string $ip = ''): array
     {
         $typeRecord = $this->cardTypeService->get($type);
         if (!$typeRecord->enable)
@@ -155,7 +159,7 @@ class CardService
         $cardIds = [];
         for ($i = 0; $i < $count; ++$i)
         {
-            $card = $this->create($typeRecord);
+            $card = $this->create($typeRecord, 0, $adminRemark);
             $cardIds[] = $card->getRecordId();
         }
 

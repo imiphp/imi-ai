@@ -193,6 +193,7 @@ return [
                 'app\Module\Card\Model' => [
                     'tables'    => [
                         'tb_card',
+                        'tb_card_ex',
                         'tb_card_type',
                         'tb_card_detail',
                         'tb_member_card_order',

@@ -56,6 +56,11 @@ declare namespace Card {
     cardType: CardType;
     expired: boolean;
     memberInfo: Member.MemberInfo;
+    ex: CardEx | null;
+  }
+
+  interface CardEx {
+    adminRemark: '';
   }
 
   type CardListResponse = {

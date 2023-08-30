@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardRefundOrder.name", default="tb_member_card_refund_order"), usePrefix=false, id={"refund_order_id", "pay_order_id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\MemberCardRefundOrder.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_member_card_refund_order` (   `refund_order_id` bigint unsigned NOT NULL,   `pay_order_id` bigint unsigned NOT NULL,   PRIMARY KEY (`refund_order_id`,`pay_order_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户卡退款订单'")
+ * @DDL(sql="CREATE TABLE `tb_member_card_refund_order` (   `refund_order_id` bigint unsigned NOT NULL,   `pay_order_id` bigint unsigned NOT NULL,   PRIMARY KEY (`refund_order_id`,`pay_order_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='用户卡退款订单'")
  *
  * @property int|null $refundOrderId
  * @property int|null $payOrderId
