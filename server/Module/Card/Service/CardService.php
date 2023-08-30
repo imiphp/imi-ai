@@ -10,11 +10,13 @@ use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Util\OperationLog;
 use app\Module\Business\Enum\BusinessType;
+use app\Module\Card\Enum\OperationType;
 use app\Module\Card\Model\Admin\CardDetailAdmin;
 use app\Module\Card\Model\Card;
 use app\Module\Card\Model\CardDetail;
 use app\Module\Card\Model\CardEx;
 use app\Module\Card\Model\CardType;
+use app\Module\Card\Model\MemberCardOrder;
 use app\Module\Card\Model\Redis\CardConfig;
 use app\Module\Member\Service\MemberService;
 use app\Util\QueryHelper;
@@ -202,6 +204,15 @@ class CardService
         $card->expireTime = $type->expireSeconds > 0 ? ($time + $type->expireSeconds) : 0;
         $card->activationTime = $time;
         $card->update();
+
+        $order = MemberCardOrder::newInstance();
+        $order->memberId = $card->memberId;
+        $order->operationType = OperationType::ACTIVATION_CARD;
+        $order->businessType = BusinessType::OTHER;
+        $order->businessId = 0;
+        $order->changeAmount = $card->leftAmount;
+        $order->detailIds = [];
+        $order->insert();
 
         return $card;
     }

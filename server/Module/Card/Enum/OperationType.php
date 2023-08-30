@@ -19,4 +19,7 @@ class OperationType extends BaseEnum
 
     #[EnumItem(__data: ['deduct' => false], text: '系统赠送')]
     public const GIFT = 3;
+
+    #[EnumItem(__data: ['deduct' => false], text: '激活卡')]
+    public const ACTIVATION_CARD = 4;
 }
