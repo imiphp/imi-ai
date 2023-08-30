@@ -479,7 +479,7 @@ class EmbeddingUploadParser
             $sectionRecords[] = $sectionRecord;
             ++$sectionRecordCount;
 
-            if ($sectionRecordCount >= 16)
+            if ($sectionRecordCount >= 10)
             {
                 $embedding();
             }

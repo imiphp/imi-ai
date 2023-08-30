@@ -58,7 +58,7 @@ class EmbeddingRetryParser
             while ($section = $this->taskChannel->pop(30))
             {
                 $sections[] = $section;
-                if (++$sectionRecordCount < 16)
+                if (++$sectionRecordCount < 10)
                 {
                     continue;
                 }
