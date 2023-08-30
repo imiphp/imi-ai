@@ -70,6 +70,7 @@ class EmbeddingRetryParser
                 {
                     Log::error($th);
                 }
+                $sectionRecordCount = 0;
                 $sections = [];
             }
             if ($sections)
