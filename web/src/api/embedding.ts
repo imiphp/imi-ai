@@ -152,14 +152,14 @@ export async function getFile(
 
 export async function chatList(
   id: string,
-  page = 1,
+  lastMessageId = '',
   limit = 15,
 ) {
   const response = await get({
     url: '/embedding/openai/chatList',
     data: {
       id,
-      page,
+      lastMessageId,
       limit,
     },
   })

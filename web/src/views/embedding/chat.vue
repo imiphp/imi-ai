@@ -70,6 +70,11 @@ const getContainerClass = computed(() => {
   ]
 })
 
+let lastMessageId = ''
+const messagePageSize = 15
+const messageNextPageLoading = ref(false)
+const hasMessageNextPage = ref(false)
+
 function handleUpdateCollapsed() {
   appStore.setSiderCollapsed(!collapsed.value)
 }
@@ -324,12 +329,65 @@ async function loadConfig() {
   embeddingSetting.value.prompt = response.data['config:embedding'].config.chatPrompt
 }
 
+async function handleMessageNextPage() {
+  if (!hasMessageNextPage.value)
+    return
+
+  messageNextPageLoading.value = true
+  try {
+    const response = await chatList(id, lastMessageId, messagePageSize)
+    for (const item of response.list) {
+      const resultItem: Chat.Chat = { ...item }
+      resultItem.inversion = item.role === 'user'
+      dataSources.value.unshift({
+        beginTime: item.createTime / 1000,
+        completeTime: item.completeTime / 1000,
+        message: item.answer,
+        inversion: false,
+        error: false,
+        loading: false,
+        conversationOptions: null,
+        tokens: item.tokens,
+      })
+      dataSources.value.unshift({
+        beginTime: item.createTime / 1000,
+        completeTime: item.createTime / 1000,
+        message: item.question,
+        inversion: true,
+        error: false,
+        loading: false,
+        conversationOptions: null,
+        tokens: item.tokens,
+      })
+      lastMessageId = item.recordId
+    }
+    hasMessageNextPage.value = response.hasNextPage
+    if (scrollRef.value)
+      scrollRef.value.scrollTop = 1
+  }
+  finally {
+    messageNextPageLoading.value = false
+  }
+}
+
 onMounted(async () => {
+  if (scrollRef.value) {
+    scrollRef.value.onscroll = () => {
+      if (messageNextPageLoading.value)
+        return
+
+      const { scrollTop } = (scrollRef.value as HTMLDivElement)
+      if (scrollTop <= 0)
+        handleMessageNextPage()
+    }
+  }
+
   let item
   try {
     showLoading.value = true
     await loadConfig()
-    const [projectResponse, chatListPromiseResponse] = await Promise.all([getProject(id), chatList(id, 1, 99999)])
+    lastMessageId = ''
+    const [projectResponse, chatListPromiseResponse] = await Promise.all([getProject(id), chatList(id, lastMessageId, messagePageSize)])
     embeddingState.$state.currentProject = projectResponse.data
     runtimeStore.$state.headerTitle = projectResponse.data.name
     const _dataSources: Array<Chat.Chat> = []
@@ -355,8 +413,10 @@ onMounted(async () => {
         conversationOptions: null,
         tokens: item.tokens,
       }
+      hasMessageNextPage.value = chatListPromiseResponse.hasNextPage
       _dataSources.push(currentChatReply.value)
       qaId = item.recordId
+      lastMessageId = item.recordId
     }
     setting.value = { ...setting.value, ...projectResponse.data.chatConfig }
     if (item) {
@@ -442,6 +502,11 @@ onMounted(async () => {
           <div class="flex flex-col w-full h-full">
             <main class="flex-1 overflow-hidden">
               <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
+                <div v-if="hasMessageNextPage" class="mb-2">
+                  <NButton block :loading="messageNextPageLoading" @click="handleMessageNextPage">
+                    加载更多...
+                  </NButton>
+                </div>
                 <div
                   id="image-wrapper"
                   class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"

@@ -275,18 +275,25 @@ class OpenAIController extends HttpController
         Action,
         LoginRequired()
     ]
-    public function chatList(string $id, int $page = 1, int $limit = 15): array
+    public function chatList(string $id, string $lastMessageId = '', int $limit = 15): array
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $result = $this->openAIService->list($id, $memberSession->getIntMemberId(), $page, $limit);
+        $list = $this->openAIService->list($id, $memberSession->getIntMemberId(), $lastMessageId, $limit + 1);
         /** @var EmbeddingQa $item */
-        foreach ($result['list'] as $item)
+        foreach ($list as $item)
         {
             $item->__setSecureField(true);
         }
+        if ($hasNextPage = isset($list[$limit]))
+        {
+            unset($list[$limit]);
+        }
 
-        return $result;
+        return [
+            'list'        => $list,
+            'hasNextPage' => $hasNextPage,
+        ];
     }
 
     /**

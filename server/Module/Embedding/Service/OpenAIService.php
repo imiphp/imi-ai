@@ -262,7 +262,7 @@ class OpenAIService
         return $record;
     }
 
-    public function list(int|string $projectId = '', int $memberId = 0, int $page = 1, int $limit = 15): array
+    public function list(int|string $projectId = '', int $memberId = 0, string $lastId = '', int $limit = 15): array
     {
         $query = EmbeddingQa::query();
         if ($projectId)
@@ -277,10 +277,15 @@ class OpenAIService
         {
             $query->where('member_id', '=', $memberId);
         }
+        if ('' !== $lastId)
+        {
+            $query->where('id', '<', EmbeddingQa::decodeId($lastId));
+        }
 
         return $query->order('id', 'desc')
-                     ->paginate($page, $limit)
-                     ->toArray();
+                     ->limit($limit)
+                     ->select()
+                     ->getArray();
     }
 
     public function edit(string $id, string $title, int $memberId): void
