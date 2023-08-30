@@ -12,7 +12,7 @@ import { useChat } from './hooks/useChat'
 import { HoverButton, Setting } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { QAStatus, defaultChatSetting, useChatStore, useRuntimeStore } from '@/store'
-import { config, editSession, fetchChatAPIProcess, getPrompt, getSession, sendMessage } from '@/api'
+import { config, editSession, fetchChatAPIProcess, getPrompt, getSession, messageList, sendMessage } from '@/api'
 import { t } from '@/locales'
 import { ChatLayout } from '@/views/chat/layout'
 import { decodeSecureField } from '@/utils/request'
@@ -58,6 +58,11 @@ const runtimeStore = useRuntimeStore()
 watch(currentChatHistory, () => {
   runtimeStore.$state.headerTitle = currentChatHistory.value?.title || ''
 })
+
+let lastMessageId = ''
+const messagePageSize = 15
+const messageNextPageLoading = ref(false)
+const hasMessageNextPage = ref(false)
 
 // 未知原因刷新页面，loading 状态不会重置，手动重置
 dataSources.value.forEach((item, index) => {
@@ -260,7 +265,7 @@ async function fetchStream() {
       chatStore.setActive(id, undefined)
     }
     else {
-      const response = await getSession(id, false)
+      const response = await getSession(id)
       chatStore.updateHistory(id, { ...response.data })
     }
   }
@@ -454,7 +459,40 @@ async function loadPrompt() {
     currentChatHistory.value.prompt = response.data.prompt
 }
 
+async function handleMessageNextPage() {
+  if (!hasMessageNextPage.value)
+    return
+
+  messageNextPageLoading.value = true
+  try {
+    const response = await messageList(id, lastMessageId, messagePageSize)
+    for (const item of response.list) {
+      const resultItem: Chat.Chat = { ...item }
+      resultItem.inversion = item.role === 'user'
+      chatStore.addChatByUuid(id, resultItem, 'unshift')
+      lastMessageId = item.recordId
+    }
+    hasMessageNextPage.value = response.hasNextPage
+    if (scrollRef.value)
+      scrollRef.value.scrollTop = 1
+  }
+  finally {
+    messageNextPageLoading.value = false
+  }
+}
+
 onMounted(async () => {
+  if (scrollRef.value) {
+    scrollRef.value.onscroll = () => {
+      if (messageNextPageLoading.value)
+        return
+
+      const { scrollTop } = (scrollRef.value as HTMLDivElement)
+      if (scrollTop <= 0)
+        handleMessageNextPage()
+    }
+  }
+
   await loadConfig()
   const hasNewSession = chatStore.history && chatStore.history.length > 1 && chatStore.history[0].id.length === 0
   if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id || !currentChatHistory.value) {
@@ -474,18 +512,24 @@ onMounted(async () => {
   }
 
   if (id && id.length > 0) {
-    const response = await getSession(id)
+    lastMessageId = ''
+    const [sessionResponse, messageResponse] = await Promise.all([
+      getSession(id),
+      messageList(id, lastMessageId, messagePageSize),
+    ])
     const result: Chat.Chat[] = []
-    for (const item of response.messages) {
+    for (const item of messageResponse.list) {
       const resultItem: Chat.Chat = { ...item }
       resultItem.inversion = item.role === 'user'
       result.push(resultItem)
+      lastMessageId = item.recordId
     }
-    chatStore.updateHistory(id, { ...response.data })
-    chatStore.setChatsById(id, result)
-    setting.value = { ...setting.value, ...response.data.config }
+    hasMessageNextPage.value = messageResponse.hasNextPage
+    chatStore.updateHistory(id, { ...sessionResponse.data })
+    chatStore.setChatsById(id, result.reverse())
+    setting.value = { ...setting.value, ...sessionResponse.data.config }
     if (currentChatHistory.value)
-      currentChatHistory.value.prompt = response.data.prompt
+      currentChatHistory.value.prompt = sessionResponse.data.prompt
   }
   else {
     if (!currentChatHistory.value) {
@@ -539,6 +583,11 @@ onUnmounted(() => {
               </div>
             </template>
             <template v-else> -->
+            <div v-if="hasMessageNextPage" class="mb-2">
+              <NButton block :loading="messageNextPageLoading" @click="handleMessageNextPage">
+                加载更多...
+              </NButton>
+            </div>
             <div>
               <NAlert v-if="(currentChatHistory?.prompt?.length ?? 0) > 0" :bordered="false" title="提示语 (Prompt)" type="info" class="mb-6 !bg-[#f4f9fe] rounded-md">
                 <a class="block hover:text-gray-500" href="javascript:;" @click="handleConfig()">

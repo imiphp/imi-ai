@@ -29,13 +29,11 @@ export function fetchChatAPIProcess(
 
 export async function getSession(
   id: string,
-  withMessages = true,
 ) {
   const response = await get({
     url: '/chat/openai/get',
     data: {
       id,
-      withMessages: withMessages ? 1 : 0,
     },
   })
 
@@ -63,6 +61,28 @@ export async function sessionList(
   if (response.list) {
     for (const item of response.list)
       decodeChatSessionSecureFields(item)
+  }
+
+  return response
+}
+
+export async function messageList(
+  sessionId: string,
+  lastMessageId = '',
+  limit = 15,
+) {
+  const response = await get({
+    url: '/chat/openai/messageList',
+    data: {
+      sessionId,
+      lastMessageId,
+      limit,
+    },
+  })
+
+  if (response.list) {
+    for (const item of response.list)
+      decodeChatMessageSecureFields(item)
   }
 
   return response

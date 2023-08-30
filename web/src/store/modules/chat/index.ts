@@ -199,10 +199,11 @@ export const useChatStore = defineStore('chat-store', {
       return null
     },
 
-    addChatByUuid(id: string, chat: Chat.Chat) {
+    addChatByUuid(id: string, chat: Chat.Chat, method: 'push' | 'unshift' = 'push') {
       if (!id || id === '') {
         if (this.history.length === 0) {
           const id = Date.now().toString()
+          // 调用方法，使用method值指定对象方法名称
           this.history.push({
             id,
             title: chat.message,
@@ -226,7 +227,7 @@ export const useChatStore = defineStore('chat-store', {
 
       let index = this.chat.findIndex(item => item.id === id)
       if (index !== -1 && this.chat[index])
-        this.chat[index].data.push(chat)
+        this.chat[index].data[method](chat)
 
       index = this.history.findIndex(item => item.id === id)
       if (index !== -1 && this.history[index]) {

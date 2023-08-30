@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace app\Module\Chat\ApiController;
 
 use app\Module\Chat\Enum\SessionType;
-use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
 use app\Module\Chat\Service\OpenAIService;
@@ -160,7 +159,7 @@ class OpenAIController extends HttpController
         Action,
         LoginRequired()
     ]
-    public function get(string $id, bool $withMessages = true): array
+    public function get(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
         $session = $this->openAIService->getById($id, $memberSession->getIntMemberId(), SessionType::CHAT);
@@ -170,18 +169,28 @@ class OpenAIController extends HttpController
             'data'     => $session,
         ];
 
-        if ($withMessages)
-        {
-            $messages = $this->openAIService->selectMessagesIdStr($id, 'asc', limit: \PHP_INT_MAX);
-            /** @var ChatMessage $message */
-            foreach ($messages as $message)
-            {
-                $message->__setSecureField(true);
-            }
+        return $result;
+    }
 
-            $result['messages'] = $messages;
+    #[
+        Action,
+        LoginRequired()
+    ]
+    public function messageList(string $sessionId, string $lastMessageId = '', int $limit = 15): array
+    {
+        $list = $this->openAIService->selectMessagesIdStr($sessionId, 'desc', $lastMessageId, $limit + 1);
+        foreach ($list as $item)
+        {
+            $item->__setSecureField(true);
+        }
+        if ($hasNextPage = isset($list[$limit]))
+        {
+            unset($list[$limit]);
         }
 
-        return $result;
+        return [
+            'list'        => $list,
+            'hasNextPage' => $hasNextPage,
+        ];
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 import { NDropdown, NIcon, useMessage } from 'naive-ui'
 import { MdMore } from '@vicons/ionicons4'
 import { CodeSharp, CodeSlash, CopyOutline } from '@vicons/ionicons5'
@@ -35,6 +35,10 @@ const message = useMessage()
 const textRef = ref<HTMLElement>()
 
 const asRawText = ref(props.inversion)
+
+watch(() => props.inversion, (value) => {
+  asRawText.value = value
+})
 
 const messageRef = ref<HTMLElement>()
 
