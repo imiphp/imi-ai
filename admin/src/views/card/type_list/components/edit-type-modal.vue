@@ -12,7 +12,7 @@
           <n-input-number v-model:value="formModel.expireSeconds" :min="0" :precision="0" class="w-[120px]" />
           <span class="ml-2">0为永久</span>
         </n-form-item-grid-item>
-        <n-form-item-grid-item label="每用户最多激活次数" path="memberActivationLimit" >
+        <n-form-item-grid-item label="每用户最多激活次数" path="memberActivationLimit">
           <n-input-number v-model:value="formModel.memberActivationLimit" :min="0" :precision="0" class="w-[120px]" />
           <span class="ml-2">0为不限制</span>
         </n-form-item-grid-item>

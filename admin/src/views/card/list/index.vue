@@ -79,7 +79,8 @@
       v-if="listParams.type > 0"
       v-model:visible="showGenerateCardModal"
       :card-type="listParams.type"
-    ></generate-card-modal>
+    />
+    <edit-remark-modal v-model:visible="showEditRemarkModal" :card-id="editRemarkCardId" :remark="editRemark" />
   </div>
 </template>
 
@@ -88,13 +89,14 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { DataTableColumns } from 'naive-ui';
-import { List, SearchSharp } from '@vicons/ionicons5';
+import { CreateOutline, List, SearchSharp } from '@vicons/ionicons5';
 import { fetchCardList } from '@/service';
 import { useLoading } from '@/hooks';
 import { useEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
 import GenerateCardModal from './components/generate-card-modal.vue';
+import EditRemarkModal from './components/edit-remark-modal.vue';
 
 const { routerPush } = useRouterPush();
 const route = useRoute();
@@ -142,6 +144,15 @@ async function getTableData() {
     endLoading();
   }
 }
+
+const showEditRemarkModal = ref(false);
+watch(showEditRemarkModal, () => {
+  if (!showEditRemarkModal.value) {
+    getTableData();
+  }
+});
+const editRemarkCardId = ref(0);
+const editRemark = ref('');
 
 const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
@@ -240,7 +251,19 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   },
   {
     title: '备注',
-    key: 'ex.adminRemark'
+    key: 'ex.adminRemark',
+    render(row) {
+      return (
+        <>
+          <p>
+            {row.ex?.adminRemark}
+            <n-button size={'small'} bordered={false} class="align-bottom" onClick={() => handleUpdateRemark(row)}>
+              <n-icon component={CreateOutline} size="18" />
+            </n-button>
+          </p>
+        </>
+      );
+    }
   },
   {
     key: 'actions',
@@ -268,6 +291,12 @@ function handleCardDetail(rowId: number) {
 
 function handleGenerate() {
   showGenerateCardModal.value = true;
+}
+
+function handleUpdateRemark(card: Card.Card) {
+  editRemarkCardId.value = card.id;
+  editRemark.value = card.ex?.adminRemark ?? '';
+  showEditRemarkModal.value = true;
 }
 
 async function init() {

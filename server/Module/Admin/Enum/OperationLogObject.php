@@ -28,4 +28,7 @@ class OperationLogObject extends BaseEnum
 
     #[EnumItem(text: '卡包类型')]
     public const CARD_TYPE = 'cardType';
+
+    #[EnumItem(text: '卡')]
+    public const CARD = 'card';
 }

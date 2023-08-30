@@ -77,4 +77,17 @@ class CardController extends HttpController
             'list' => $cardIds,
         ];
     }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        AdminLoginRequired()
+    ]
+    public function update(int $id, ?string $remark = null)
+    {
+        $this->cardService->update($id, $remark, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
+    }
 }

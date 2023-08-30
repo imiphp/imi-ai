@@ -127,3 +127,10 @@ export const generateCard = async (type: number, count: number, remark = '') => 
     remark
   });
 };
+
+export const updateCard = async (id: number, data: { remark?: string }) => {
+  return request.post<Api.BaseResponse>('/admin/card/update', {
+    id,
+    ...data
+  });
+};

@@ -145,6 +145,19 @@ class CardService
         return $record;
     }
 
+    public function update(int $cardId, string $adminRemark = '', int $operatorMemberId = 0, string $ip = ''): Card
+    {
+        $card = $this->get($cardId);
+        $ex = $card->getEx();
+        $ex->setAdminRemark($adminRemark);
+        $card->setEx($ex);
+        $card->update();
+
+        OperationLog::log($operatorMemberId, OperationLogObject::CARD, OperationLogStatus::SUCCESS, sprintf('更新卡，id=%d', $card->id), $ip);
+
+        return $card;
+    }
+
     /**
      * 批量生成卡.
      *
@@ -165,7 +178,7 @@ class CardService
             $cardIds[] = $card->getRecordId();
         }
 
-        OperationLog::log($operatorMemberId, OperationLogObject::CARD_TYPE, OperationLogStatus::SUCCESS, sprintf('批量生成卡，类型=[%d], 名称=%s, 数量=%d', $typeRecord->id, $typeRecord->name, $count), $ip);
+        OperationLog::log($operatorMemberId, OperationLogObject::CARD, OperationLogStatus::SUCCESS, sprintf('批量生成卡，类型=[%d], 名称=%s, 数量=%d', $typeRecord->id, $typeRecord->name, $count), $ip);
 
         return $cardIds;
     }
