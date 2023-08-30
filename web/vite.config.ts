@@ -6,12 +6,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
     wasm(),
     topLevelAwait(),
     vue(),
+    vueJsx(),
     createHtmlPlugin({
       inject: {
         data: {

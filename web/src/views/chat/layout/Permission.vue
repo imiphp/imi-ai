@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
 import { useAuthStore } from '@/store'

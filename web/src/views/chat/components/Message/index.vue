@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed, h, ref, watch } from 'vue'
 import { NDropdown, NIcon, useMessage } from 'naive-ui'
 import { MdMore } from '@vicons/ionicons4'

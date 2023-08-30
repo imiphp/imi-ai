@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed } from 'vue'
 import { NLayout, NLayoutContent, NLayoutHeader } from 'naive-ui'
 import Navigate from '../../layout/Navigate.vue'

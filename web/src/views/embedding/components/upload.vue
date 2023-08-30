@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
 import { NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NP, NText, NUpload, NUploadDragger, useDialog } from 'naive-ui'
 

@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NCard, NTabPane, NTabs } from 'naive-ui'
 import { ProjectList, PublicProjectList, Upload } from './components'
 </script>

@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDivider, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NSpin, useDialog, useMessage } from 'naive-ui'
 import type { CSSProperties } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'

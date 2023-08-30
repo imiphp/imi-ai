@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import type { FormInst } from 'naive-ui'
 import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NCheckbox, NCheckboxGroup, NEllipsis, NEmpty, NForm, NFormItemRow, NGi, NGrid, NInput, NModal, NPagination, NRadio, NRadioGroup, NSelect, NSpace, NSpin, NSwitch, NTabPane, NTabs, NTag, useMessage } from 'naive-ui'
 

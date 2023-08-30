@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed, ref } from 'vue'
 import { NButton, NIcon, NModal, NTabPane, NTabs } from 'naive-ui'
 import { BuildOutline, SettingsOutline } from '@vicons/ionicons5'

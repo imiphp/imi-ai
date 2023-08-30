@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed, useAttrs } from 'vue'
 import { Icon } from '@iconify/vue'
 

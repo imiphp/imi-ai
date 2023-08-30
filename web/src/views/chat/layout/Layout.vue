@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed } from 'vue'
 import { NLayout, NLayoutContent } from 'naive-ui'
 import Sider from './sider/index.vue'

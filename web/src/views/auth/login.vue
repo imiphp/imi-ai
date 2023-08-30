@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NCard, NTabPane, NTabs, useMessage } from 'naive-ui'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

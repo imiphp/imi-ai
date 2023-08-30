@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NAlert, NBreadcrumb, NBreadcrumbItem, NGi, NGrid, NInput, NSelect, NStatistic } from 'naive-ui'
 import { computed, ref } from 'vue'
 import type { TiktokenModel } from 'tiktoken'

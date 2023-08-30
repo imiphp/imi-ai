@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed } from 'vue'
 import type { PopoverPlacement } from 'naive-ui'
 import { NTooltip } from 'naive-ui'

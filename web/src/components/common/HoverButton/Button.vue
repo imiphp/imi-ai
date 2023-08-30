@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 interface Emit {
   (e: 'click'): void
 }

@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import type { FormInst } from 'naive-ui'
 import { NButton, NForm, NFormItemRow, NInput } from 'naive-ui'
 import type { Ref } from 'vue'

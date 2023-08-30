@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import type { TreeOption, UploadFileInfo, UploadInst } from 'naive-ui'
 import { NBreadcrumb, NBreadcrumbItem, NButton, NCard, NDescriptions, NDescriptionsItem, NDivider, NEllipsis, NEmpty, NForm, NFormItem, NGi, NGrid, NIcon, NInput, NLayout, NLayoutContent, NLayoutSider, NModal, NRadio, NRadioGroup, NSpace, NSpin, NTabPane, NTabs, NText, NTree, NUpload, useDialog } from 'naive-ui'
 
@@ -398,6 +398,7 @@ onUnmounted(() => {
                     </template>
                     重试
                   </NButton>
+                  <NSpin v-else-if="EmbeddingStatus.TRAINING === selectedFile.status" :size="18" class="align-sub ml-1" />
                 </p>
               </NGi>
               <NGi span="4 m:2 l:1">
@@ -433,6 +434,7 @@ onUnmounted(() => {
                     </template>
                     重试
                   </NButton>
+                  <NSpin v-else-if="EmbeddingStatus.TRAINING === item.status" :size="18" class="align-sub ml-1" />
                 </template>
                 <a class="block" href="javascript:;" @click="viewSection(item)">
                   <NEllipsis :line-clamp="8" :tooltip="false" class="hover:text-gray-500">

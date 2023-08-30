@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed, onMounted, ref } from 'vue'
 import type { ScrollbarInst } from 'naive-ui'
 import { NButton, NIcon, NInput, NPopconfirm, NScrollbar } from 'naive-ui'

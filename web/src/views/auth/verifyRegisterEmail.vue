@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NButton, NCard, NIcon, NSpin } from 'naive-ui'
 import { ref } from 'vue'
 import { CheckmarkCircle, CloseCircle } from '@vicons/ionicons5'

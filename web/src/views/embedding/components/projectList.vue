@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NButton, NCard, NCheckbox, NDataTable, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSpace, NSpin, NSwitch, NTabPane, NTabs, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
@@ -66,6 +66,12 @@ const createColumns = ({
               onClick: () => retry(row),
             },
           )]
+        }
+        else if (row.status === EmbeddingStatus.TRAINING) {
+          return <>
+            <span>{row.statusText}</span>
+            <NSpin size={18} class="align-sub ml-1" />
+          </>
         }
         else { return row.statusText }
       },

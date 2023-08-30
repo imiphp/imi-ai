@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NButton, NDataTable, NDatePicker, NForm, NFormItem, NIcon, NPageHeader, NSelect, NSpace } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, onMounted, reactive, ref } from 'vue'

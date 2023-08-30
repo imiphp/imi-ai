@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { computed } from 'vue'
 import { NModal } from 'naive-ui'
 import Advanced from './Advanced.vue'

@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import type { VNode } from 'vue'
 import { computed, h, ref, watch } from 'vue'
 

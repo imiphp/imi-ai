@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang='tsx'>
 import { NButton, NCard, NGi, NGrid, NLayout, NLayoutContent, NLayoutFooter, NSpace, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 
