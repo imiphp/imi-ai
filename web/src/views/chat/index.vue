@@ -495,7 +495,7 @@ onMounted(async () => {
 
   await loadConfig()
   const hasNewSession = chatStore.history && chatStore.history.length > 1 && chatStore.history[0].id.length === 0
-  if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0) || !id || !currentChatHistory.value) {
+  if (!chatStore.history || (chatStore.history.length === 1 && chatStore.history[0].id.length === 0)) {
     await chatStore.loadChatList()
     if (hasNewSession && (!id || id.length === 0)) {
       chatStore.deleteHistoryById('')

@@ -12,6 +12,7 @@ export function defaultState(): Chat.ChatState {
     chat: [{ id, data: [] }],
     page: 1,
     pageSize: 15,
+    hasNextPage: true,
   }
 }
 

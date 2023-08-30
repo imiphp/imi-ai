@@ -89,7 +89,7 @@ function isActive(id: string) {
 }
 
 function onScroll(e: Event) {
-  if (nextPageLoading.value)
+  if (nextPageLoading.value || !chatStore.hasNextPage)
     return
   const { scrollTop, scrollHeight, clientHeight } = (e.target as HTMLElement)
   if (scrollHeight > 0 && scrollTop + clientHeight >= scrollHeight - 10)
@@ -99,7 +99,9 @@ function onScroll(e: Event) {
 async function handleNextPage() {
   nextPageLoading.value = true
   try {
+    const page = chatStore.page
     await chatStore.loadListNextPage()
+    chatStore.hasNextPage = chatStore.page !== page
   }
   finally {
     nextPageLoading.value = false
@@ -162,7 +164,7 @@ onMounted(() => {
             </div>
           </a>
         </div>
-        <div>
+        <div v-if="chatStore.hasNextPage">
           <NButton block :loading="nextPageLoading" @click="handleNextPage">
             加载更多...
           </NButton>

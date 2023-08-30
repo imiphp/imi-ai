@@ -49,6 +49,7 @@ export const useChatStore = defineStore('chat-store', {
     async loadChatList(limit = 15) {
       this.page = 1
       this.pageSize = limit
+      this.hasNextPage = true
       const response = await sessionList(this.page, this.pageSize)
       const historys = []
 

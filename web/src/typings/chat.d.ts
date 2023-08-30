@@ -31,6 +31,7 @@ declare namespace Chat {
 		prompt?: ChatStatePrompt
 		page: number
 		pageSize: number
+		hasNextPage: boolean
 	}
 
 	interface ChatSetting {
