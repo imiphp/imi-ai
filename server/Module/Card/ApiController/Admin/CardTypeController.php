@@ -51,8 +51,8 @@ class CardTypeController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
-    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null)
+    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?int $memberActivationLimit = null)
     {
-        $this->cardTypeService->update($id, $name, $amount, $expireSeconds, $enable, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->cardTypeService->update($id, $name, $amount, $expireSeconds, $enable, memberActivationLimit: $memberActivationLimit, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 }

@@ -75,7 +75,7 @@ class CardTypeService
     #[
         Transaction()
     ]
-    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?bool $system = null, int $operatorMemberId = 0, string $ip = ''): CardType
+    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?bool $system = null, ?int $memberActivationLimit = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = $this->getNoCache($id);
         if (null !== $name)
@@ -97,6 +97,10 @@ class CardTypeService
         if (null !== $system)
         {
             $record->system = $system;
+        }
+        if (null !== $memberActivationLimit)
+        {
+            $record->memberActivationLimit = $memberActivationLimit;
         }
         $record->update();
 
