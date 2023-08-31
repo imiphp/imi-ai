@@ -8,9 +8,9 @@ use app\Module\Embedding\Enum\PublicProjectStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
+use app\Module\Embedding\Service\ChatService;
 use app\Module\Embedding\Service\EmbeddingPublicProjectService;
 use app\Module\Embedding\Service\EmbeddingService;
-use app\Module\Embedding\Service\OpenAIService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
@@ -30,8 +30,8 @@ use Imi\Util\Http\Consts\RequestMethod;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
-#[Controller(prefix: '/embedding/openai/')]
-class OpenAIController extends HttpController
+#[Controller(prefix: '/embedding/')]
+class EmbeddingController extends HttpController
 {
     #[Inject()]
     protected EmbeddingService $embeddingService;
@@ -40,7 +40,7 @@ class OpenAIController extends HttpController
     protected EmbeddingPublicProjectService $embeddingPublicProjectService;
 
     #[Inject()]
-    protected OpenAIService $openAIService;
+    protected ChatService $chatService;
 
     #[
         Action(),
@@ -208,7 +208,7 @@ class OpenAIController extends HttpController
     public function sendMessage(string $question, string $projectId, array|object $config = [], ?float $similarity = null, ?int $topSections = null, ?string $prompt = null): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $qa = $this->openAIService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config, $similarity, $topSections, $prompt);
+        $qa = $this->chatService->sendMessage($question, $projectId, $memberSession->getIntMemberId(), IPUtil::getIP(), $config, $similarity, $topSections, $prompt);
         $qa->__setSecureField(true);
 
         return [
@@ -221,8 +221,8 @@ class OpenAIController extends HttpController
     {
         MemberUtil::allowParamToken($token);
         $memberSession = MemberUtil::getMemberSession();
-        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService, $memberSession->getIntMemberId()) extends SseEmitter {
-            public function __construct(private string $id, private OpenAIService $openAIService, private int $memberId)
+        $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId()) extends SseEmitter {
+            public function __construct(private string $id, private ChatService $chatService, private int $memberId)
             {
             }
 
@@ -238,7 +238,7 @@ class OpenAIController extends HttpController
                         return RateLimiter::limit('rateLimit:embedding:chat:' . $this->memberId, $config->getChatRateLimitAmount(), unit: $config->getChatRateLimitUnit());
                     }, 30, true);
 
-                    foreach ($this->openAIService->chatStream($this->id, $this->memberId) as $data)
+                    foreach ($this->chatService->chatStream($this->id, $this->memberId) as $data)
                     {
                         if (isset($data['content']))
                         {
@@ -279,7 +279,7 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $list = $this->openAIService->list($id, $memberSession->getIntMemberId(), $lastMessageId, $limit + 1);
+        $list = $this->chatService->list($id, $memberSession->getIntMemberId(), $lastMessageId, $limit + 1);
         /** @var EmbeddingQa $item */
         foreach ($list as $item)
         {

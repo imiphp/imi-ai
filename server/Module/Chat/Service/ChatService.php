@@ -30,7 +30,7 @@ use Imi\Validate\ValidatorHelper;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
-class OpenAIService
+class ChatService
 {
     public const LOG_OBJECT = 'chat';
 

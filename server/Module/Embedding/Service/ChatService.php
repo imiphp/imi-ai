@@ -30,7 +30,7 @@ use Pgvector\Vector;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
-class OpenAIService
+class ChatService
 {
     public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 

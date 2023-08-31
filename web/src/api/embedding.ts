@@ -7,7 +7,7 @@ export async function projectList(
   limit = 15,
 ) {
   const response = await get({
-    url: '/embedding/openai/projectList',
+    url: '/embedding/projectList',
     data: {
       page,
       limit,
@@ -25,7 +25,7 @@ export async function publicProjectList(
   limit = 15,
 ) {
   const response = await get({
-    url: '/embedding/openai/publicProjectList',
+    url: '/embedding/publicProjectList',
     data: {
       page,
       limit,
@@ -42,7 +42,7 @@ export function deleteProject(
   id: string,
 ) {
   return post({
-    url: '/embedding/openai/deleteProject',
+    url: '/embedding/deleteProject',
     data: {
       id,
     },
@@ -65,7 +65,7 @@ export function updateProject(
   },
 ) {
   return post({
-    url: '/embedding/openai/updateProject',
+    url: '/embedding/updateProject',
     data: {
       id,
       name: data.name,
@@ -86,7 +86,7 @@ export async function getProject(
   id: string,
 ) {
   const response = await get({
-    url: '/embedding/openai/getProject',
+    url: '/embedding/getProject',
     data: {
       id,
     },
@@ -101,7 +101,7 @@ export function assocFileList(
   projectId: string,
 ) {
   return get({
-    url: '/embedding/openai/assocFileList',
+    url: '/embedding/assocFileList',
     data: {
       projectId,
     },
@@ -113,7 +113,7 @@ export async function sectionList(
   fileId: string,
 ) {
   const response = await get({
-    url: '/embedding/openai/sectionList',
+    url: '/embedding/sectionList',
     data: {
       projectId,
       fileId,
@@ -130,7 +130,7 @@ export async function getSection(
   id: string,
 ) {
   const response = await get({
-    url: '/embedding/openai/getSection',
+    url: '/embedding/getSection',
     data: {
       id,
     },
@@ -145,7 +145,7 @@ export async function getFile(
   id: string,
 ) {
   const response = await get({
-    url: '/embedding/openai/getFile',
+    url: '/embedding/getFile',
     data: {
       id,
     },
@@ -162,7 +162,7 @@ export async function chatList(
   limit = 15,
 ) {
   const response = await get({
-    url: '/embedding/openai/chatList',
+    url: '/embedding/chatList',
     data: {
       id,
       lastMessageId,
@@ -185,7 +185,7 @@ export async function sendEmbeddingMessage(
   prompt?: string,
 ) {
   const response = await post({
-    url: '/embedding/openai/sendMessage',
+    url: '/embedding/sendMessage',
     data: {
       projectId,
       question,
@@ -212,7 +212,7 @@ export function fetchEmbeddingChatAPIProcess(
   }
 
   return post({
-    url: '/embedding/openai/stream',
+    url: '/embedding/stream',
     data,
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
@@ -230,7 +230,7 @@ export function retryProject(
   id: string,
 ) {
   return post({
-    url: '/embedding/openai/retryProject',
+    url: '/embedding/retryProject',
     data: {
       id,
     },
@@ -241,7 +241,7 @@ export function retryFile(
   id: string,
 ) {
   return post({
-    url: '/embedding/openai/retryFile',
+    url: '/embedding/retryFile',
     data: {
       id,
     },
@@ -252,7 +252,7 @@ export function retrySection(
   id: string,
 ) {
   return post({
-    url: '/embedding/openai/retrySection',
+    url: '/embedding/retrySection',
     data: {
       id,
     },

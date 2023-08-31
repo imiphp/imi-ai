@@ -39,7 +39,7 @@ const uploadHeaders = ref({
   Authorization: `Bearer ${useAuthStore().token}`,
 })
 const uploadActionUrl = service.getUri({
-  url: '/embedding/openai/upload',
+  url: '/embedding/upload',
 })
 const uploadData = ref<any>({
   id,

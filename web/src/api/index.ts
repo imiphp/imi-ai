@@ -20,7 +20,7 @@ export function fetchChatAPIProcess(
   }
 
   return post({
-    url: '/chat/openai/stream',
+    url: '/chat/stream',
     data,
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
@@ -31,7 +31,7 @@ export async function getSession(
   id: string,
 ) {
   const response = await get({
-    url: '/chat/openai/get',
+    url: '/chat/get',
     data: {
       id,
     },
@@ -51,7 +51,7 @@ export async function sessionList(
   limit = 15,
 ) {
   const response = await get({
-    url: '/chat/openai/list',
+    url: '/chat/list',
     data: {
       page,
       limit,
@@ -72,7 +72,7 @@ export async function messageList(
   limit = 15,
 ) {
   const response = await get({
-    url: '/chat/openai/messageList',
+    url: '/chat/messageList',
     data: {
       sessionId,
       lastMessageId,
@@ -95,7 +95,7 @@ export async function sendMessage(
   config?: Chat.ChatSetting,
 ) {
   const response = await post({
-    url: '/chat/openai/sendMessage',
+    url: '/chat/sendMessage',
     data: {
       id,
       message,
@@ -117,7 +117,7 @@ export function editSession(data: {
   config?: Chat.ChatSetting
 }) {
   return post({
-    url: '/chat/openai/edit',
+    url: '/chat/edit',
     data,
   })
 }
@@ -126,7 +126,7 @@ export function deleteSession(
   id: string,
 ) {
   return post({
-    url: '/chat/openai/delete',
+    url: '/chat/delete',
     data: {
       id,
     },

@@ -7,7 +7,7 @@ namespace app\Module\Chat\ApiController;
 use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
-use app\Module\Chat\Service\OpenAIService;
+use app\Module\Chat\Service\ChatService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
@@ -26,11 +26,11 @@ use Imi\Util\Http\Consts\RequestMethod;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
-#[Controller(prefix: '/chat/openai/')]
-class OpenAIController extends HttpController
+#[Controller(prefix: '/chat/')]
+class ChatController extends HttpController
 {
     #[Inject]
-    protected OpenAIService $openAIService;
+    protected ChatService $chatService;
 
     #[
         Action,
@@ -41,7 +41,7 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $message = $this->openAIService->sendMessage($message, $id, $memberSession->getIntMemberId(), SessionType::CHAT, $prompt, IPUtil::getIP(), $config, $session);
+        $message = $this->chatService->sendMessage($message, $id, $memberSession->getIntMemberId(), SessionType::CHAT, $prompt, IPUtil::getIP(), $config, $session);
         $session->__setSecureField(true);
         $message->__setSecureField(true);
 
@@ -59,8 +59,8 @@ class OpenAIController extends HttpController
     {
         MemberUtil::allowParamToken($token);
         $memberSession = MemberUtil::getMemberSession();
-        $this->response->setResponseBodyEmitter(new class($id, $this->openAIService, $memberSession->getIntMemberId()) extends SseEmitter {
-            public function __construct(private string $id, private OpenAIService $openAIService, private int $memberId)
+        $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId()) extends SseEmitter {
+            public function __construct(private string $id, private chatService $chatService, private int $memberId)
             {
             }
 
@@ -76,7 +76,7 @@ class OpenAIController extends HttpController
                         return RateLimiter::limit('rateLimit:chat:' . $this->memberId, $config->getRateLimitAmount(), unit: $config->getRateLimitUnit());
                     }, 30, true);
 
-                    foreach ($this->openAIService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
+                    foreach ($this->chatService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
                     {
                         if (isset($data['content']))
                         {
@@ -117,7 +117,7 @@ class OpenAIController extends HttpController
     {
         $memberSession = MemberUtil::getMemberSession();
 
-        $result = $this->openAIService->list($memberSession->getIntMemberId(), SessionType::CHAT, $page, $limit);
+        $result = $this->chatService->list($memberSession->getIntMemberId(), SessionType::CHAT, $page, $limit);
         /** @var ChatSession $item */
         foreach ($result['list'] as $item)
         {
@@ -138,7 +138,7 @@ class OpenAIController extends HttpController
     public function edit(string $id, ?string $title = null, ?string $prompt = null, array|object|null $config = null)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->openAIService->edit($id, $title, $prompt, $config, $memberSession->getIntMemberId());
+        $this->chatService->edit($id, $title, $prompt, $config, $memberSession->getIntMemberId());
     }
 
     /**
@@ -152,7 +152,7 @@ class OpenAIController extends HttpController
     public function delete(string $id)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->openAIService->delete($id, $memberSession->getIntMemberId(), SessionType::CHAT);
+        $this->chatService->delete($id, $memberSession->getIntMemberId(), SessionType::CHAT);
     }
 
     #[
@@ -162,7 +162,7 @@ class OpenAIController extends HttpController
     public function get(string $id): array
     {
         $memberSession = MemberUtil::getMemberSession();
-        $session = $this->openAIService->getById($id, $memberSession->getIntMemberId(), SessionType::CHAT);
+        $session = $this->chatService->getById($id, $memberSession->getIntMemberId(), SessionType::CHAT);
         $session->__setSecureField(true);
 
         $result = [
@@ -178,7 +178,7 @@ class OpenAIController extends HttpController
     ]
     public function messageList(string $sessionId, string $lastMessageId = '', int $limit = 15): array
     {
-        $list = $this->openAIService->selectMessagesIdStr($sessionId, 'desc', $lastMessageId, $limit + 1);
+        $list = $this->chatService->selectMessagesIdStr($sessionId, 'desc', $lastMessageId, $limit + 1);
         foreach ($list as $item)
         {
             $item->__setSecureField(true);

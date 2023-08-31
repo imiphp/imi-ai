@@ -13,7 +13,7 @@ const dialog = useDialog()
 const router = useRouter()
 
 const uploadActionUrl = service.getUri({
-  url: '/embedding/openai/upload',
+  url: '/embedding/upload',
 })
 
 const fileList = ref<UploadFileInfo[]>([])

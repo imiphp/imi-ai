@@ -16,7 +16,7 @@ use Imi\Db\Db;
 class PromptService
 {
     #[Inject()]
-    protected OpenAIService $openAIService;
+    protected ChatService $chatService;
 
     public function create(array $categoryIds, string $title, string $prompt, string $firstMessageContent = '', int $index = 128, int $crawlerOriginId = 0, array $config = [], array $formConfig = []): Prompt
     {
@@ -142,12 +142,12 @@ class PromptService
         $message = str_replace($search, $replaceData, $promptRecord->firstMessageContent);
         $prompt = str_replace($search, $replaceData, $promptRecord->prompt);
 
-        return $this->openAIService->sendMessage($message, '', $memberId, SessionType::PROMPT_FORM, $prompt, $ip, $promptRecord->config, $session);
+        return $this->chatService->sendMessage($message, '', $memberId, SessionType::PROMPT_FORM, $prompt, $ip, $promptRecord->config, $session);
     }
 
     public function convertFormToChat(int|string $sessionId, int $memberId = 0): void
     {
-        $session = $this->openAIService->getById($sessionId, $memberId, SessionType::PROMPT_FORM);
+        $session = $this->chatService->getById($sessionId, $memberId, SessionType::PROMPT_FORM);
         $session->type = SessionType::CHAT;
         $session->update();
     }

@@ -11,7 +11,7 @@ use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Service\EmbeddingPublicProjectService;
 use app\Module\Embedding\Service\EmbeddingService;
-use app\Module\Embedding\Service\OpenAIService;
+use app\Module\Embedding\Service\ChatService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -27,7 +27,7 @@ class EmbeddingController extends HttpController
     protected EmbeddingService $embeddingService;
 
     #[Inject()]
-    protected OpenAIService $openAIService;
+    protected ChatService $chatService;
 
     #[Inject()]
     protected EmbeddingPublicProjectService $embeddingPublicProjectService;
@@ -154,7 +154,7 @@ class EmbeddingController extends HttpController
     ]
     public function chatList(int $id = 0, int $page = 1, int $limit = 15): array
     {
-        $result = $this->openAIService->adminChatList($id, $page, $limit);
+        $result = $this->chatService->adminChatList($id, $page, $limit);
         /** @var EmbeddingQa $item */
         foreach ($result['list'] as $item)
         {
@@ -174,7 +174,7 @@ class EmbeddingController extends HttpController
     ]
     public function deleteChat(int $id)
     {
-        $this->openAIService->deleteChat($id, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->chatService->deleteChat($id, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 
     #[

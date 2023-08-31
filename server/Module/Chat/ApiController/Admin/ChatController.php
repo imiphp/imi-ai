@@ -8,7 +8,7 @@ use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Admin\Util\AdminMemberUtil;
 use app\Module\Chat\Model\Admin\ChatMessage;
 use app\Module\Chat\Model\Admin\ChatSession;
-use app\Module\Chat\Service\OpenAIService;
+use app\Module\Chat\Service\ChatService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -21,7 +21,7 @@ use Imi\Util\Http\Consts\RequestMethod;
 class ChatController extends HttpController
 {
     #[Inject]
-    protected OpenAIService $openAIService;
+    protected ChatService $chatService;
 
     #[
         Action,
@@ -29,7 +29,7 @@ class ChatController extends HttpController
     ]
     public function list(string $search = '', int $type = 0, int $page = 1, int $limit = 15): array
     {
-        $result = $this->openAIService->adminList($search, $type, $page, $limit);
+        $result = $this->chatService->adminList($search, $type, $page, $limit);
         /** @var ChatSession $item */
         foreach ($result['list'] as $item)
         {
@@ -49,7 +49,7 @@ class ChatController extends HttpController
     ]
     public function delete(int $id)
     {
-        $this->openAIService->delete($id, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->chatService->delete($id, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 
     #[
@@ -58,7 +58,7 @@ class ChatController extends HttpController
     ]
     public function messageList(int $sessionId, int $page = 1, int $limit = 15): array
     {
-        $result = $this->openAIService->adminMessageList($sessionId, 'desc', $page, $limit);
+        $result = $this->chatService->adminMessageList($sessionId, 'desc', $page, $limit);
         /** @var ChatMessage $item */
         foreach ($result['list'] as $item)
         {
