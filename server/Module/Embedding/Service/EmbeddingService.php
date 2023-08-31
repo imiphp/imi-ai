@@ -571,4 +571,29 @@ class EmbeddingService
             $retryParser->endPush();
         }
     }
+
+    #[Transaction()]
+    public function initStatus(int $time): array
+    {
+        return [
+            'project' => EmbeddingProject::query()->where('status', '=', EmbeddingStatus::TRAINING)
+                                                    ->where('update_time', '<', $time)
+                                                    ->update([
+                                                        'status' => EmbeddingStatus::FAILED,
+                                                    ])
+                                                    ->getAffectedRows(),
+            'file' => EmbeddingFile::query()->where('status', '=', EmbeddingStatus::TRAINING)
+                                            ->where('update_time', '<', $time)
+                                            ->update([
+                                                'status' => EmbeddingStatus::FAILED,
+                                            ])
+                                            ->getAffectedRows(),
+            'section' => EmbeddingSection::query()->where('status', '=', EmbeddingStatus::TRAINING)
+                                                    ->where('update_time', '<', $time)
+                                                    ->update([
+                                                        'status' => EmbeddingStatus::FAILED,
+                                                    ])
+                                                    ->getAffectedRows(),
+        ];
+    }
 }
