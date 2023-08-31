@@ -5,6 +5,7 @@ import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatbubbleEllipsesOutline, CreateOutline, EyeOutline, Refresh, TrashOutline } from '@vicons/ionicons5'
+import { General } from '.'
 import { config, deleteProject, projectList, retryProject, updateProject } from '@/api'
 import { EmbeddingStatus, PublicProjectStatus, useEmbeddingStore } from '@/store/modules/embedding'
 import { formatByte } from '@/utils/functions'
@@ -427,8 +428,11 @@ onUnmounted(() => {
                 <NCheckbox v-model:checked="editData.sectionSplitByTitle" />
               </NFormItem>
             </NTabPane>
-            <NTabPane name="chatConfig" tab="对话配置">
+            <NTabPane name="modelConfig" tab="模型设置">
               <Advanced v-model:setting="editData.chatConfig" :models="models" :show-confirm="false" />
+            </NTabPane>
+            <NTabPane name="chatConfig" tab="对话设置">
+              <General v-model:setting="editData" />
             </NTabPane>
           </NTabs>
         </NCard>

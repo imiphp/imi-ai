@@ -32,6 +32,9 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property int|null                             $sectionSplitLength  段落分割长度
  * @property bool|null                            $sectionSplitByTitle 使用标题分割段落
  * @property \Imi\Util\LazyArrayObject|array|null $chatConfig          聊天对话推荐配置
+ * @property float|null                           $similarity          相似度
+ * @property int|null                             $topSections         使用最匹配的段落数量
+ * @property string|null                          $prompt              提示语
  */
 abstract class EmbeddingProjectBase extends Model
 {
@@ -502,6 +505,96 @@ abstract class EmbeddingProjectBase extends Model
     public function setChatConfig($chatConfig)
     {
         $this->chatConfig = $chatConfig;
+
+        return $this;
+    }
+
+    /**
+     * 相似度.
+     * similarity.
+     *
+     * @Column(name="similarity", type="float4", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?float $similarity = 0.0;
+
+    /**
+     * 获取 similarity - 相似度.
+     */
+    public function getSimilarity(): ?float
+    {
+        return $this->similarity;
+    }
+
+    /**
+     * 赋值 similarity - 相似度.
+     *
+     * @param float|null $similarity similarity
+     *
+     * @return static
+     */
+    public function setSimilarity(?float $similarity)
+    {
+        $this->similarity = $similarity;
+
+        return $this;
+    }
+
+    /**
+     * 使用最匹配的段落数量.
+     * top_sections.
+     *
+     * @Column(name="top_sections", type="int2", length=-1, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?int $topSections = 0;
+
+    /**
+     * 获取 topSections - 使用最匹配的段落数量.
+     */
+    public function getTopSections(): ?int
+    {
+        return $this->topSections;
+    }
+
+    /**
+     * 赋值 topSections - 使用最匹配的段落数量.
+     *
+     * @param int|null $topSections top_sections
+     *
+     * @return static
+     */
+    public function setTopSections(?int $topSections)
+    {
+        $this->topSections = $topSections;
+
+        return $this;
+    }
+
+    /**
+     * 提示语.
+     * prompt.
+     *
+     * @Column(name="prompt", type="text", length=-1, accuracy=0, nullable=false, default="''::text", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?string $prompt = '';
+
+    /**
+     * 获取 prompt - 提示语.
+     */
+    public function getPrompt(): ?string
+    {
+        return $this->prompt;
+    }
+
+    /**
+     * 赋值 prompt - 提示语.
+     *
+     * @param string|null $prompt prompt
+     *
+     * @return static
+     */
+    public function setPrompt(?string $prompt)
+    {
+        $this->prompt = $prompt;
 
         return $this;
     }

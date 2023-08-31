@@ -136,6 +136,9 @@ class EmbeddingUploadParser
                 $project->sectionSplitByTitle = $this->sectionSplitByTitle;
                 $project->status = EmbeddingStatus::TRAINING;
                 $project->ip = $this->ip;
+                $project->topSections = $this->config->getChatTopSections();
+                $project->similarity = $this->config->getSimilarity();
+                $project->prompt = $this->config->getChatPrompt();
                 goWait(fn () => $project->insert(), 30, true);
             }
 

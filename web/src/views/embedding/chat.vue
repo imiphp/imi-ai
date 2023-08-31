@@ -326,7 +326,6 @@ function handleConfig() {
 async function loadConfig() {
   const response = await config()
   models.value = response.data['config:embedding'].config.chatModelConfig ?? []
-  embeddingSetting.value.prompt = response.data['config:embedding'].config.chatPrompt
 }
 
 async function handleMessageNextPage() {
@@ -422,6 +421,13 @@ onMounted(async () => {
     if (item) {
       setting.value = { ...setting.value, ...item.config }
       embeddingSetting.value = { ...embeddingSetting.value, topSections: item.topSections, similarity: item.similarity, prompt: item.prompt }
+    }
+    else {
+      embeddingSetting.value = {
+        topSections: projectResponse.data.topSections,
+        similarity: projectResponse.data.similarity,
+        prompt: projectResponse.data.prompt,
+      }
     }
     dataSources.value = _dataSources
     scrollToBottom()

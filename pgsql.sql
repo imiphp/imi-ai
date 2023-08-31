@@ -63,7 +63,10 @@ CACHE 1
   "section_separator" varchar(16) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
   "section_split_length" int4 NOT NULL DEFAULT 512,
   "section_split_by_title" bool NOT NULL DEFAULT true,
-  "chat_config" json NOT NULL DEFAULT '{}'::json
+  "chat_config" json NOT NULL DEFAULT '{}'::json,
+  "similarity" float4 NOT NULL DEFAULT 0,
+  "top_sections" int2 NOT NULL DEFAULT 0,
+  "prompt" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -80,6 +83,9 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."section_separator" IS '段落
 COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_length" IS '段落分割长度';
 COMMENT ON COLUMN "public"."tb_embedding_project"."section_split_by_title" IS '使用标题分割段落';
 COMMENT ON COLUMN "public"."tb_embedding_project"."chat_config" IS '聊天对话推荐配置';
+COMMENT ON COLUMN "public"."tb_embedding_project"."similarity" IS '相似度';
+COMMENT ON COLUMN "public"."tb_embedding_project"."top_sections" IS '使用最匹配的段落数量';
+COMMENT ON COLUMN "public"."tb_embedding_project"."prompt" IS '提示语';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------

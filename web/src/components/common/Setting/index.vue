@@ -45,7 +45,7 @@ const show = computed({
 </script>
 
 <template>
-  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 660px" title="聊天设置">
+  <NModal v-model:show="show" :auto-focus="false" preset="card" style="width: 95%; max-width: 660px" title="模型配置">
     <div v-if="undefined !== props.tokens && undefined !== props.payTokens" class="px-4 space-y-5">
       <div class="flex font-bold">
         <div class="flex flex-1 items-center space-x-4">

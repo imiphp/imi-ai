@@ -62,7 +62,7 @@ function ok() {
         <NTabPane name="Advanced" tab="Advanced">
           <template #tab>
             <NIcon :component="BuildOutline" size="18" />
-            <span class="ml-2">{{ $t('setting.advanced') }}</span>
+            <span class="ml-2">模型设置</span>
           </template>
           <div class="min-h-[100px]">
             <Advanced v-model:setting="setting" :models="props.models" :show-confirm="false" @ok="show = false" />

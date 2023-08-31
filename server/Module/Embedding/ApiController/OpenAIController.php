@@ -99,10 +99,10 @@ class OpenAIController extends HttpController
         Route(method: RequestMethod::POST),
         LoginRequired()
     ]
-    public function updateProject(string $id, ?string $name = null, ?bool $public = null, ?bool $publicList = null, ?string $sectionSeparator = null, ?int $sectionSplitLength = null, ?bool $sectionSplitByTitle = null, array|object|null $chatConfig = null)
+    public function updateProject(string $id, ?string $name = null, ?bool $public = null, ?bool $publicList = null, ?string $sectionSeparator = null, ?int $sectionSplitLength = null, ?bool $sectionSplitByTitle = null, array|object|null $chatConfig = null, ?float $similarity = null, ?int $topSections = null, ?string $prompt = null)
     {
         $memberSession = MemberUtil::getMemberSession();
-        $this->embeddingService->updateProject($id, $name, $public, $publicList, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle, $chatConfig, $memberSession->getIntMemberId());
+        $this->embeddingService->updateProject($id, $name, $public, $publicList, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle, $chatConfig, $similarity, $topSections, $prompt, $memberSession->getIntMemberId());
     }
 
     /**

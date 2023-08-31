@@ -59,6 +59,9 @@ export function updateProject(
     sectionSplitLength?: number
     sectionSplitByTitle?: boolean
     chatConfig?: any
+    similarity?: number
+    topSections?: number
+    prompt?: string
   },
 ) {
   return post({
@@ -72,6 +75,9 @@ export function updateProject(
       sectionSplitLength: data.sectionSplitLength,
       sectionSplitByTitle: data.sectionSplitByTitle,
       chatConfig: data.chatConfig,
+      similarity: data.similarity,
+      topSections: data.topSections,
+      prompt: data.prompt,
     },
   })
 }
