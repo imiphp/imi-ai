@@ -24,9 +24,6 @@ class AppInit implements IEventListener
     #[Inject()]
     protected EmailService $emailService;
 
-    /**
-     * 事件处理方法.
-     */
     public function handle(EventParam $e): void
     {
         if (App::isDebug())

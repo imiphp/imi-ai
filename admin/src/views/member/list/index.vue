@@ -49,7 +49,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { CreateOutline, SearchSharp, WalletOutline, List } from '@vicons/ionicons5';
 import { fetchCardMemberInfos, fetchMemberList, updateMember } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
-import { useEnums, parseEnumWithAll } from '~/src/store';
+import { useAdminEnums, parseEnumWithAll } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
 import EditMemberModal from './components/edit-member-modal.vue';
@@ -258,7 +258,7 @@ function handleMemberCardList(rowId: number) {
 }
 
 async function init() {
-  enums.value = await useEnums(['MemberStatus']);
+  enums.value = await useAdminEnums(['MemberStatus']);
   getTableData();
 }
 

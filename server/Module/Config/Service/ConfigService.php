@@ -20,6 +20,7 @@ class ConfigService
     {
         foreach (AnnotationManager::getAnnotationPoints(ConfigModel::class, 'class') as $point)
         {
+            /** @var RedisEntity|null $redisEntityAnnotation */
             $redisEntityAnnotation = AnnotationManager::getClassAnnotations($point->getClass(), RedisEntity::class, onlyFirst: true);
             if (!$redisEntityAnnotation)
             {
@@ -27,7 +28,7 @@ class ConfigService
             }
             /** @var ConfigModel $configModelAnnotation */
             $configModelAnnotation = $point->getAnnotation();
-            $this->configs[] = [
+            $this->configs[$redisEntityAnnotation->key] = [
                 'class'                 => $point->getClass(),
                 'redisEntityAnnotation' => $redisEntityAnnotation,
                 'configModelAnnotation' => $configModelAnnotation,
@@ -58,5 +59,20 @@ class ConfigService
     public function getConfigClasses(): array
     {
         return $this->configs;
+    }
+
+    public function save(array $data): void
+    {
+        foreach ($data as $name => $config)
+        {
+            $configItem = $this->configs[$name] ?? null;
+            if (!$configItem)
+            {
+                throw new \RuntimeException(sprintf('Config %s not found', $name));
+            }
+            $model = $configItem['class']::__getConfigNoCache();
+            $model->set($config);
+            $model->save();
+        }
     }
 }

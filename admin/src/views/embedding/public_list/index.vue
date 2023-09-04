@@ -46,7 +46,7 @@ import { deleteEmbeddingProject, fetchEmbeddingPublicProjectList, reviewEmbeddin
 import { useLoading } from '@/hooks';
 import { defaultPaginationProps } from '~/src/utils';
 import { formatByte } from '~/src/utils/auth';
-import { parseEnumWithAll, useEnums } from '~/src/store';
+import { parseEnumWithAll, useAdminEnums } from '~/src/store';
 
 const { loading, startLoading, endLoading } = useLoading(false);
 
@@ -240,7 +240,7 @@ async function handleReview(rowId: number, pass: boolean) {
 }
 
 async function init() {
-  enums.value = await useEnums(['EmbeddingPublicProjectStatus']);
+  enums.value = await useAdminEnums(['EmbeddingPublicProjectStatus']);
   getTableData();
 }
 

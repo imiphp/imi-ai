@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Config\Service;
 
 use app\Module\Config\Annotation\AdminPublicEnum;
+use app\Module\Config\Annotation\PublicEnum;
 use Imi\Bean\Annotation\AnnotationManager;
 use Imi\Enum\BaseEnum;
 use Imi\Log\Log;
@@ -20,27 +21,33 @@ class AdminEnumService
 
     public function __construct()
     {
-        foreach (AnnotationManager::getAnnotationPoints(AdminPublicEnum::class, 'class') as $point)
+        foreach ([
+            AnnotationManager::getAnnotationPoints(PublicEnum::class, 'class'),
+            AnnotationManager::getAnnotationPoints(AdminPublicEnum::class, 'class'),
+        ] as $points)
         {
-            /** @var AdminPublicEnum $publicEnumAnnotation */
-            $publicEnumAnnotation = $point->getAnnotation();
-            if (isset($this->enums[$publicEnumAnnotation->name]))
+            foreach ($points as $point)
             {
-                Log::warning(sprintf('AdminPublicEnum %s 重复存在', $publicEnumAnnotation->name));
+                /** @var AdminPublicEnum|PublicEnum $publicEnumAnnotation */
+                $publicEnumAnnotation = $point->getAnnotation();
+                if (isset($this->enums[$publicEnumAnnotation->name]))
+                {
+                    Log::warning(sprintf('AdminPublicEnum %s 重复存在', $publicEnumAnnotation->name));
+                }
+                /** @var BaseEnum $enumClass */
+                $enumClass = $point->getClass();
+                $values = $enumClass::getValues();
+                $enum = [];
+                foreach ($values as $value)
+                {
+                    $data = $enumClass::getData($value);
+                    $enum[] = [
+                        'text'  => $data['text'] ?? $value,
+                        'value' => $value,
+                    ];
+                }
+                $this->enums[$publicEnumAnnotation->name] = $enum;
             }
-            /** @var BaseEnum $enumClass */
-            $enumClass = $point->getClass();
-            $values = $enumClass::getValues();
-            $enum = [];
-            foreach ($values as $value)
-            {
-                $data = $enumClass::getData($value);
-                $enum[] = [
-                    'text'  => $data['text'] ?? $value,
-                    'value' => $value,
-                ];
-            }
-            $this->enums[$publicEnumAnnotation->name] = $enum;
         }
     }
 

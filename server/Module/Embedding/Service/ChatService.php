@@ -61,7 +61,7 @@ class ChatService
 
         $embeddingConfig = EmbeddingConfig::__getConfigAsync();
         $model = ObjectArrayHelper::get($config, 'model', 'gpt-3.5-turbo');
-        $modelConfig = $embeddingConfig->getChatModelConfig()[$model] ?? null;
+        $modelConfig = $embeddingConfig->getChatModelConfig($model);
         if (!$modelConfig || !$modelConfig->enable)
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
@@ -99,7 +99,7 @@ class ChatService
 
         $tokens = Gpt3Tokenizer::getInstance()->count($q);
         $config = EmbeddingConfig::__getConfig();
-        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelConfig());
+        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelConfigs());
 
         $query = EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
                                                     ->where('status', '=', EmbeddingStatus::COMPLETED)
@@ -160,7 +160,7 @@ class ChatService
                 }
             }
             $params['model'] ??= 'gpt-3.5-turbo';
-            $modelConfig = $config->getChatModelConfig()[$params['model']] ?? null;
+            $modelConfig = $config->getChatModelConfig($params['model']);
             if (!$modelConfig || !$modelConfig->enable)
             {
                 throw new \RuntimeException('不允许使用模型：' . $params['model']);
@@ -221,7 +221,7 @@ class ChatService
             $chatInputTokens = $chatOutputTokens = 0;
         }
         $endTime = (int) (microtime(true) * 1000);
-        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model ?? 'gpt-3.5-turbo', $chatInputTokens, $chatOutputTokens, $config->getChatModelConfig());
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model ?? 'gpt-3.5-turbo', $chatInputTokens, $chatOutputTokens, $config->getChatModelConfigs());
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
         $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;

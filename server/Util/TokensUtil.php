@@ -34,11 +34,22 @@ class TokensUtil
     }
 
     /**
-     * @param ModelConfig[] $config
+     * @param ModelConfig[] $modelConfigs
      */
-    public static function calcDeductToken(string $model, int $inputTokens, int $outputTokens, array $config): array
+    public static function calcDeductToken(string $model, int $inputTokens, int $outputTokens, array $modelConfigs): array
     {
-        if (empty($config[$model]) || !$config[$model]->enable)
+        $modelConfig = null;
+        foreach ($modelConfigs as $item)
+        {
+            if ($item->model === $model)
+            {
+                $modelConfig = $item;
+                break;
+            }
+        }
+
+        /** @var ModelConfig|null $modelConfig */
+        if (!$modelConfig || !$modelConfig->enable)
         {
             // 没有配置，直接返回
             return [$inputTokens, $outputTokens];
@@ -46,8 +57,8 @@ class TokensUtil
 
         // 按最大倍率计算返回
         return [
-            (int) ceil($inputTokens * (float) $config[$model]->inputTokenMultiple),
-            (int) ceil($outputTokens * (float) $config[$model]->outputTokenMultiple),
+            (int) ceil($inputTokens * (float) $modelConfig->inputTokenMultiple),
+            (int) ceil($outputTokens * (float) $modelConfig->outputTokenMultiple),
         ];
     }
 }

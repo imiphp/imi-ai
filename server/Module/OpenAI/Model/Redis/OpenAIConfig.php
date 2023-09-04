@@ -76,4 +76,38 @@ class OpenAIConfig extends RedisModel
         }
         throw new \RuntimeException('没有可用的 API');
     }
+
+    /**
+     * 模型列表.
+     *
+     * @var ModelConfig[]
+     */
+    #[
+        Column(type: 'json'),
+        JsonDecode(wrap: ModelConfig::class, arrayWrap: true),
+    ]
+    protected ?array $models = null;
+
+    public function getModels(): ?array
+    {
+        if (null === $this->models)
+        {
+            return $this->models = [
+                new ModelConfig(['model' => 'gpt-3.5-turbo', 'inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
+                new ModelConfig(['model' => 'gpt-3.5-turbo-16k', 'inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
+                new ModelConfig(['model' => 'gpt-4', 'enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
+                new ModelConfig(['model' => 'gpt-4-32k', 'enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
+                new ModelConfig(['model' => 'text-embedding-ada-002', 'inputTokenMultiple' => '0.05', 'outputTokenMultiple' => '0.05', 'maxTokens' => 8191]),
+            ];
+        }
+
+        return $this->models;
+    }
+
+    public function setModels(?array $models): self
+    {
+        $this->models = $models;
+
+        return $this;
+    }
 }

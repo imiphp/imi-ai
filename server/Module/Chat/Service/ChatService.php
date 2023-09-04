@@ -61,7 +61,7 @@ class ChatService
 
         $chatConfig = ChatConfig::__getConfigAsync();
         $model = ObjectArrayHelper::get($config, 'model', 'gpt-3.5-turbo');
-        $modelConfig = $chatConfig->getModelConfig()[$model] ?? null;
+        $modelConfig = $chatConfig->getModelConfig($model);
         if (!$modelConfig || !$modelConfig->enable)
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
@@ -106,7 +106,7 @@ class ChatService
         $params['model'] ??= 'gpt-3.5-turbo';
         $config = ChatConfig::__getConfigAsync();
         /** @var ModelConfig|null $modelConfig */
-        $modelConfig = $config->getModelConfig()[$params['model']] ?? null;
+        $modelConfig = $config->getModelConfig($params['model']);
         if (!$modelConfig || !$modelConfig->enable)
         {
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
@@ -195,7 +195,7 @@ class ChatService
         }
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
-        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfig());
+        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfigs());
         $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;

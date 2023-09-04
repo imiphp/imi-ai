@@ -57,7 +57,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { SearchSharp } from '@vicons/ionicons5';
 import { fetchCardDetails } from '@/service';
 import { useLoading } from '@/hooks';
-import { useEnums, parseEnumWithAll } from '~/src/store';
+import { useAdminEnums, parseEnumWithAll } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 
 const route = useRoute();
@@ -151,7 +151,7 @@ const columns: Ref<DataTableColumns<Card.CardDetail>> = ref([
 ]) as Ref<DataTableColumns<Card.CardDetail>>;
 
 async function init() {
-  enums.value = await useEnums(['BusinessType', 'OperationType']);
+  enums.value = await useAdminEnums(['BusinessType', 'OperationType']);
   getTableData();
 }
 

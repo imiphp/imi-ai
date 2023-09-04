@@ -1,15 +1,12 @@
 import { request } from '../request';
 
-export async function config() {
-  return request.get('/config/public');
+export async function getConfig() {
+  return request.get('/config/admin/get');
 }
 
-export async function enumValues(name?: string | string[]) {
-  if (typeof name === 'object') name = name.join(',');
-  return request.get('/enum/values', {
-    params: {
-      name
-    }
+export async function saveConfig(data: any) {
+  return request.post<Api.BaseResponse>('/config/admin/save', {
+    data
   });
 }
 

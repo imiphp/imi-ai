@@ -97,7 +97,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { CreateOutline, List, SearchSharp } from '@vicons/ionicons5';
 import { fetchCardList } from '@/service';
 import { useLoading } from '@/hooks';
-import { useEnums } from '~/src/store';
+import { useAdminEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
 import GenerateCardModal from './components/generate-card-modal.vue';
@@ -305,7 +305,7 @@ function handleUpdateRemark(card: Card.Card) {
 }
 
 async function init() {
-  enums.value = await useEnums(['BusinessType', 'OperationType']);
+  enums.value = await useAdminEnums(['BusinessType', 'OperationType']);
   getTableData();
 }
 

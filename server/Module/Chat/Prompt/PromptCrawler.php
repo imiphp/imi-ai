@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\Prompt;
 
+use app\Module\Chat\Prompt\Annotation\PromptCrawler as PromptCrawlerAnnotation;
 use app\Module\Chat\Prompt\Contract\IPromptCrawler;
 use app\Module\Chat\Prompt\Model\Redis\PromptConfig;
 use app\Module\Chat\Service\PromptCrawlerOriginService;
 use app\Module\Chat\Service\PromptService;
 use Imi\Aop\Annotation\Inject;
 use Imi\App;
+use Imi\Bean\Annotation\AnnotationManager;
 use Imi\Db\Annotation\Transaction;
 use Imi\Log\Log;
 
@@ -20,6 +22,23 @@ class PromptCrawler
 
     #[Inject()]
     protected PromptCrawlerOriginService $promptCrawlerOriginService;
+
+    protected array $crawlers = [];
+
+    public function __construct()
+    {
+        foreach (AnnotationManager::getAnnotationPoints(PromptCrawlerAnnotation::class, 'class') as $point)
+        {
+            /** @var PromptCrawlerAnnotation $annotation */
+            $annotation = $point->getAnnotation();
+            $class = $point->getClass();
+            $this->crawlers[] = [
+                'title' => $annotation->title,
+                'url'   => $annotation->url,
+                'class' => $class,
+            ];
+        }
+    }
 
     public function crawl(): void
     {
@@ -61,5 +80,10 @@ class PromptCrawler
                 $this->promptService->create([], $title, $prompt->prompt, crawlerOriginId: $origin->id);
             }
         }
+    }
+
+    public function getCrawlers(): array
+    {
+        return $this->crawlers;
     }
 }

@@ -4,6 +4,16 @@ const management: AuthRoute.Route = {
   component: 'basic',
   children: [
     {
+      name: 'config',
+      path: '/config',
+      component: 'self',
+      meta: {
+        title: '系统设置',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
+    },
+    {
       name: 'management_admin_member',
       path: '/management/admin/member',
       component: 'self',

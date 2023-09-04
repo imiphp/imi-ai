@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace app\Module\OpenAI\Client\OpenAI;
 
+use app\Module\OpenAI\Client\Annotation\OpenAIClient;
 use app\Module\OpenAI\Client\Contract\IClient;
 use app\Module\OpenAI\Model\Redis\Api;
-use Imi\Bean\Annotation\Bean;
 use Imi\Config;
 use Imi\Util\Text;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-#[Bean(name: 'OpenAIClient')]
+#[
+    OpenAIClient(title: 'OpenAI'),
+]
 class Client implements IClient
 {
     private \OpenAI\Client $client;

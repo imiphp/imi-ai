@@ -31,34 +31,47 @@ class ChatConfig extends RedisModel
         Column(type: 'json'),
         JsonDecode(wrap: ModelConfig::class, arrayWrap: true),
     ]
-    protected ?array $modelConfig = null;
+    protected ?array $modelConfigs = null;
 
     /**
      * @return ModelConfig[]
      */
-    public function getModelConfig(): array
+    public function getModelConfigs(): array
     {
-        if (null === $this->modelConfig)
+        if (null === $this->modelConfigs)
         {
-            return $this->modelConfig = [
-                'gpt-3.5-turbo'     => new ModelConfig(['inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
-                'gpt-3.5-turbo-16k' => new ModelConfig(['inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
-                'gpt-4'             => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
-                'gpt-4-32k'         => new ModelConfig(['enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
+            return $this->modelConfigs = [
+                new ModelConfig(['model' => 'gpt-3.5-turbo', 'inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
+                new ModelConfig(['model' => 'gpt-3.5-turbo-16k', 'inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
+                new ModelConfig(['model' => 'gpt-4', 'enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
+                new ModelConfig(['model' => 'gpt-4-32k', 'enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
             ];
         }
 
-        return $this->modelConfig;
+        return $this->modelConfigs;
     }
 
     /**
-     * @param ModelConfig[] $modelConfig
+     * @param ModelConfig[] $modelConfigs
      */
-    public function setModelConfig(array $modelConfig): self
+    public function setModelConfigs(array $modelConfigs): self
     {
-        $this->modelConfig = $modelConfig;
+        $this->modelConfigs = $modelConfigs;
 
         return $this;
+    }
+
+    public function getModelConfig(string $model): ?ModelConfig
+    {
+        foreach ($this->getModelConfigs() as $modelConfig)
+        {
+            if ($modelConfig->model === $model)
+            {
+                return $modelConfig;
+            }
+        }
+
+        return null;
     }
 
     /**
