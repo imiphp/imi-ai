@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 import { useBasicLayout } from '~/src/composables';
 
-export function defaultPaginationProps(loadData: CallableFunction) {
+export function defaultPaginationProps(loadData: CallableFunction, simple?: boolean) {
   const { isMobile } = useBasicLayout();
   const pagination = reactive({
     page: 1,
@@ -9,7 +9,7 @@ export function defaultPaginationProps(loadData: CallableFunction) {
     showSizePicker: true,
     pageSizes: [10, 15, 20, 25, 30],
     pageCount: 1,
-    itemCount: 0,
+    itemCount: 0 as number | undefined,
     onChange: (page: number) => {
       pagination.page = page;
       loadData();
@@ -19,9 +19,9 @@ export function defaultPaginationProps(loadData: CallableFunction) {
       pagination.page = 1;
       loadData();
     },
-    simple: isMobile,
+    simple: simple ?? isMobile,
     prefix: () => {
-      return `共 ${pagination.itemCount} 条数据`;
+      return undefined === pagination.itemCount ? '' : `共 ${pagination.itemCount} 条数据`;
     }
   });
   return pagination;

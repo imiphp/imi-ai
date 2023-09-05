@@ -8,3 +8,4 @@ export * from './member';
 export * from './vcode';
 export * from './prompt';
 export * from './openai';
+export * from './email';

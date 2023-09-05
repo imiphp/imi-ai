@@ -14,6 +14,16 @@ const management: AuthRoute.Route = {
       }
     },
     {
+      name: 'config_email_black_list',
+      path: '/config/email/black/list',
+      component: 'self',
+      meta: {
+        title: '邮箱域名黑名单设置',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
+    },
+    {
       name: 'management_admin_member',
       path: '/management/admin/member',
       component: 'self',

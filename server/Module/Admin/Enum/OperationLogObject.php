@@ -31,4 +31,7 @@ class OperationLogObject extends BaseEnum
 
     #[EnumItem(text: '卡')]
     public const CARD = 'card';
+
+    #[EnumItem(text: '邮箱域名黑名单')]
+    public const EMAIL_DOMAIN_BLACK_LIST = 'emailDomainBlackList';
 }
