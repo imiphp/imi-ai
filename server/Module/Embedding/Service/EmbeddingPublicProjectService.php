@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Embedding\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Util\OperationLog;
 use app\Module\Embedding\Enum\PublicProjectStatus;
@@ -17,7 +18,7 @@ use Imi\Db\Annotation\Transaction;
 
 class EmbeddingPublicProjectService
 {
-    public const LOG_OBJECT = 'embeddingProject';
+    public const LOG_OBJECT = OperationLogObject::EMBEDDING_PROJECT;
 
     public function get(int|string $id): ?EmbeddingPublicProject
     {

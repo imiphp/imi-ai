@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Admin\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Model\Redis\AdminMemberConfig;
 use app\Module\Admin\Util\OperationLog;
@@ -25,7 +26,7 @@ class AdminAuthService
 
     public const TOKEN_TYPE = 'adminAuth';
 
-    public const LOG_OBJECT = 'adminMember';
+    public const LOG_OBJECT = OperationLogObject::ADMIN_MEMBER;
 
     public function login(string $account, string $password, string $ip): array
     {

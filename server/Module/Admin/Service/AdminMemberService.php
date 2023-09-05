@@ -6,6 +6,7 @@ namespace app\Module\Admin\Service;
 
 use app\Exception\NotFoundException;
 use app\Module\Admin\Enum\AdminMemberStatus;
+use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Model\AdminMember;
 use app\Module\Admin\Util\OperationLog;
@@ -19,7 +20,7 @@ use Imi\Validate\Annotation\Text;
 
 class AdminMemberService
 {
-    public const LOG_OBJECT = 'adminMember';
+    public const LOG_OBJECT = OperationLogObject::ADMIN_MEMBER;
 
     #[Inject()]
     protected AdminAuthService $authService;

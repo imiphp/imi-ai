@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Util\OperationLog;
 use app\Module\Business\Enum\BusinessType;
@@ -32,7 +33,7 @@ use function Yurun\Swoole\Coroutine\goWait;
 
 class ChatService
 {
-    public const LOG_OBJECT = 'chat';
+    public const LOG_OBJECT = OperationLogObject::CHAT;
 
     public const ALLOW_PARAMS = ['model', 'temperature', 'top_p',  'presence_penalty', 'frequency_penalty'];
 

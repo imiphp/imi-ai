@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Member\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Util\OperationLog;
 use app\Module\Member\Enum\MemberStatus;
@@ -20,7 +21,7 @@ use Imi\Validate\ValidatorHelper;
 
 class MemberService
 {
-    public const LOG_OBJECT = 'member';
+    public const LOG_OBJECT = OperationLogObject::MEMBER;
 
     #[Inject]
     protected EmailAuthService $emailAuthService;
