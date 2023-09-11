@@ -31,7 +31,7 @@ class EmailAuthController extends HttpController
     {
         $this->vCodeService->autoCheck($vcodeToken, $vcode);
 
-        return $this->emailAuthService->sendRegisterEmail($email, $password, $invitationCode);
+        return $this->emailAuthService->sendRegisterEmail($email, $password, $invitationCode, IPUtil::getIP());
     }
 
     #[

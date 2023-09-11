@@ -39,7 +39,7 @@ class AppInit implements IEventListener
             return;
         }
         Coroutine::create(function () use ($address) {
-            $this->emailService->sendMail($address, '服务启动通知', '服务启动：' . date('Y-m-d H:i:s'));
+            $this->emailService->sendMail($address, '服务启动通知', '服务启动：' . date('Y-m-d H:i:s'), sendType: '服务启动通知');
             Log::info('发送启动邮件成功');
         });
     }

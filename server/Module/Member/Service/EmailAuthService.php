@@ -44,7 +44,7 @@ class EmailAuthService
         Condition(name: 'email', callable: '\Imi\Validate\ValidatorHelper::email', message: '邮箱格式错误'),
         Text(name: 'password', min: 6, message: '密码最小长度为6位'),
     ]
-    public function sendRegisterEmail(string $email, string $password, string $invitationCode = ''): array
+    public function sendRegisterEmail(string $email, string $password, string $invitationCode = '', string $ip = ''): array
     {
         if ($this->isRegistered($email))
         {
@@ -68,7 +68,7 @@ class EmailAuthService
                 'verifyToken' => $verifyToken,
             ]),
         ];
-        $this->emailService->sendMail($email, $config->getRegisterEmailTitle(), $config->getRegisterEmailContent(), $params, $config->getRegisterEmailIsHtml());
+        $this->emailService->sendMail($email, $config->getRegisterEmailTitle(), $config->getRegisterEmailContent(), $params, $config->getRegisterEmailIsHtml(), '注册邮件', ip: $ip);
 
         return [
             'token' => $token,
