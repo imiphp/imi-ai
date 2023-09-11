@@ -1,3 +1,4 @@
+import { decodeSecureField } from '~/src/utils/crypto';
 import { request } from '../request';
 
 /** 获取用户列表 */
@@ -52,7 +53,7 @@ export const fetchAdminOperationLogList = async (
   page = 1,
   limit = 15
 ) => {
-  return request.get<AdminOperationLog.LogListResponse>('/admin/adminOperationLog/list', {
+  const response = await request.get<AdminOperationLog.LogListResponse>('/admin/adminOperationLog/list', {
     params: {
       memberId,
       object,
@@ -63,4 +64,10 @@ export const fetchAdminOperationLogList = async (
       limit
     }
   });
+
+  response.data?.list.forEach(item => {
+    item.message = decodeSecureField(item.message);
+  });
+
+  return response;
 };

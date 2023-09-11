@@ -7,6 +7,7 @@ namespace app\Module\Admin\Model;
 use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Model\Base\AdminOperationLogBase;
+use app\Module\Common\Model\Traits\TSecureField;
 use Imi\Bean\Annotation\Inherit;
 use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Relation\JoinFrom;
@@ -26,6 +27,13 @@ use Imi\Model\Enum\RelationPoolName;
 ]
 class AdminOperationLog extends AdminOperationLogBase
 {
+    use TSecureField;
+
+    /**
+     * 安全处理字段.
+     */
+    protected static array $__secureFields = ['message'];
+
     #[Column(virtual: true)]
     protected ?string $statusText = null;
 

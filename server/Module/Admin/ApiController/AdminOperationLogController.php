@@ -23,6 +23,13 @@ class AdminOperationLogController extends HttpController
     ]
     public function list(int $memberId = 0, string $object = '', int $status = 0, int $beginTime = 0, int $endTime = 0, int $page = 1, int $limit = 15): array
     {
-        return $this->adminOperationLogService->list($memberId, $object, $status, $beginTime, $endTime, $page, $limit);
+        $result = $this->adminOperationLogService->list($memberId, $object, $status, $beginTime, $endTime, $page, $limit);
+        /** @var \app\Module\Admin\Model\AdminOperationLog $item */
+        foreach ($result['list'] as $item)
+        {
+            $item->__setSecureField(true);
+        }
+
+        return $result;
     }
 }
