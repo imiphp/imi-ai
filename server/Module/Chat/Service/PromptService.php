@@ -214,11 +214,15 @@ class PromptService
                 return \count($ids);
             }
 
+            OperationLog::log(0, OperationLogObject::CHAT, OperationLogStatus::SUCCESS, '清理临时记录：0 条', '');
+
             return 0;
         }))
         {
             $recordCount += $chunkRecordCount;
         }
+
+        OperationLog::log(0, OperationLogObject::CHAT, OperationLogStatus::SUCCESS, sprintf('清理临时记录：%d 条', $recordCount), '');
 
         return $recordCount;
     }

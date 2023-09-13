@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\Prompt;
 
+use app\Module\Admin\Enum\OperationLogObject;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Chat\Prompt\Annotation\PromptCrawler as PromptCrawlerAnnotation;
 use app\Module\Chat\Prompt\Contract\IPromptCrawler;
 use app\Module\Chat\Prompt\Enum\PromptType;
@@ -63,6 +66,7 @@ class PromptCrawler
         }
         /** @var IPromptCrawler $crawler */
         $crawler = App::getBean($class);
+        $insertCount = $updateCount = 0;
         /** @var \app\Module\Chat\Model\Prompt $prompt */
         foreach ($crawler->crawl() as $prompt)
         {
@@ -74,13 +78,17 @@ class PromptCrawler
                 if ($record->prompt !== $prompt->prompt)
                 {
                     $this->promptService->update($record->id, prompt: $prompt->prompt);
+                    ++$updateCount;
                 }
             }
             else
             {
                 $this->promptService->create(PromptType::PROMPT, [], $title, '', $prompt->prompt, crawlerOriginId: $origin->id);
+                ++$insertCount;
             }
         }
+
+        OperationLog::log(0, OperationLogObject::PROMPT, OperationLogStatus::SUCCESS, sprintf('采集提示语，class=%s，新增=%d，更新=%d', $class, $insertCount, $updateCount), '');
     }
 
     public function getCrawlers(): array
