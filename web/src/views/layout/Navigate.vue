@@ -56,6 +56,19 @@ const menuOptions = [
         RouterLink,
         {
           to: {
+            name: 'AITool',
+          },
+        },
+        { default: () => 'AI工具' },
+      ),
+    key: 'AITool',
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
             name: 'PromptStore',
           },
         },

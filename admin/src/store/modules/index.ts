@@ -6,3 +6,4 @@ export * from './route';
 export * from './setup-store';
 export * from './common';
 export * from './config';
+export * from './prompt';

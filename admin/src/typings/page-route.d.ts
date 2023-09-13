@@ -57,7 +57,11 @@ declare namespace PageRoute {
     | 'management_operation'
     | 'management_operation_log'
     | 'member'
-    | 'member_list';
+    | 'member_list'
+    | 'prompt'
+    | 'prompt_category'
+    | 'prompt_category_list'
+    | 'prompt_list';
 
   /**
    * last degree route key, which has the page file
@@ -91,5 +95,7 @@ declare namespace PageRoute {
     | 'management_admin_member'
     | 'management_operation_log'
     | 'member_list'
+    | 'prompt_category_list'
+    | 'prompt_list'
   >;
 }

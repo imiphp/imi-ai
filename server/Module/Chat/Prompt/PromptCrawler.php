@@ -6,6 +6,7 @@ namespace app\Module\Chat\Prompt;
 
 use app\Module\Chat\Prompt\Annotation\PromptCrawler as PromptCrawlerAnnotation;
 use app\Module\Chat\Prompt\Contract\IPromptCrawler;
+use app\Module\Chat\Prompt\Enum\PromptType;
 use app\Module\Chat\Prompt\Model\Redis\PromptConfig;
 use app\Module\Chat\Service\PromptCrawlerOriginService;
 use app\Module\Chat\Service\PromptService;
@@ -77,7 +78,7 @@ class PromptCrawler
             }
             else
             {
-                $this->promptService->create([], $title, $prompt->prompt, crawlerOriginId: $origin->id);
+                $this->promptService->create(PromptType::PROMPT, [], $title, '', $prompt->prompt, crawlerOriginId: $origin->id);
             }
         }
     }

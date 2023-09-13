@@ -18,12 +18,14 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\Prompt.name", default="tb_prompt"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\Prompt.poolName"))
  *
- * @DDL(sql="Q1JFQVRFIFRBQkxFIGB0Yl9wcm9tcHRgICggICBgaWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBBVVRPX0lOQ1JFTUVOVCwgICBgY3Jhd2xlcl9vcmlnaW5faWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBDT01NRU5UICfph4fpm4bmnaXmupBJRCcsICAgYGNhdGVnb3J5X2lkc2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfliIbnsbtJRCcsICAgYHRpdGxlYCB2YXJjaGFyKDMyKSBDSEFSQUNURVIgU0VUIHV0ZjhtYjQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn5qCH6aKYJywgICBgcHJvbXB0YCB0ZXh0IENIQVJBQ1RFUiBTRVQgdXRmOG1iNCBDT0xMQVRFIHV0ZjhtYjRfdW5pY29kZV9jaSBOT1QgTlVMTCBDT01NRU5UICfmj5DnpLror63lhoXlrrknLCAgIGBmaXJzdF9tZXNzYWdlX2NvbnRlbnRgIHRleHQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn6aaW5p2h5raI5oGv5YaF5a65JywgICBgaW5kZXhgIHRpbnlpbnQgdW5zaWduZWQgTk9UIE5VTEwgREVGQVVMVCAnMTI4JyBDT01NRU5UICfmjpLluo/vvIwwLTI1Ne+8jOacgOWwj+i2iumdoOWJjScsICAgYGNvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfphY3nva4nLCAgIGBmb3JtX2NvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfooajljZXphY3nva4nLCAgIGBjcmVhdGVfdGltZWAgaW50IHVuc2lnbmVkIE5PVCBOVUxMIENPTU1FTlQgJ+WIm+W7uuaXtumXtCcsICAgYHVwZGF0ZV90aW1lYCBpbnQgdW5zaWduZWQgTk9UIE5VTEwgQ09NTUVOVCAn5pu05paw5pe26Ze0JywgICBQUklNQVJZIEtFWSAoYGlkYCkgVVNJTkcgQlRSRUUsICAgS0VZIGBpbmRleGAgKGBpbmRleGAsYHVwZGF0ZV90aW1lYCBERVNDKSBVU0lORyBCVFJFRSwgICBLRVkgYGNyYXdsZXJfb3JpZ2luX2lkYCAoYGNyYXdsZXJfb3JpZ2luX2lkYCkgVVNJTkcgQlRSRUUsICAgS0VZIGBjYXRlZ29yeV9pZHNgICgoY2FzdChgY2F0ZWdvcnlfaWRzYCBhcyB1bnNpZ25lZCBhcnJheSkpKSwgICBGVUxMVEVYVCBLRVkgYHRpdGxlYCAoYHRpdGxlYCkgLyohNTAxMDAgV0lUSCBQQVJTRVIgYG5ncmFtYCAqLyAgKSBFTkdJTkU9SW5ub0RCIERFRkFVTFQgQ0hBUlNFVD11dGY4bWI0IENPTExBVEU9dXRmOG1iNF91bmljb2RlX2NpIENPTU1FTlQ9J+aPkOekuuivrSc=", decode="base64_decode")
+ * @DDL(sql="Q1JFQVRFIFRBQkxFIGB0Yl9wcm9tcHRgICggICBgaWRgIGludCB1bnNpZ25lZCBOT1QgTlVMTCBBVVRPX0lOQ1JFTUVOVCwgICBgdHlwZWAgdGlueWludCB1bnNpZ25lZCBOT1QgTlVMTCBERUZBVUxUICcwJyBDT01NRU5UICfnsbvlnosnLCAgIGBjcmF3bGVyX29yaWdpbl9pZGAgaW50IHVuc2lnbmVkIE5PVCBOVUxMIENPTU1FTlQgJ+mHh+mbhuadpea6kElEJywgICBgY2F0ZWdvcnlfaWRzYCBqc29uIE5PVCBOVUxMIENPTU1FTlQgJ+WIhuexu0lEJywgICBgdGl0bGVgIHZhcmNoYXIoMzIpIENIQVJBQ1RFUiBTRVQgdXRmOG1iNCBDT0xMQVRFIHV0ZjhtYjRfdW5pY29kZV9jaSBOT1QgTlVMTCBDT01NRU5UICfmoIfpopgnLCAgIGBkZXNjcmlwdGlvbmAgdmFyY2hhcigyNTUpIENPTExBVEUgdXRmOG1iNF91bmljb2RlX2NpIE5PVCBOVUxMIERFRkFVTFQgJycgQ09NTUVOVCAn566A5LuLJywgICBgcHJvbXB0YCB0ZXh0IENIQVJBQ1RFUiBTRVQgdXRmOG1iNCBDT0xMQVRFIHV0ZjhtYjRfdW5pY29kZV9jaSBOT1QgTlVMTCBDT01NRU5UICfmj5DnpLror63lhoXlrrknLCAgIGBmaXJzdF9tZXNzYWdlX2NvbnRlbnRgIHRleHQgQ09MTEFURSB1dGY4bWI0X3VuaWNvZGVfY2kgTk9UIE5VTEwgQ09NTUVOVCAn6aaW5p2h5raI5oGv5YaF5a65JywgICBgaW5kZXhgIHRpbnlpbnQgdW5zaWduZWQgTk9UIE5VTEwgREVGQVVMVCAnMTI4JyBDT01NRU5UICfmjpLluo/vvIwwLTI1Ne+8jOacgOWwj+i2iumdoOWJjScsICAgYGNvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfphY3nva4nLCAgIGBmb3JtX2NvbmZpZ2AganNvbiBOT1QgTlVMTCBDT01NRU5UICfooajljZXphY3nva4nLCAgIGBjcmVhdGVfdGltZWAgaW50IHVuc2lnbmVkIE5PVCBOVUxMIENPTU1FTlQgJ+WIm+W7uuaXtumXtCcsICAgYHVwZGF0ZV90aW1lYCBpbnQgdW5zaWduZWQgTk9UIE5VTEwgQ09NTUVOVCAn5pu05paw5pe26Ze0JywgICBQUklNQVJZIEtFWSAoYGlkYCkgVVNJTkcgQlRSRUUsICAgS0VZIGBjcmF3bGVyX29yaWdpbl9pZGAgKGBjcmF3bGVyX29yaWdpbl9pZGApIFVTSU5HIEJUUkVFLCAgIEtFWSBgaW5kZXhgIChgdHlwZWAsYGluZGV4YCxgdXBkYXRlX3RpbWVgIERFU0MpIFVTSU5HIEJUUkVFLCAgIEtFWSBgY2F0ZWdvcnlfaWRzYCAoKGNhc3QoYGNhdGVnb3J5X2lkc2AgYXMgdW5zaWduZWQgYXJyYXkpKSksICAgRlVMTFRFWFQgS0VZIGB0aXRsZWAgKGB0aXRsZWApIC8qITUwMTAwIFdJVEggUEFSU0VSIGBuZ3JhbWAgKi8gICkgRU5HSU5FPUlubm9EQiBERUZBVUxUIENIQVJTRVQ9dXRmOG1iNCBDT0xMQVRFPXV0ZjhtYjRfdW5pY29kZV9jaSBDT01NRU5UPSfmj5DnpLror60n", decode="base64_decode")
  *
  * @property int|null                                    $id
+ * @property int|null                                    $type                类型
  * @property int|null                                    $crawlerOriginId     采集来源ID
  * @property \Imi\Util\LazyArrayObject|object|array|null $categoryIds         分类ID
  * @property string|null                                 $title               标题
+ * @property string|null                                 $description         简介
  * @property string|null                                 $prompt              提示语内容
  * @property string|null                                 $firstMessageContent 首条消息内容
  * @property int|null                                    $index               排序，0-255，最小越靠前
@@ -69,6 +71,36 @@ abstract class PromptBase extends Model
     public function setId($id)
     {
         $this->id = null === $id ? null : (int) $id;
+
+        return $this;
+    }
+
+    /**
+     * 类型.
+     * type.
+     *
+     * @Column(name="type", type="tinyint", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $type = 0;
+
+    /**
+     * 获取 type - 类型.
+     */
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    /**
+     * 赋值 type - 类型.
+     *
+     * @param int|null $type type
+     *
+     * @return static
+     */
+    public function setType($type)
+    {
+        $this->type = null === $type ? null : (int) $type;
 
         return $this;
     }
@@ -167,6 +199,40 @@ abstract class PromptBase extends Model
             throw new \InvalidArgumentException('The maximum length of $title is 32');
         }
         $this->title = null === $title ? null : (string) $title;
+
+        return $this;
+    }
+
+    /**
+     * 简介.
+     * description.
+     *
+     * @Column(name="description", type="varchar", length=255, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $description = '';
+
+    /**
+     * 获取 description - 简介.
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * 赋值 description - 简介.
+     *
+     * @param string|null $description description
+     *
+     * @return static
+     */
+    public function setDescription($description)
+    {
+        if (\is_string($description) && mb_strlen($description) > 255)
+        {
+            throw new \InvalidArgumentException('The maximum length of $description is 255');
+        }
+        $this->description = null === $description ? null : (string) $description;
 
         return $this;
     }

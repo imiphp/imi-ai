@@ -10,10 +10,15 @@ class RequestUtil
 {
     use TStaticClass;
 
-    public static function parseArrayParams(mixed $value): array
+    public static function parseArrayParams(mixed $value, ?callable $filter = null): array
     {
         if (\is_array($value))
         {
+            if ($filter)
+            {
+                return array_map($filter, $value);
+            }
+
             return $value;
         }
         if ('' === $value)
@@ -21,6 +26,12 @@ class RequestUtil
             return [];
         }
 
-        return explode(',', (string) $value);
+        $result = explode(',', (string) $value);
+        if (null !== $filter)
+        {
+            return array_map($filter, $result);
+        }
+
+        return $result;
     }
 }

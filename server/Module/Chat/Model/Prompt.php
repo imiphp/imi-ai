@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Chat\Model;
 
 use app\Module\Chat\Model\Base\PromptBase;
+use app\Module\Chat\Prompt\Enum\PromptType;
 use app\Module\Chat\Service\PromptCategoryService;
 use app\Module\Common\Model\Traits\TRecordId;
 use Imi\App;
@@ -19,7 +20,7 @@ use Imi\Util\ArrayUtil;
  *
  * @Inherit
  */
-#[Serializables(mode: 'deny', fields: ['id', 'categoryId', 'categorys'])]
+#[Serializables(mode: 'deny', fields: ['id', 'categoryIds', 'categorys'])]
 class Prompt extends PromptBase
 {
     use TRecordId;
@@ -113,5 +114,15 @@ class Prompt extends PromptBase
         }
 
         return $this->categoryTitles;
+    }
+
+    #[
+        Column(virtual: true)
+    ]
+    protected ?string $typeText = null;
+
+    public function getTypeText(): ?string
+    {
+        return PromptType::getText($this->type);
     }
 }

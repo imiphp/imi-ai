@@ -37,4 +37,10 @@ class OperationLogObject extends BaseEnum
 
     #[EnumItem(text: '发送邮件')]
     public const EMAIL = 'email';
+
+    #[EnumItem(text: '提示语分类')]
+    public const PROMPT_CATEGORY = 'prompt_category';
+
+    #[EnumItem(text: '提示语')]
+    public const PROMPT = 'prompt';
 }

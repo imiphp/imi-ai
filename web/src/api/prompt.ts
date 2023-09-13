@@ -9,6 +9,7 @@ export async function promptCategoryList(
 }
 
 export async function promptList(
+  type: number,
   categoryIds: string | string[],
   search = '',
   page = 1,
@@ -17,6 +18,7 @@ export async function promptList(
   return await get({
     url: '/chat/prompt/list',
     data: {
+      type,
       categoryIds,
       search,
       page,

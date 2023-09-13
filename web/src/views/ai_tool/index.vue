@@ -72,7 +72,7 @@ async function loadPromptList(loading = true) {
     if (loading)
       showLoading.value = true
     const response = await getPromptList(
-      1, // 提示语
+      2, // 工具
       categoryId.value,
       search.value,
       page.value, pageSize.value,
@@ -246,7 +246,7 @@ onMounted(async () => {
         </RouterLink>
       </NBreadcrumbItem>
       <NBreadcrumbItem>
-        模型市场
+        AI工具
       </NBreadcrumbItem>
     </NBreadcrumb>
     <NSpin :show="showLoading">

@@ -23,9 +23,9 @@ class PromptController extends HttpController
     protected PromptService $promptService;
 
     #[Action()]
-    public function list(string|array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
+    public function list(int $type, string|array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
     {
-        return $this->promptService->list(RequestUtil::parseArrayParams($categoryIds), $search, $page, $limit);
+        return $this->promptService->list($type, RequestUtil::parseArrayParams($categoryIds), $search, $page, $limit);
     }
 
     #[Action()]

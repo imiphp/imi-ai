@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace app\Module\Chat\Service;
 
 use app\Exception\NotFoundException;
+use app\Module\Admin\Enum\OperationLogObject;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\ChatMessage;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Prompt;
 use app\Module\Chat\Model\PromptCategory;
 use Imi\Aop\Annotation\Inject;
+use Imi\Db\Annotation\Transaction;
 use Imi\Db\Db;
 
 class PromptService
@@ -18,11 +22,14 @@ class PromptService
     #[Inject()]
     protected ChatService $chatService;
 
-    public function create(array $categoryIds, string $title, string $prompt, string $firstMessageContent = '', int $index = 128, int $crawlerOriginId = 0, array $config = [], array $formConfig = []): Prompt
+    #[Transaction()]
+    public function create(int $type, array $categoryIds, string $title, string $description, string $prompt, string $firstMessageContent = '', int $index = 128, int $crawlerOriginId = 0, array $config = [], array $formConfig = [], int $operatorMemberId = 0, string $ip = ''): Prompt
     {
         $record = Prompt::newInstance();
+        $record->type = $type;
         $record->categoryIds = $categoryIds;
         $record->title = $title;
+        $record->description = $description;
         $record->prompt = $prompt;
         $record->firstMessageContent = $firstMessageContent;
         $record->index = $index;
@@ -31,10 +38,13 @@ class PromptService
         $record->formConfig = $formConfig;
         $record->insert();
 
+        OperationLog::log($operatorMemberId, OperationLogObject::PROMPT, OperationLogStatus::SUCCESS, sprintf('创建提示语，id=%s，title=%s', $record->id, $record->title), $ip);
+
         return $record;
     }
 
-    public function update(int|string $id, ?array $categoryIds = null, ?string $title = null, ?string $prompt = null, ?string $firstMessageContent = null, ?int $index = null, ?array $config = null, ?array $formConfig = null): Prompt
+    #[Transaction()]
+    public function update(int|string $id, ?array $categoryIds = null, ?string $title = null, ?string $description = null, ?string $prompt = null, ?string $firstMessageContent = null, ?int $index = null, ?array $config = null, ?array $formConfig = null, int $operatorMemberId = 0, string $ip = ''): Prompt
     {
         $record = $this->get($id);
         if (null !== $categoryIds)
@@ -44,6 +54,10 @@ class PromptService
         if (null !== $title)
         {
             $record->title = $title;
+        }
+        if (null !== $description)
+        {
+            $record->description = $description;
         }
         if (null !== $prompt)
         {
@@ -65,7 +79,12 @@ class PromptService
         {
             $record->formConfig = $formConfig;
         }
-        $record->update();
+        $result = $record->update();
+
+        if ($result->getAffectedRows() > 0)
+        {
+            OperationLog::log($operatorMemberId, OperationLogObject::PROMPT, OperationLogStatus::SUCCESS, sprintf('更新提示语，id=%s，title=%s', $record->id, $record->title), $ip);
+        }
 
         return $record;
     }
@@ -86,15 +105,18 @@ class PromptService
         return $record;
     }
 
-    public function delete(int|string $id): void
+    #[Transaction()]
+    public function delete(int|string $id, int $operatorMemberId = 0, string $ip = ''): void
     {
         $record = $this->get($id);
         $record->delete();
+
+        OperationLog::log($operatorMemberId, OperationLogObject::PROMPT, OperationLogStatus::SUCCESS, sprintf('删除提示语，id=%s，title=%s', $record->id, $record->title), $ip);
     }
 
-    public function list(array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
+    public function list(int $type, array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
     {
-        $query = Prompt::query();
+        $query = Prompt::query()->where('type', '=', $type);
         if ($categoryIds)
         {
             foreach ($categoryIds as &$categoryId)
@@ -104,6 +126,28 @@ class PromptService
                     $categoryId = PromptCategory::decodeId($categoryId);
                 }
             }
+            $query->whereRaw('JSON_CONTAINS(category_ids, :categoryIds)', binds: ['categoryIds' => json_encode($categoryIds)]);
+        }
+        if ($search)
+        {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        return $query->order('index', 'asc')
+                     ->order('update_time', 'desc')
+                     ->paginate($page, $limit)
+                     ->toArray();
+    }
+
+    public function adminList(int $type = 0, array $categoryIds = [], string $search = '', int $page = 1, int $limit = 15): array
+    {
+        $query = \app\Module\Chat\Model\Admin\Prompt::query();
+        if ($type)
+        {
+            $query->where('type', '=', $type);
+        }
+        if ($categoryIds)
+        {
             $query->whereRaw('JSON_CONTAINS(category_ids, :categoryIds)', binds: ['categoryIds' => json_encode($categoryIds)]);
         }
         if ($search)

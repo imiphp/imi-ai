@@ -36,6 +36,15 @@ const routes: RouteRecordRaw[] = [
           title: '模型市场',
         },
       },
+      // AI工具
+      {
+        path: '/aiTool/',
+        name: 'AITool',
+        component: () => import('@/views/ai_tool/index.vue'),
+        meta: {
+          title: 'AI工具',
+        },
+      },
       // Embedding
       {
         path: '/embedding/',

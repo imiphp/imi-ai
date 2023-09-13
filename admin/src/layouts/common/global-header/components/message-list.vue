@@ -1,5 +1,5 @@
 <template>
-  <n-scrollbar class="max-h-360px">
+  <n-scrollbar>
     <n-list>
       <n-list-item
         v-for="(item, index) in list"
