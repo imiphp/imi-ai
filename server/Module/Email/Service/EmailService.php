@@ -36,7 +36,6 @@ class EmailService
         if ($phpmailer->send())
         {
             OperationLog::log($operatorMemberId, OperationLogObject::EMAIL, OperationLogStatus::SUCCESS, sprintf('发送邮件【%s】%s', $sendType, implode(',', (array) $addresses)), $ip);
-            throw new \RuntimeException('登录失败');
         }
         else
         {
