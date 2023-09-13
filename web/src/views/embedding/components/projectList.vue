@@ -16,7 +16,7 @@ import { defaultChatSetting } from '@/store'
 const router = useRouter()
 const dialog = useDialog()
 const embeddingState = useEmbeddingStore()
-const models = ref({})
+const models = ref([])
 
 const createColumns = ({
   chat,
@@ -357,7 +357,7 @@ function handleClickPublicProject() {
 async function loadConfig() {
   const response = await config()
   publicConfig.value = response.data
-  models.value = response.data['config:embedding'].config.chatModelConfig ?? []
+  models.value = response.data['config:embedding'].config.chatModelConfigs ?? []
 }
 
 onMounted(async () => {

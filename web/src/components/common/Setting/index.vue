@@ -8,7 +8,7 @@ interface Props {
   visible: boolean
   prompt?: string
   setting: Chat.ChatSetting
-  models: { [key: string]: ModelConfig }
+  models: ModelConfig[]
   tokens?: number
   payTokens?: number
   readonly?: boolean

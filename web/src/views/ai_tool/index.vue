@@ -46,7 +46,7 @@ const firstMessageContent = computed(() => {
 const activedPromptTab = ref('')
 
 const setting = ref<any>({})
-const models = ref({})
+const models = ref([])
 
 const page = ref(1)
 const pageSize = ref(15)
@@ -59,7 +59,7 @@ async function onUpdateChange(_page: number) {
 
 async function loadConfig() {
   const response = await config()
-  models.value = response.data['config:chat'].config.modelConfig ?? []
+  models.value = response.data['config:chat'].config.modelConfigs ?? []
 }
 
 async function loadCategoryList() {

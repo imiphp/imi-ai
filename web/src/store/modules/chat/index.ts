@@ -9,6 +9,7 @@ export const enum QAStatus {
 }
 
 export interface ModelConfig {
+  model: string
   enable: boolean
   inputTokenMultiple: string
   outputTokenMultiple: string

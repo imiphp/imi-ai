@@ -3,11 +3,12 @@ import { NButton, NInput, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
 import { computed, ref } from 'vue'
 import type { ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
+import { useBasicLayout } from '@/hooks/useBasicLayout'
 
 interface Props {
   prompt?: string
   setting: Chat.ChatSetting
-  models: { [key: string]: ModelConfig }
+  models: ModelConfig[]
   showConfirm?: boolean
   readonly?: boolean
 }
@@ -20,6 +21,16 @@ interface Emit {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
+
+const { isMobile } = useBasicLayout()
+
+const model = computed(() => {
+  for (const item of props.models) {
+    if (item.model === props.setting.model)
+      return item
+  }
+  return null
+})
 
 const prompt = props.showConfirm
   ? ref(props.prompt ?? '')
@@ -64,24 +75,24 @@ function handleReset() {
           <NInput v-model:value="systemMessage" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" />
         </div>
       </div> -->
-      <div class="flex items-center space-x-4">
+      <div class="items-center space-x-4" :class="isMobile ? [] : ['flex']">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.model') }} </span>
-        <div class="flex-1 overflow-x-auto overflow-y-hidden">
+        <div class="flex-1 overflow-x-auto overflow-y-hidden" :class="isMobile ? ['!ml-0 mt-1'] : []">
           <NRadioGroup v-model:value="setting.model" name="model">
             <NRadioButton
-              v-for="(model, key) of models"
-              :key="key"
-              :value="key"
-              :label="key.toString()"
-              :disabled="!model.enable || readonly"
+              v-for="modelItem of models"
+              :key="modelItem.model"
+              :value="modelItem.model"
+              :label="modelItem.model"
+              :disabled="!modelItem.enable || readonly"
             />
           </NRadioGroup>
         </div>
       </div>
-      <div class="leading-10 !mt-2">
-        <p><b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ models[setting.model].outputTokenMultiple }}</span></p>
-        <p v-show=" models[setting.model].tips.length > 0">
-          <b>提示：</b>{{ models[setting.model].tips }}
+      <div v-if="model" class="leading-10 !mt-2">
+        <p><b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ model.inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ model.outputTokenMultiple }}</span></p>
+        <p v-show=" model.tips.length > 0">
+          <b>提示：</b>{{ model.tips }}
         </p>
       </div>
       <div v-if="undefined !== props.prompt" class="flex items-center space-x-4">

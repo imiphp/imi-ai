@@ -48,7 +48,7 @@ const inputContent = ref<string>(usePrompt ? (chatStore.prompt?.firstMessageCont
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
-const models = ref({})
+const models = ref([])
 
 const setting = ref(usePrompt ? (chatStore.prompt?.config ?? defaultChatSetting()) : defaultChatSetting())
 const showSetting = ref(false)
@@ -447,7 +447,7 @@ async function saveSetting() {
 
 async function loadConfig() {
   const response = await config()
-  models.value = response.data['config:chat'].config.modelConfig ?? []
+  models.value = response.data['config:chat'].config.modelConfigs ?? []
 }
 
 async function loadPrompt() {

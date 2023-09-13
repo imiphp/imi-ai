@@ -11,7 +11,7 @@ interface Props {
   visible: boolean
   embeddingSetting: EmbeddingChatSetting
   setting: Chat.ChatSetting
-  models: { [key: string]: ModelConfig }
+  models: ModelConfig[]
 }
 
 interface Emit {

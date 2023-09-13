@@ -38,7 +38,7 @@ const prompt = ref<string>('')
 const currentChatReply = ref<Chat.Chat | null>(null)
 let qaId = ''
 
-const models = ref({})
+const models = ref([])
 const embeddingSetting = ref(defaultEmbeddingSetting())
 const setting = ref(defaultChatSetting())
 const showSetting = ref(false)
@@ -325,7 +325,7 @@ function handleConfig() {
 
 async function loadConfig() {
   const response = await config()
-  models.value = response.data['config:embedding'].config.chatModelConfig ?? []
+  models.value = response.data['config:embedding'].config.chatModelConfigs ?? []
 }
 
 async function handleMessageNextPage() {

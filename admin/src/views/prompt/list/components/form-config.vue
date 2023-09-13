@@ -28,6 +28,20 @@
                 placeholder="请输入"
               ></n-dynamic-input>
             </p>
+            <template v-if="'textarea' === item.type">
+              <p>
+                <b>自动换行：</b>
+                <n-radio-group v-model:value="item.autosize" name="autosize">
+                  <n-radio-button :value="'undefined'" label="默认"></n-radio-button>
+                  <n-radio-button :value="true" label="启用"></n-radio-button>
+                  <n-radio-button :value="false" label="禁用"></n-radio-button>
+                </n-radio-group>
+              </p>
+              <p v-if="'undefined' === item.autosize">
+                <b>行数：</b>
+                <n-input v-model:value="item.rowsArr" pair separator="-" clearable />
+              </p>
+            </template>
           </td>
           <td>
             <n-popconfirm :on-positive-click="() => handleDelete(index)">
@@ -46,6 +60,7 @@
         增加一项
       </n-button>
     </n-space>
+    {{ value }}
   </n-scrollbar>
 </template>
 
@@ -61,10 +76,14 @@ export interface FormItem {
     label: string;
     value: any;
   }[];
+  autosize?: boolean | string;
+  minRows?: number;
+  maxRows?: number;
 }
 
 export type FormItemData = {
   dataComponent?: { key: string; value: string }[];
+  rowsArr: [string, string];
 } & FormItem;
 
 export interface Props {
@@ -81,11 +100,17 @@ const emit = defineEmits<Emit>();
 const valueData = reactive<FormItemData[]>(
   (() => {
     return props.value.map(item => {
+      let rowsArr;
+      if (item.minRows || item.maxRows) {
+        rowsArr = [(item.minRows ?? '0').toString(), (item.maxRows ?? '0').toString()];
+      }
       return {
         ...item,
         dataComponent: item.data?.map(item2 => {
           return { key: item2.label, value: item2.value };
-        })
+        }),
+        autosize: undefined === item.autosize ? 'undefined' : item.autosize,
+        rowsArr
       };
     });
   })() as unknown as FormItemData[]
@@ -103,11 +128,15 @@ watch(
           value: item2.value
         });
       });
-      const data = {
+      const data: any = {
         ...item,
-        data: dataValue
+        data: dataValue,
+        autosize: item.autosize === 'undefined' ? undefined : item.autosize,
+        minRows: item.rowsArr && item.rowsArr[0].length > 0 ? parseInt(item.rowsArr[0]) ?? undefined : undefined,
+        maxRows: item.rowsArr && item.rowsArr[1].length > 0 ? parseInt(item.rowsArr[1]) ?? undefined : undefined
       };
       delete data.dataComponent;
+      delete data.rowsArr;
       return data;
     }) as FormItem[];
     emit('update:value', result);
@@ -129,7 +158,9 @@ function handleAdd() {
     id: '',
     label: '',
     type: 'text',
-    required: false
+    required: false,
+    autosize: 'undefined',
+    rowsArr: ['', '']
   });
 }
 
