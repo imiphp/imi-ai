@@ -202,6 +202,10 @@ CREATE INDEX "tb_embedding_file_project_id_update_time_idx" ON "public"."tb_embe
   "project_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
   "update_time" "pg_catalog"."int8_ops" DESC NULLS LAST
 );
+CREATE INDEX "tb_embedding_file_status_idx" ON "public"."tb_embedding_file" USING btree (
+  "status" "pg_catalog"."int2_ops" ASC NULLS LAST,
+  "update_time" "pg_catalog"."int8_ops" ASC NULLS LAST
+);
 
 -- ----------------------------
 -- Primary Key structure for table tb_embedding_file
@@ -214,6 +218,10 @@ ALTER TABLE "public"."tb_embedding_file" ADD CONSTRAINT "tb_embedding_file_pkey"
 CREATE INDEX "tb_embedding_project_member_id_idx" ON "public"."tb_embedding_project" USING btree (
   "member_id" "pg_catalog"."int4_ops" ASC NULLS LAST,
   "update_time" "pg_catalog"."int8_ops" DESC NULLS FIRST
+);
+CREATE INDEX "tb_embedding_project_status_idx" ON "public"."tb_embedding_project" USING btree (
+  "status" "pg_catalog"."int2_ops" ASC NULLS LAST,
+  "update_time" "pg_catalog"."int8_ops" ASC NULLS LAST
 );
 
 -- ----------------------------
@@ -256,6 +264,10 @@ ALTER TABLE "public"."tb_embedding_qa" ADD CONSTRAINT "tb_embedding_qa_pkey" PRI
 CREATE INDEX "tb_embedding_section_project_id_file_id_idx" ON "public"."tb_embedding_section" USING btree (
   "project_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
   "file_id" "pg_catalog"."int8_ops" ASC NULLS LAST
+);
+CREATE INDEX "tb_embedding_section_status_idx" ON "public"."tb_embedding_section" USING btree (
+  "status" "pg_catalog"."int2_ops" ASC NULLS LAST,
+  "update_time" "pg_catalog"."int8_ops" ASC NULLS LAST
 );
 
 -- ----------------------------
