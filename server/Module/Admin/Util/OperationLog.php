@@ -13,7 +13,7 @@ class OperationLog
 {
     use TStaticClass;
 
-    public static function log(int $memberId, string $object, int $status, string $message, string $ip, ?int $time = null): AdminOperationLog
+    public static function log(int $memberId, string $object, int $status, string $message, string $ip = '', ?int $time = null): AdminOperationLog
     {
         return App::getBean(AdminOperationLogService::class)->log($memberId, $object, $status, $message, $ip, $time);
     }

@@ -31,8 +31,8 @@
             <n-tab-pane name="vcode" tab="验证码设置">
               <config-vcode v-model:value="config" v-model:loading="loading" />
             </n-tab-pane>
-            <n-tab-pane name="adminMember" tab="后台用户设置">
-              <config-admin-member v-model:value="config" v-model:loading="loading" />
+            <n-tab-pane name="admin" tab="后台设置">
+              <config-admin v-model:value="config" v-model:loading="loading" />
             </n-tab-pane>
           </n-tabs>
         </div>
@@ -51,7 +51,7 @@ import ConfigEmail from './components/config-email.vue';
 import ConfigChat from './components/config-chat.vue';
 import ConfigEmbedding from './components/config-embedding.vue';
 import ConfigVcode from './components/config-vcode.vue';
-import ConfigAdminMember from './components/config-admin-member.vue';
+import ConfigAdmin from './components/config-admin.vue';
 import ConfigPrompt from './components/config-prompt.vue';
 import ConfigOpenai from './components/config-openai.vue';
 

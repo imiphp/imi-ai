@@ -14,6 +14,7 @@
             <n-input-number v-model:value="formData.tempRecordTTL" :min="0">
               <template #suffix>秒</template>
             </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.tempRecordTTL) }}</span>
           </n-form-item-grid-item>
         </n-grid>
       </n-card>
@@ -55,6 +56,7 @@ import { onMounted, ref, watch } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
+import { timespanHuman } from '@/utils';
 import { fetchPromptCrawlerList } from '~/src/service';
 
 const props = defineProps<ConfigComponentProps>();

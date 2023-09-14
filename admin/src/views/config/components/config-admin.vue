@@ -14,6 +14,13 @@
             <n-input-number v-model:value="formData.tokenExpires" :min="0">
               <template #suffix>秒</template>
             </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.tokenExpires) }}</span>
+          </n-form-item-grid-item>
+          <n-form-item-grid-item label="操作日志保留时间：">
+            <n-input-number v-model:value="formData.operationLogExpires" :min="0">
+              <template #suffix>秒</template>
+            </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.operationLogExpires) }}</span>
           </n-form-item-grid-item>
         </n-grid>
       </n-card>
@@ -29,17 +36,19 @@ import { ref } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
+import { timespanHuman } from '@/utils';
 
 const props = defineProps<ConfigComponentProps>();
 const emit = defineEmits<ConfigComponentEmit>();
 const rules: FormRules = {};
 const formData = ref({
-  tokenExpires: 0
+  tokenExpires: 0,
+  operationLogExpires: 0
 });
 const form = ref<FormInst>();
 
 const { handleSave, formLabelPlacement, formLabelWidth } = defineConfigComponent(
-  'config:adminMember',
+  'config:admin',
   props,
   emit,
   formData,

@@ -7,7 +7,7 @@ namespace app\Module\Admin\Service;
 use app\Exception\NotFoundException;
 use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
-use app\Module\Admin\Model\Redis\AdminMemberConfig;
+use app\Module\Admin\Model\Redis\AdminConfig;
 use app\Module\Admin\Util\OperationLog;
 use Imi\Aop\Annotation\Inject;
 use Imi\JWT\Exception\InvalidTokenException;
@@ -68,7 +68,7 @@ class AdminAuthService
             'memberId' => $memberId,
         ], self::JWT_NAME, function (\Lcobucci\JWT\Builder $builder) {
             $now = new \DateTimeImmutable();
-            $builder->expiresAt($now->modify('+' . AdminMemberConfig::__getConfig()->getTokenExpires() . ' second'));
+            $builder->expiresAt($now->modify('+' . AdminConfig::__getConfig()->getTokenExpires() . ' second'));
         });
     }
 

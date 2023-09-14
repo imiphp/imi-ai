@@ -20,6 +20,7 @@
             <n-input-number v-model:value="formData.activationFailedWaitTime" :min="0">
               <template #suffix>秒</template>
             </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.activationFailedWaitTime) }}</span>
           </n-form-item-grid-item>
         </n-grid>
       </n-card>
@@ -35,6 +36,7 @@ import { ref } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
+import { timespanHuman } from '@/utils';
 
 const props = defineProps<ConfigComponentProps>();
 const emit = defineEmits<ConfigComponentEmit>();

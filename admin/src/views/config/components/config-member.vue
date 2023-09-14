@@ -14,6 +14,7 @@
             <n-input-number v-model:value="formData.tokenExpires" :min="0">
               <template #suffix>秒</template>
             </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.tokenExpires) }}</span>
           </n-form-item-grid-item>
           <n-form-item-grid-item label="启用邮箱黑名单：" label-placement="left">
             <n-switch v-model:value="formData.enableEmailBlackList" />
@@ -29,6 +30,7 @@
             <n-input-number v-model:value="formData.registerCodeTTL" :min="0">
               <template #suffix>秒</template>
             </n-input-number>
+            <span class="ml-2">{{ timespanHuman(formData.registerCodeTTL) }}</span>
           </n-form-item-grid-item>
           <n-form-item-grid-item label="注册邮件标题：">
             <n-input v-model:value="formData.registerEmailTitle" />
@@ -66,6 +68,7 @@ import { ref } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
+import { timespanHuman } from '@/utils';
 
 const props = defineProps<ConfigComponentProps>();
 const emit = defineEmits<ConfigComponentEmit>();

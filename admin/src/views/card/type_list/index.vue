@@ -67,7 +67,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { CreateOutline, SearchSharp, WalletOutline } from '@vicons/ionicons5';
 import { fetchCardTypeList, updateCardType } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
-import { defaultPaginationProps } from '~/src/utils';
+import { defaultPaginationProps, timespanHuman } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
 import EditTypeModal from './components/edit-type-modal.vue';
 import type { ModalType } from './components/edit-type-modal.vue';
@@ -130,7 +130,7 @@ const columns: Ref<DataTableColumns<Card.CardType>> = ref([
     align: 'center',
     render: row => {
       if (row.expireSeconds > 0) {
-        return <>{row.expireSeconds} 秒</>;
+        return <>{timespanHuman(row.expireSeconds)}</>;
       }
 
       return <n-tag type="success">永久</n-tag>;

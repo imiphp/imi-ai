@@ -13,10 +13,10 @@ use Imi\Model\RedisModel;
 
 #[
     Entity(),
-    RedisEntity(key: 'config:adminMember', storage: 'hash_object'),
-    ConfigModel(title: '后台用户设置'),
+    RedisEntity(key: 'config:admin', storage: 'hash_object'),
+    ConfigModel(title: '后台设置'),
 ]
-class AdminMemberConfig extends RedisModel
+class AdminConfig extends RedisModel
 {
     use TConfigModel;
 
@@ -36,6 +36,26 @@ class AdminMemberConfig extends RedisModel
     public function setTokenExpires(int $tokenExpires): self
     {
         $this->tokenExpires = $tokenExpires;
+
+        return $this;
+    }
+
+    /**
+     * 后台操作日志保留时间.
+     *
+     * 单位：秒.
+     */
+    #[Column]
+    protected int $operationLogExpires = 90 * 86400;
+
+    public function getOperationLogExpires(): int
+    {
+        return $this->operationLogExpires;
+    }
+
+    public function setOperationLogExpires(int $operationLogExpires): self
+    {
+        $this->operationLogExpires = $operationLogExpires;
 
         return $this;
     }

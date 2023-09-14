@@ -43,4 +43,7 @@ class OperationLogObject extends BaseEnum
 
     #[EnumItem(text: '提示语')]
     public const PROMPT = 'prompt';
+
+    #[EnumItem(text: '操作日志')]
+    public const OPERATION_LOG = 'operation_log';
 }

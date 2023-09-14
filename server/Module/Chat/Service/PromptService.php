@@ -214,8 +214,6 @@ class PromptService
                 return \count($ids);
             }
 
-            OperationLog::log(0, OperationLogObject::CHAT, OperationLogStatus::SUCCESS, '清理临时记录：0 条', '');
-
             return 0;
         }))
         {
