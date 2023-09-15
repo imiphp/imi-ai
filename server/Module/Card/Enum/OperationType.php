@@ -22,4 +22,7 @@ class OperationType extends BaseEnum
 
     #[EnumItem(__data: ['deduct' => false], text: '激活卡')]
     public const ACTIVATION_CARD = 4;
+
+    #[EnumItem(__data: ['deduct' => false], text: '冲抵基础账户')]
+    public const OFFSET_BASE_CARD = 5;
 }

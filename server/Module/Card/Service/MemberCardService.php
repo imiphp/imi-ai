@@ -399,6 +399,11 @@ class MemberCardService
         return $this->gift($this->getMemberBaseCardId($memberId), $amount, $businessType);
     }
 
+    public function getMemberBaseCard(int $memberId): Card
+    {
+        return $this->cardService->get($this->getMemberBaseCardId($memberId));
+    }
+
     public function getOrder(string|int $orderId): MemberCardOrder
     {
         if (\is_string($orderId))
@@ -480,5 +485,26 @@ class MemberCardService
         }
 
         return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
+    }
+
+    #[Transaction()]
+    public function offsetBaseCard(Card $card): void
+    {
+        if ($card->memberId <= 0)
+        {
+            return;
+        }
+        $baseCard = $this->getMemberBaseCard($card->memberId);
+        if ($baseCard->leftAmount < 0)
+        {
+            $cardDeductAmount = min($card->leftAmount, abs($baseCard->leftAmount));
+            if ($cardDeductAmount > 0)
+            {
+                // 基础卡加钱
+                $this->cardService->change($baseCard->id, OperationType::OFFSET_BASE_CARD, $cardDeductAmount);
+                // 卡扣钱
+                $this->cardService->change($card->id, OperationType::OFFSET_BASE_CARD, -$cardDeductAmount);
+            }
+        }
     }
 }

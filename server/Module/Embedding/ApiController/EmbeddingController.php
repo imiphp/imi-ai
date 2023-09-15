@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\ApiController;
 
+use app\Exception\BaseException;
 use app\Module\Embedding\Enum\PublicProjectStatus;
 use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
@@ -257,6 +258,14 @@ class EmbeddingController extends HttpController
                     $handler->send((string) new SseMessageEvent(json_encode([
                         'content'      => SecureFieldUtil::encode('限流，请稍后再试'),
                         'finishReason' => 'rateLimit',
+                    ])));
+                }
+                catch (BaseException $baseException)
+                {
+                    Log::error($baseException);
+                    $handler->send((string) new SseMessageEvent(json_encode([
+                        'content'      => SecureFieldUtil::encode($baseException->getMessage()),
+                        'finishReason' => 'error',
                     ])));
                 }
                 catch (\Throwable $th)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\ApiController;
 
+use app\Exception\BaseException;
 use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
@@ -95,6 +96,14 @@ class ChatController extends HttpController
                     $handler->send((string) new SseMessageEvent(json_encode([
                         'content'      => SecureFieldUtil::encode('限流，请稍后再试'),
                         'finishReason' => 'rateLimit',
+                    ])));
+                }
+                catch (BaseException $baseException)
+                {
+                    Log::error($baseException);
+                    $handler->send((string) new SseMessageEvent(json_encode([
+                        'content'      => SecureFieldUtil::encode($baseException->getMessage()),
+                        'finishReason' => 'error',
                     ])));
                 }
                 catch (\Throwable $th)
