@@ -225,8 +225,8 @@ class EmbeddingConfig extends RedisModel
             return $this->chatModelConfigs = [
                 new ModelConfig(['model' => 'gpt-3.5-turbo', 'inputTokenMultiple' => '0.75', 'outputTokenMultiple' => '1.0', 'maxTokens' => 4096]),
                 new ModelConfig(['model' => 'gpt-3.5-turbo-16k', 'inputTokenMultiple' => '1.5', 'outputTokenMultiple' => '2.0', 'maxTokens' => 16384]),
-                new ModelConfig(['model' => 'gpt-4', 'enable' => false, 'inputTokenMultiple' => '150', 'outputTokenMultiple' => '3.0', 'maxTokens' => 8192]),
-                new ModelConfig(['model' => 'gpt-4-32k', 'enable' => false, 'inputTokenMultiple' => '300', 'outputTokenMultiple' => '6.0', 'maxTokens' => 32768]),
+                new ModelConfig(['model' => 'gpt-4', 'enable' => false, 'inputTokenMultiple' => '15', 'outputTokenMultiple' => '30', 'maxTokens' => 8192]),
+                new ModelConfig(['model' => 'gpt-4-32k', 'enable' => false, 'inputTokenMultiple' => '30', 'outputTokenMultiple' => '60', 'maxTokens' => 32768]),
             ];
         }
 

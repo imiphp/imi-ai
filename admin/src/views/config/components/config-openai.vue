@@ -9,7 +9,10 @@
   >
     <n-space vertical>
       <n-card title="接口配置">
-        <api-manager v-model:apis="formData.apis" :models="props.value['config:openai'].config.models" />
+        <api-manager v-model:apis="formData.apis" :models="formData.models" />
+      </n-card>
+      <n-card title="模型管理">
+        <models-manager v-model:model-configs="formData.models" />
       </n-card>
     </n-space>
     <n-space class="w-full pt-16px" :size="24" justify="center">
@@ -24,12 +27,14 @@ import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
 import ApiManager from './api-manager.vue';
+import ModelsManager from './models-manager.vue';
 
 const props = defineProps<ConfigComponentProps>();
 const emit = defineEmits<ConfigComponentEmit>();
 const rules: FormRules = {};
 const formData = ref({
-  apis: []
+  apis: [],
+  models: []
 });
 const form = ref<FormInst>();
 
