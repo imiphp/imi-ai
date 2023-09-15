@@ -8,5 +8,6 @@ declare namespace Config {
     outputTokenMultiple: string | number;
     maxTokens: number;
     tips: string;
+    additionalTokensPerMessage: number;
   }
 }

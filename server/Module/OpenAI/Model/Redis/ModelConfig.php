@@ -46,4 +46,9 @@ class ModelConfig
      * 提示文本.
      */
     public string $tips = '';
+
+    /**
+     * 每条消息额外的Tokens.
+     */
+    public int $additionalTokensPerMessage = 0;
 }

@@ -154,15 +154,17 @@ class ChatService
                 $data .= $item->title . "\n" . $item->content . "\n";
             }
             $question = '资料:' . $data . '问题:' . $record->question;
-            $messages = [
-                [
+            $messages = [];
+            if ('' !== $record->prompt)
+            {
+                $messages[] = [
                     'role'    => 'system',
                     'content' => $record->prompt,
-                ],
-                [
-                    'role'    => 'user',
-                    'content' => $question,
-                ],
+                ];
+            }
+            $messages[] = [
+                'role'    => 'user',
+                'content' => $question,
             ];
 
             $params['messages'] = $messages;
@@ -207,7 +209,8 @@ class ChatService
             $chatInputTokens = Gpt3Tokenizer::count($record->prompt, $model) // 系统提示语
             + Gpt3Tokenizer::count($question, $model) // 问题提示语
             + Gpt3Tokenizer::count($content, $model) // 内容提示语
-            ;
+            + (\count($messages) * $modelConfig->additionalTokensPerMessage); // 每条消息额外的Tokens
+
             $chatOutputTokens = Gpt3Tokenizer::count($content, $model);
             $record->answer = $content;
         }

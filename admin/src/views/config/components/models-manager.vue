@@ -8,6 +8,7 @@
           <th width="130">Token 输入倍率</th>
           <th width="130">Token 输出倍率</th>
           <th width="130">最大 Token</th>
+          <th width="130">每条消息额外 Token</th>
           <th width="70">付费标志</th>
           <th>选中提示</th>
           <th width="70">启用</th>
@@ -29,6 +30,7 @@
             <n-input-number v-model:value="item.outputTokenMultiple" :min="0" />
           </td>
           <td><n-input-number v-model:value="item.maxTokens" :min="0" /></td>
+          <td><n-input-number v-model:value="item.additionalTokensPerMessage" :min="0" /></td>
           <td class="text-center"><n-switch v-model:value="item.paying" /></td>
           <td><n-input v-model:value="item.tips" type="textarea" :rows="2" /></td>
           <td class="text-center"><n-switch v-model:value="item.enable" /></td>
@@ -94,7 +96,8 @@ function handleAddModelConfig() {
     outputTokenMultiple: 1,
     maxTokens: 4096,
     tips: '',
-    enable: true
+    enable: true,
+    additionalTokensPerMessage: 0
   });
 }
 </script>
