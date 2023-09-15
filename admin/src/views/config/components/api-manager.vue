@@ -117,7 +117,7 @@ function handleAdd() {
     rateLimitUnit: '',
     rateLimitAmount: 0,
     models: [],
-    client: 'OpenAIClient',
+    client: '',
     enable: true
   });
 }
