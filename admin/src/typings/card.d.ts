@@ -55,6 +55,8 @@ declare namespace Card {
     expireTime: number;
     cardType: CardType;
     expired: boolean;
+    enable: boolean;
+    paying: boolean;
     memberInfo: Member.MemberInfo;
     ex: CardEx | null;
   }

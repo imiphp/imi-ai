@@ -30,9 +30,9 @@ class CardController extends HttpController
         Action,
         AdminLoginRequired()
     ]
-    public function list(int $memberId = 0, int $type = 0, ?bool $activationed = null, ?bool $expired = null, int $page = 1, int $limit = 15): array
+    public function list(int $memberId = 0, int $type = 0, ?bool $activationed = null, ?bool $expired = null, ?bool $paying = null, int $page = 1, int $limit = 15): array
     {
-        return $this->memberCardService->adminList($memberId, $type, $activationed, $expired, $page, $limit);
+        return $this->memberCardService->adminList($memberId, $type, $activationed, $expired, $paying, $page, $limit);
     }
 
     #[
@@ -69,9 +69,9 @@ class CardController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired()
     ]
-    public function generate(int $type, int $count, string $remark = ''): array
+    public function generate(int $type, int $count, string $remark = '', bool $paying = false): array
     {
-        $cardIds = $this->cardService->generate($type, $count, $remark, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
+        $cardIds = $this->cardService->generate($type, $count, $remark, $paying, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
 
         return [
             'list' => $cardIds,
@@ -86,8 +86,8 @@ class CardController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired()
     ]
-    public function update(int $id, ?string $remark = null)
+    public function update(int $id, ?string $remark = null, ?bool $enable = null, ?bool $paying = null)
     {
-        $this->cardService->update($id, $remark, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
+        $this->cardService->update($id, $remark, $enable, $paying, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
     }
 }

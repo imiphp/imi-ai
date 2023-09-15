@@ -10,7 +10,7 @@ use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\Serializables;
 
 /**
- * tb_card_ex.
+ * 卡扩展数据.
  *
  * @Inherit
  */

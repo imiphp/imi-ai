@@ -119,7 +119,7 @@ class CardService
      * 创建卡
      */
     #[Transaction()]
-    public function create(int|CardType $type, int $memberId = 0, string $adminRemark = ''): Card
+    public function create(int|CardType $type, int $memberId = 0, string $adminRemark = '', bool $paying = false): Card
     {
         if (!$type instanceof CardType)
         {
@@ -133,6 +133,7 @@ class CardService
         $record->type = $type->id;
         $record->amount = $record->leftAmount = $type->amount;
         $record->expireTime = 0;
+        $record->paying = $paying;
         $ex = CardEx::newInstance();
         $ex->setAdminRemark($adminRemark);
         $record->setEx($ex);
@@ -145,11 +146,22 @@ class CardService
         return $record;
     }
 
-    public function update(int $cardId, string $adminRemark = '', int $operatorMemberId = 0, string $ip = ''): Card
+    public function update(int $cardId, ?string $adminRemark = null, ?bool $enable = null, ?bool $paying = null, int $operatorMemberId = 0, string $ip = ''): Card
     {
         $card = $this->get($cardId);
+        if (null !== $enable)
+        {
+            $card->enable = $enable;
+        }
+        if (null !== $paying)
+        {
+            $card->paying = $paying;
+        }
         $ex = $card->getEx();
-        $ex->setAdminRemark($adminRemark);
+        if (null !== $adminRemark)
+        {
+            $ex->setAdminRemark($adminRemark);
+        }
         $card->setEx($ex);
         $card->update();
 
@@ -164,7 +176,7 @@ class CardService
      * @return string[]
      */
     #[Transaction()]
-    public function generate(int $type, int $count, string $adminRemark = '', int $operatorMemberId = 0, string $ip = ''): array
+    public function generate(int $type, int $count, string $adminRemark = '', bool $paying = false, int $operatorMemberId = 0, string $ip = ''): array
     {
         $typeRecord = $this->cardTypeService->get($type);
         if (!$typeRecord->enable)
@@ -174,7 +186,7 @@ class CardService
         $cardIds = [];
         for ($i = 0; $i < $count; ++$i)
         {
-            $card = $this->create($typeRecord, 0, $adminRemark);
+            $card = $this->create($typeRecord, 0, $adminRemark, $paying);
             $cardIds[] = $card->getRecordId();
         }
 

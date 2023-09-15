@@ -48,6 +48,28 @@
                 value-field="value"
               />
             </n-form-item>
+            <n-form-item label="付费标志">
+              <n-select
+                v-model:value="listParams.paying"
+                class="!w-[140px]"
+                :options="[
+                  {
+                    text: '全部',
+                    value: -1
+                  },
+                  {
+                    text: '免费',
+                    value: 0
+                  },
+                  {
+                    text: '付费',
+                    value: 1
+                  }
+                ]"
+                label-field="text"
+                value-field="value"
+              />
+            </n-form-item>
             <n-form-item>
               <n-button attr-type="submit" type="primary" @click="getTableData">
                 <n-icon :component="SearchSharp" size="20" />
@@ -68,7 +90,7 @@
           :loading="loading"
           :pagination="pagination"
           :row-key="row => row.id"
-          scroll-x="1024"
+          scroll-x="1280"
           flex-height
           remote
           class="flex-1-hidden"
@@ -94,8 +116,9 @@ import { ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { DataTableColumns } from 'naive-ui';
+import { useDialog } from 'naive-ui';
 import { CreateOutline, List, SearchSharp } from '@vicons/ionicons5';
-import { fetchCardList } from '@/service';
+import { fetchCardList, updateCard } from '@/service';
 import { useLoading } from '@/hooks';
 import { useAdminEnums } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
@@ -103,6 +126,7 @@ import { useRouterPush } from '~/src/composables';
 import GenerateCardModal from './components/generate-card-modal.vue';
 import EditRemarkModal from './components/edit-remark-modal.vue';
 
+const dialog = useDialog();
 const { routerPush } = useRouterPush();
 const route = useRoute();
 const { loading, startLoading, endLoading } = useLoading(false);
@@ -111,6 +135,7 @@ const enums = ref<any>({});
 const listParams = ref({
   memberId: parseInt(route.query.memberId?.toString() ?? '0'),
   expired: 0,
+  paying: -1,
   activationed: -1,
   type: parseInt(route.query.type?.toString() ?? '0')
 });
@@ -139,6 +164,7 @@ async function getTableData() {
       listParams.value.type,
       listParams.value.activationed >= 0 ? Boolean(listParams.value.activationed) : undefined,
       listParams.value.expired >= 0 ? Boolean(listParams.value.expired) : undefined,
+      listParams.value.paying >= 0 ? Boolean(listParams.value.paying) : undefined,
       pagination.page,
       pagination.pageSize
     );
@@ -228,9 +254,69 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     }
   },
   {
+    title: '付费标志',
+    key: 'paying',
+    width: 100,
+    render(row) {
+      return (
+        <n-switch
+          value={row.paying}
+          on-update:value={async (value: boolean) => {
+            dialog.warning({
+              title: '询问',
+              content: `是否改为${value ? '付费' : '免费'}标志？`,
+              positiveText: '确定',
+              negativeText: '取消',
+              onPositiveClick: async () => {
+                const { data } = await updateCard(row.id, { paying: value });
+                if (data?.code === 0) {
+                  getTableData();
+                }
+              }
+            });
+          }}
+          v-slots={{
+            checked: () => '付费',
+            unchecked: () => '免费'
+          }}
+        />
+      );
+    }
+  },
+  {
+    key: 'enable',
+    title: '状态',
+    width: 100,
+    render: row => {
+      return (
+        <n-switch
+          value={row.enable}
+          on-update:value={async (value: boolean) => {
+            dialog.warning({
+              title: '询问',
+              content: `是否${value ? '启用' : '禁用'}该卡？`,
+              positiveText: '确定',
+              negativeText: '取消',
+              onPositiveClick: async () => {
+                const { data } = await updateCard(row.id, { enable: value });
+                if (data?.code === 0) {
+                  getTableData();
+                }
+              }
+            });
+          }}
+          v-slots={{
+            checked: () => '启用',
+            unchecked: () => '禁用'
+          }}
+        />
+      );
+    }
+  },
+  {
     title: '创建时间',
     key: 'activationTime',
-    width: 200,
+    width: 180,
     render(row) {
       return new Date(row.createTime * 1000).toLocaleString();
     }
@@ -238,7 +324,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     title: '激活时间',
     key: 'activationTime',
-    width: 200,
+    width: 180,
     render(row) {
       if (row.activationTime > 0) return new Date(row.activationTime * 1000).toLocaleString();
       return '未激活';
@@ -247,7 +333,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     title: '过期时间',
     key: 'expireTime',
-    width: 250,
+    width: 180,
     render(row) {
       return row.expireTime > 0
         ? new Date(row.expireTime * 1000).toLocaleString() + (row.expired ? '（已过期）' : '')
@@ -274,6 +360,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     key: 'actions',
     title: '操作',
     width: 100,
+    align: 'center',
     render: row => {
       return (
         <n-space>

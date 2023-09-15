@@ -12,13 +12,13 @@ use Imi\Model\Annotation\Table;
 use Imi\Model\Model;
 
 /**
- * tb_card_ex 基类.
+ * 卡扩展数据 基类.
  *
  * @Entity(camel=true, bean=true, incrUpdate=true)
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardEx.name", default="tb_card_ex"), usePrefix=false, id={"card_id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardEx.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_ex` (   `card_id` int unsigned NOT NULL,   `admin_remark` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '后台备注',   PRIMARY KEY (`card_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED")
+ * @DDL(sql="CREATE TABLE `tb_card_ex` (   `card_id` int unsigned NOT NULL,   `admin_remark` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '后台备注',   PRIMARY KEY (`card_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='卡扩展数据'")
  *
  * @property int|null    $cardId
  * @property string|null $adminRemark 后台备注

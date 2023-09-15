@@ -52,9 +52,6 @@ class ChatService
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
 
-        // 检查余额
-        $this->memberCardService->checkBalance($memberId, $tokens + 1);
-
         if ([] === $config)
         {
             $config = new \stdClass();
@@ -67,6 +64,9 @@ class ChatService
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
+
+        // 检查余额
+        $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);
 
         if ('' === $id)
         {
@@ -196,7 +196,7 @@ class ChatService
         }
         $endTime = time();
         $outputTokens = $gpt3Tokenizer->count($content);
-        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($model, $inputTokens, $outputTokens, $config->getModelConfigs());
+        [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($modelConfig, $inputTokens, $outputTokens);
         $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $outputTokens;
@@ -205,7 +205,7 @@ class ChatService
         $record->update();
 
         // 扣款
-        $this->memberCardService->pay($record->memberId, $payTokens, BusinessType::CHAT, $record->id, time: $endTime);
+        $this->memberCardService->pay($record->memberId, $payTokens, BusinessType::CHAT, $record->id, time: $endTime, paying: $modelConfig->paying);
         $messageRecord->__setSecureField(true);
         yield ['message' => $messageRecord];
     }

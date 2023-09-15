@@ -384,8 +384,9 @@ class EmbeddingUploadParser
                                           ->setFieldInc('pay_tokens', $this->filePayTokens[$fileId] ?? 0)
                                           ->update();
                 }
+                $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
                 // 扣除余额
-                $this->memberCardService->pay($this->memberId, $this->projectPayTokens, BusinessType::EMBEDDING, $project->id);
+                $this->memberCardService->pay($this->memberId, $this->projectPayTokens, BusinessType::EMBEDDING, $project->id, paying: $modelConfig ? $modelConfig->paying : false);
                 File::deleteDir($this->extractPath);
             }));
         }
@@ -433,7 +434,7 @@ class EmbeddingUploadParser
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
-                    [$payTokens] = TokensUtil::calcDeductToken($this->model, $sectionRecord->tokens, 0, $this->config->getEmbeddingModelConfigs());
+                    [$payTokens] = TokensUtil::calcDeductToken($this->config->getEmbeddingModelConfig($this->model), $sectionRecord->tokens, 0);
                     $sectionRecord->payTokens = $payTokens;
                     $this->projectPayTokens += $payTokens;
                     $this->filePayTokens[$sectionRecord->fileId] ??= 0;

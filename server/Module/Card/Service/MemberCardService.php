@@ -27,16 +27,57 @@ class MemberCardService
     #[Inject]
     protected CardService $cardService;
 
-    public function getBalance(int $memberId): int
+    public function getMemberBalance(int $memberId): array
     {
-        return (int) Card::query()->where('member_id', '=', $memberId)
-                                    ->whereBrackets(function () {
-                                        return [
-                                            new Where('expire_time', '=', 0),
-                                            new Where('expire_time', '>', time(), LogicalOperator::OR),
-                                        ];
-                                    })
-                                    ->sum('left_amount');
+        $list = Card::dbQuery()->where('member_id', '=', $memberId)
+                                ->whereBrackets(function () {
+                                    return [
+                                        new Where('expire_time', '=', 0),
+                                        new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                    ];
+                                })
+                                ->where('enable', '=', true)
+                                ->group('paying')
+                                ->fieldRaw('paying, sum(left_amount) as balance')
+                                ->select()
+                                ->getArray();
+        $result = [
+            'balance'       => 0,
+            'payingBalance' => 0,
+        ];
+
+        foreach ($list as $row)
+        {
+            $balance = (int) $row['balance'];
+            if ($row['paying'])
+            {
+                $result['payingBalance'] = $balance;
+            }
+            $result['balance'] += $balance;
+        }
+
+        $result['balanceText'] = TokensUtil::formatChinese($result['balance']);
+        $result['payingBalanceText'] = TokensUtil::formatChinese($result['payingBalance']);
+
+        return $result;
+    }
+
+    public function getBalance(int $memberId, bool $paying = false): int
+    {
+        $query = Card::query()->where('member_id', '=', $memberId)
+                                ->whereBrackets(function () {
+                                    return [
+                                        new Where('expire_time', '=', 0),
+                                        new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                    ];
+                                });
+        if ($paying)
+        {
+            $query->where('paying', '=', $paying);
+        }
+
+        return (int) $query->where('enable', '=', true)
+                            ->sum('left_amount');
     }
 
     public function getBalances(array $memberIds): array
@@ -48,6 +89,7 @@ class MemberCardService
                                     new Where('expire_time', '>', time(), LogicalOperator::OR),
                                 ];
                             })
+                            ->where('enable', '=', true)
                             ->group('member_id')
                             ->field('member_id as memberId')
                             ->fieldRaw('sum(left_amount) as balance')
@@ -69,17 +111,23 @@ class MemberCardService
     #[
         Transaction()
     ]
-    public function getBalanceWithLock(int $memberId): int
+    public function getBalanceWithLock(int $memberId, bool $paying = false): int
     {
-        return (int) Card::query()->where('member_id', '=', $memberId)
-                                    ->whereBrackets(function () {
-                                        return [
-                                            new Where('expire_time', '=', 0),
-                                            new Where('expire_time', '>', time(), LogicalOperator::OR),
-                                        ];
-                                    })
-                                    ->lock(MysqlLock::FOR_UPDATE)
-                                    ->sum('left_amount');
+        $query = Card::query()->where('member_id', '=', $memberId)
+                                ->whereBrackets(function () {
+                                    return [
+                                        new Where('expire_time', '=', 0),
+                                        new Where('expire_time', '>', time(), LogicalOperator::OR),
+                                    ];
+                                })
+                                ->where('enable', '=', true);
+        if ($paying)
+        {
+            $query->where('paying', '=', $paying);
+        }
+
+        return (int) $query->lock(MysqlLock::FOR_UPDATE)
+                            ->sum('left_amount');
     }
 
     public function list(int $memberId, ?bool $expired = null, int $page = 1, int $limit = 15): array
@@ -112,7 +160,7 @@ class MemberCardService
                      ->toArray();
     }
 
-    public function adminList(int $memberId = 0, int $type = 0, ?bool $activationed = null, bool $expired = null, int $page = 1, int $limit = 15): array
+    public function adminList(int $memberId = 0, int $type = 0, ?bool $activationed = null, ?bool $expired = null, ?bool $paying = null, int $page = 1, int $limit = 15): array
     {
         $query = CardAdmin::query();
         if ($memberId > 0)
@@ -150,6 +198,17 @@ class MemberCardService
                 });
             }
         }
+        if (null !== $paying)
+        {
+            if ($paying)
+            {
+                $query->where('paying', '=', true);
+            }
+            else
+            {
+                $query->where('paying', '=', false);
+            }
+        }
 
         return $query->order('id', 'desc')
                      ->paginate($page, $limit)
@@ -159,9 +218,11 @@ class MemberCardService
     /**
      * @return array<array{id:int,leftAmount:int}>
      */
-    public function getMemberCardItems(int $memberId, int $amount, int $time = 0, int $limit = 10): array
+    public function getMemberCardItems(int $memberId, int $amount, bool $paying = false, int $time = 0, int $limit = 10): array
     {
         $tableName = Card::__getMeta()->getTableName();
+
+        $payingWhere = $paying ? ' AND paying = 1' : '';
 
         return Db::select(<<<SQL
         SELECT id, left_amount as leftAmount FROM {$tableName},( SELECT @memberLeftAmount := 0 ) AS _ 
@@ -169,6 +230,8 @@ class MemberCardService
             member_id = :memberId 
             AND left_amount > 0 
             AND ( expire_time = 0 OR expire_time > :expireTime )
+            AND `enable` = 1
+            {$payingWhere}
             AND ( (@memberLeftAmount := @memberLeftAmount + left_amount) < :amount OR @memberLeftAmount = left_amount ) 
         ORDER BY
             expire_time = 0,
@@ -203,7 +266,7 @@ class MemberCardService
     #[
         Transaction()
     ]
-    public function pay(int $memberId, int $amount, int $businessType = BusinessType::OTHER, int $businessId = 0, ?int $minAmount = null, int $time = 0): MemberCardOrder
+    public function pay(int $memberId, int $amount, int $businessType = BusinessType::OTHER, int $businessId = 0, ?int $minAmount = null, bool $paying = false, int $time = 0): MemberCardOrder
     {
         if (!$time)
         {
@@ -211,7 +274,7 @@ class MemberCardService
         }
         $leftAmount = $amount;
         $detailIds = [];
-        while ($leftAmount > 0 && $items = $this->getMemberCardItems($memberId, $leftAmount, $time))
+        while ($leftAmount > 0 && $items = $this->getMemberCardItems($memberId, $leftAmount, $paying, $time))
         {
             foreach ($items as $item)
             {
@@ -351,9 +414,9 @@ class MemberCardService
         return $record;
     }
 
-    public function checkBalance(int $memberId, ?int $minAmount = null, int $changeAmount = 0, bool $lock = false): int
+    public function checkBalance(int $memberId, ?int $minAmount = null, int $changeAmount = 0, bool $lock = false, bool $paying = false): int
     {
-        $balance = $lock ? $this->getBalanceWithLock($memberId) : $this->getBalance($memberId);
+        $balance = $lock ? $this->getBalanceWithLock($memberId, $paying) : $this->getBalance($memberId, $paying);
         if (null !== $minAmount)
         {
             if ($balance + $changeAmount < $minAmount)

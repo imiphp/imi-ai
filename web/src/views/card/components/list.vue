@@ -1,5 +1,5 @@
 <script setup lang='tsx'>
-import { NButton, NDataTable, NIcon, NProgress, NSpace } from 'naive-ui'
+import { NButton, NDataTable, NIcon, NProgress, NSpace, NSwitch } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
 import { List } from '@vicons/ionicons5'
@@ -59,6 +59,38 @@ const createColumns = ({
             default: () => `${row.leftAmountText}/${row.amountText}`,
           })
         }
+      },
+    },
+    {
+      title: '付费标志',
+      key: 'paying',
+      width: 100,
+      render(row) {
+        return (
+        <NSwitch
+          value={row.paying}
+          v-slots={{
+            checked: () => '付费',
+            unchecked: () => '免费',
+          }}
+        />
+        )
+      },
+    },
+    {
+      key: 'enable',
+      title: '状态',
+      width: 100,
+      render: (row) => {
+        return (
+        <NSwitch
+          value={row.enable}
+          v-slots={{
+            checked: () => '启用',
+            unchecked: () => '禁用',
+          }}
+        />
+        )
       },
     },
     {

@@ -15,6 +15,11 @@ class ModelConfig
     public bool $enable = true;
 
     /**
+     * 需要付费才可使用.
+     */
+    public bool $paying = false;
+
+    /**
      * 输入Token倍数，字符串小数.
      */
     public string|float $inputTokenMultiple = '1.0';

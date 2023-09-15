@@ -91,8 +91,9 @@ class EmbeddingRetryParser
             Db::transUse(function () {
                 foreach ($this->projectTokens as $projectId => $tokens)
                 {
+                    $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
                     // 扣款
-                    $this->memberCardService->pay($this->memberId, $tokens, BusinessType::EMBEDDING, $projectId);
+                    $this->memberCardService->pay($this->memberId, $tokens, BusinessType::EMBEDDING, $projectId, paying: $modelConfig ? $modelConfig->paying : false);
                     // 更新记录
                     EmbeddingProject::query()->where('id', '=', $projectId)
                                              ->setFieldInc('pay_tokens', $tokens)
@@ -160,7 +161,7 @@ class EmbeddingRetryParser
                     $section->status = EmbeddingStatus::COMPLETED;
                     $section->beginTrainingTime = $beginTrainingTime;
                     $section->completeTrainingTime = $completeTrainingTime;
-                    [$payTokens] = TokensUtil::calcDeductToken($this->model, $section->tokens, 0, $this->config->getEmbeddingModelConfigs());
+                    [$payTokens] = TokensUtil::calcDeductToken($this->config->getEmbeddingModelConfig($this->model), $section->tokens, 0);
                     $section->payTokens = $payTokens;
                     $this->projectTokens[$section->projectId] ??= 0;
                     $this->fileTokens[$section->fileId] ??= 0;

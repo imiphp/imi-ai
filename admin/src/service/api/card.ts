@@ -35,6 +35,7 @@ export const fetchCardList = async (
   type = 0,
   activationed: boolean | undefined = undefined,
   expired: boolean | undefined = undefined,
+  paying: boolean | undefined = undefined,
   page = 1,
   limit = 15
 ) => {
@@ -46,12 +47,17 @@ export const fetchCardList = async (
   if (expired !== undefined) {
     expiredParam = expired ? '1' : '0';
   }
+  let payingParam;
+  if (paying !== undefined) {
+    payingParam = paying ? '1' : '0';
+  }
   return request.get<Card.CardListResponse>('/admin/card/list', {
     params: {
       memberId,
       type,
       activationed: activationedParam,
       expired: expiredParam,
+      paying: payingParam,
       page,
       limit
     }
@@ -120,15 +126,16 @@ export const updateCardType = async (
   });
 };
 
-export const generateCard = async (type: number, count: number, remark = '') => {
+export const generateCard = async (type: number, count: number, remark = '', paying = false) => {
   return request.post<Card.GenerateCardResponse>('/admin/card/generate', {
     type,
     count,
-    remark
+    remark,
+    paying
   });
 };
 
-export const updateCard = async (id: number, data: { remark?: string }) => {
+export const updateCard = async (id: number, data: { remark?: string; enable?: boolean; paying?: boolean }) => {
   return request.post<Api.BaseResponse>('/admin/card/update', {
     id,
     ...data

@@ -33,32 +33,12 @@ class TokensUtil
         return $result . (self::BYTE_UNITS[$i] ?? '');
     }
 
-    /**
-     * @param ModelConfig[] $modelConfigs
-     */
-    public static function calcDeductToken(string $model, int $inputTokens, int $outputTokens, array $modelConfigs): array
+    public static function calcDeductToken(?ModelConfig $modelConfig, int $inputTokens, int $outputTokens): array
     {
-        $modelConfig = null;
-        foreach ($modelConfigs as $item)
-        {
-            if ($item->model === $model)
-            {
-                $modelConfig = $item;
-                break;
-            }
-        }
-
-        /** @var ModelConfig|null $modelConfig */
-        if (!$modelConfig || !$modelConfig->enable)
-        {
-            // 没有配置，直接返回
-            return [$inputTokens, $outputTokens];
-        }
-
         // 按最大倍率计算返回
         return [
-            (int) ceil($inputTokens * (float) $modelConfig->inputTokenMultiple),
-            (int) ceil($outputTokens * (float) $modelConfig->outputTokenMultiple),
+            (int) ceil($inputTokens * (float) ($modelConfig->inputTokenMultiple ?? 1)),
+            (int) ceil($outputTokens * (float) ($modelConfig->outputTokenMultiple ?? 1)),
         ];
     }
 }

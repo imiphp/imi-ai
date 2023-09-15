@@ -21,6 +21,7 @@ const userStore = useUserStore()
 const router = useRouter()
 const message = useMessage()
 const balance = ref('0')
+const payingBalance = ref('0')
 const showInvitationMenu = ref(true)
 
 const menuOptions = [
@@ -226,6 +227,21 @@ const rightMenuOptions = ref([
             RouterLink,
             {
               to: {
+                name: 'Card',
+              },
+            },
+            { default: () => `付费余额 (${payingBalance.value})` },
+          ),
+        key: 'PayingCard',
+        show: computed(() => logined.value),
+        icon: (): VNode => h(NIcon, null, { default: () => h(WalletOutline) }),
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
                 name: 'Login',
               },
             },
@@ -339,9 +355,11 @@ async function onMouseEnter() {
       try {
         const response = await cardInfo(() => {})
         balance.value = response.balanceText
+        payingBalance.value = response.payingBalanceText
       }
       catch (e) {
         balance.value = '加载失败'
+        payingBalance.value = '加载失败'
         window.console.log(e)
       }
     })(),

@@ -10,7 +10,9 @@ declare namespace Card {
         expireTime: number,
         recordId: string,
         cardType: CardType,
-        expired: boolean
+        expired: boolean,
+        paying: boolean,
+        enable: boolean,
     }
     interface CardType {
         id: number,

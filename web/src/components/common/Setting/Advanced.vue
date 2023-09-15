@@ -24,14 +24,6 @@ const emit = defineEmits<Emit>()
 
 const { isMobile } = useBasicLayout()
 
-const model = computed(() => {
-  for (const item of props.models) {
-    if (item.model === props.setting.model)
-      return item
-  }
-  return null
-})
-
 const prompt = props.showConfirm
   ? ref(props.prompt ?? '')
   : computed({
@@ -53,6 +45,14 @@ const setting = props.showConfirm
       emit('update:setting', setting)
     },
   })
+
+const model = computed(() => {
+  for (const item of props.models) {
+    if (item.model === setting.value.model)
+      return item
+  }
+  return null
+})
 
 function ok() {
   if (undefined !== props.prompt)
@@ -91,7 +91,7 @@ function handleReset() {
       </div>
       <div v-if="model" class="leading-10 !mt-2">
         <p><b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ model.inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ model.outputTokenMultiple }}</span></p>
-        <p v-show=" model.tips.length > 0">
+        <p v-show="model.tips.length > 0">
           <b>提示：</b>{{ model.tips }}
         </p>
       </div>

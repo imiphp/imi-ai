@@ -49,9 +49,6 @@ class ChatService
     {
         $tokens = \count(Gpt3Tokenizer::getInstance()->encode($question));
 
-        // 检查余额
-        $this->memberCardService->checkBalance($memberId, $tokens + 1);
-
         $project = $this->embeddingService->getReadonlyProject($projectId, $memberId);
 
         if ([] === $config)
@@ -66,6 +63,9 @@ class ChatService
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
+
+        // 检查余额
+        $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);
 
         $record = EmbeddingQa::newInstance();
         $record->memberId = $memberId;
@@ -99,7 +99,7 @@ class ChatService
 
         $tokens = Gpt3Tokenizer::getInstance()->count($q);
         $config = EmbeddingConfig::__getConfig();
-        [$payTokens] = TokensUtil::calcDeductToken($model, $tokens, 0, $config->getEmbeddingModelConfigs());
+        [$payTokens] = TokensUtil::calcDeductToken($config->getEmbeddingModelConfig($model), $tokens, 0);
 
         $query = EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
                                                     ->where('status', '=', EmbeddingStatus::COMPLETED)
@@ -131,6 +131,21 @@ class ChatService
         $list = goWait(function () use ($record) {
             return $this->search($record->projectId, $record->question, $record->similarity, 1, $record->topSections, $embeddingTokens, $embeddingPayTokens)->getList();
         }, 30, true);
+        $params = [];
+        foreach (self::ALLOW_PARAMS as $name)
+        {
+            if (isset($record->config[$name]))
+            {
+                $params[$name] = $record->config[$name];
+            }
+        }
+        $params['model'] ??= 'gpt-3.5-turbo';
+        $modelConfig = $config->getChatModelConfig($params['model']);
+        if (!$modelConfig || !$modelConfig->enable)
+        {
+            throw new \RuntimeException('不允许使用模型：' . $params['model']);
+        }
+        $model = $params['model'];
         /** @var EmbeddingSectionSearched[] $list */
         if ($list)
         {
@@ -151,21 +166,6 @@ class ChatService
                 ],
             ];
 
-            $params = [];
-            foreach (self::ALLOW_PARAMS as $name)
-            {
-                if (isset($record->config[$name]))
-                {
-                    $params[$name] = $record->config[$name];
-                }
-            }
-            $params['model'] ??= 'gpt-3.5-turbo';
-            $modelConfig = $config->getChatModelConfig($params['model']);
-            if (!$modelConfig || !$modelConfig->enable)
-            {
-                throw new \RuntimeException('不允许使用模型：' . $params['model']);
-            }
-            $model = $params['model'];
             $params['messages'] = $messages;
             $params['stream'] = true;
             $record->beginTime = (int) (microtime(true) * 1000);
@@ -219,15 +219,16 @@ class ChatService
             yield ['finishReason' => 'stop'];
             $question = $content = '';
             $chatInputTokens = $chatOutputTokens = 0;
+            $modelConfig = $config->getChatModelConfig($model);
         }
         $endTime = (int) (microtime(true) * 1000);
-        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($model ?? 'gpt-3.5-turbo', $chatInputTokens, $chatOutputTokens, $config->getChatModelConfigs());
+        [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($modelConfig, $chatInputTokens, $chatOutputTokens);
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
         $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
         $record->status = EmbeddingQAStatus::SUCCESS;
         $record->completeTime = $endTime;
         $record->update();
-        $this->memberCardService->pay($memberId, $payTokens, BusinessType::EMBEDDING_CHAT, $record->id);
+        $this->memberCardService->pay($memberId, $payTokens, BusinessType::EMBEDDING_CHAT, $record->id, paying: $modelConfig->paying);
         yield ['message' => $record];
     }
 
