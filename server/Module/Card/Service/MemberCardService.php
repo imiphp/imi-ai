@@ -234,6 +234,7 @@ class MemberCardService
             {$payingWhere}
             AND ( (@memberLeftAmount := @memberLeftAmount + left_amount) < :amount OR @memberLeftAmount = left_amount ) 
         ORDER BY
+            paying ASC,
             expire_time = 0,
             expire_time 
         LIMIT :limit
