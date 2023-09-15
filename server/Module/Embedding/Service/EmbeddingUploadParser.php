@@ -505,7 +505,7 @@ class EmbeddingUploadParser
 
         /** @var IFileHandler $handler */
         $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
-        $generator = $handler->parseSections($file->content, $this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle);
+        $generator = $handler->parseSections($file->content, $this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle, $this->model);
 
         foreach ($generator as $item)
         {

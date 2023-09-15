@@ -50,8 +50,6 @@ class ChatService
     ]
     public function sendMessage(string $message, string $id, int $memberId, int $type, string $prompt = '', string $ip = '', array|object $config = [], ?ChatSession &$session = null): ChatMessage
     {
-        $tokens = \count(Gpt3Tokenizer::getInstance()->encode($message));
-
         if ([] === $config)
         {
             $config = new \stdClass();
@@ -65,6 +63,7 @@ class ChatService
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
 
+        $tokens = Gpt3Tokenizer::count($message, $model);
         // 检查余额
         $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);
 
@@ -113,22 +112,21 @@ class ChatService
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
-        $gpt3Tokenizer = Gpt3Tokenizer::getInstance();
         $inputTokens = 0;
         $messages = [];
         if ('' !== $record->prompt)
         {
-            $inputTokens += $gpt3Tokenizer->count($record->prompt);
+            $inputTokens += Gpt3Tokenizer::count($record->prompt, $model);
         }
         $historyMessages = goWait(fn () => $this->selectMessages($record->id, 'desc', limit: $config->getTopConversations() * 2 + 1), 30, true);
         $modelMaxTokens = $modelConfig->maxTokens;
         foreach ($historyMessages as $message)
         {
             /** @var ChatMessage $message */
-            $inputTokens += $gpt3Tokenizer->count($message->message);
+            $inputTokens += Gpt3Tokenizer::count($message->message, $model);
             if ($inputTokens > $modelMaxTokens)
             {
-                $messages[] = ['role' => $message->role, 'content' => $gpt3Tokenizer->chunk($message->message, $inputTokens - $modelMaxTokens)[0]];
+                $messages[] = ['role' => $message->role, 'content' => Gpt3Tokenizer::encodeChunks($message->message, $inputTokens - $modelMaxTokens, $model)[0]];
                 break;
             }
             $messages[] = ['role' => $message->role, 'content' => $message->message];
@@ -195,7 +193,7 @@ class ChatService
             }
         }
         $endTime = time();
-        $outputTokens = $gpt3Tokenizer->count($content);
+        $outputTokens = Gpt3Tokenizer::count($content, $model);
         [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($modelConfig, $inputTokens, $outputTokens);
         $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);

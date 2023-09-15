@@ -495,7 +495,7 @@ class EmbeddingService
             $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
             /** @var IFileHandler $handler */
             $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
-            $generator = $handler->parseSections($file->content, $project->sectionSplitLength, $project->sectionSeparator, $project->sectionSplitByTitle);
+            $generator = $handler->parseSections($file->content, $project->sectionSplitLength, $project->sectionSeparator, $project->sectionSplitByTitle, 'text-embedding-ada-002');
             foreach ($generator as $item)
             {
                 [$title, $chunk, $tokens] = $item;

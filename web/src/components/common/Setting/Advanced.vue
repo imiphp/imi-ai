@@ -83,7 +83,7 @@ function handleReset() {
               v-for="modelItem of models"
               :key="modelItem.model"
               :value="modelItem.model"
-              :label="modelItem.model"
+              :label="0 === modelItem.title.length ? modelItem.model : modelItem.title"
               :disabled="!modelItem.enable || readonly"
             />
           </NRadioGroup>

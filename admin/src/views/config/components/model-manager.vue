@@ -16,7 +16,16 @@
       <tbody>
         <tr v-for="(item, index) in modelConfigsData" :key="index">
           <td>
-            <n-select v-model:value="item.model" filterable tag :options="modelSelectOptions(models)"></n-select>
+            <n-select
+              v-model:value="item.model"
+              filterable
+              tag
+              :options="modelSelectOptions(models)"
+              @update:value="
+                (_value: string, option: SelectBaseOption) => {
+                  item.title = option.label
+                }"
+            ></n-select>
           </td>
           <td>
             <n-input-number v-model:value="item.inputTokenMultiple" :min="0" />
@@ -39,6 +48,7 @@
         </tr>
       </tbody>
     </n-table>
+    {{ modelConfigsData }}
     <n-space justify="center" class="mt-2">
       <n-button type="primary" @click="handleAddModelConfig">
         <icon-ic-round-plus class="mr-4px text-20px" />
@@ -50,6 +60,7 @@
 
 <script setup lang="tsx">
 import { watch, reactive } from 'vue';
+import type { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { modelSelectOptions } from '@/store';
 
 export interface Props {

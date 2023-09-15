@@ -3,6 +3,7 @@
     <n-table :single-line="false" striped class="w-max min-w-full">
       <thead>
         <tr class="text-center">
+          <th width="120">标题</th>
           <th width="240">模型名称</th>
           <th width="130">Token 输入倍率</th>
           <th width="130">Token 输出倍率</th>
@@ -15,6 +16,9 @@
       </thead>
       <tbody>
         <tr v-for="(item, index) in modelConfigsData" :key="index">
+          <td>
+            <n-input v-model:value="item.title" />
+          </td>
           <td>
             <n-input v-model:value="item.model" />
           </td>
@@ -84,6 +88,7 @@ function handleDeleteModel(index: number) {
 
 function handleAddModelConfig() {
   modelConfigsData.push({
+    title: '',
     model: '',
     inputTokenMultiple: 1,
     outputTokenMultiple: 1,

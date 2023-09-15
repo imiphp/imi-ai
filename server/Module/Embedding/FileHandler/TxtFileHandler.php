@@ -12,9 +12,8 @@ use Imi\Bean\Annotation\Bean;
  */
 class TxtFileHandler implements IFileHandler
 {
-    public function parseSections(string $content, int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle): \Generator
+    public function parseSections(string $content, int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator
     {
-        $tokenizer = Gpt3Tokenizer::getInstance();
         // 分隔符分割
         if ('' === $sectionSeparator)
         {
@@ -28,9 +27,9 @@ class TxtFileHandler implements IFileHandler
         {
             $splitItem = trim($splitItem);
             // 长度
-            foreach ($tokenizer->chunk($splitItem, $sectionSplitLength) as $chunk)
+            foreach (Gpt3Tokenizer::encodeChunks($splitItem, $sectionSplitLength, $model) as $chunk)
             {
-                $tokens = $tokenizer->count($chunk);
+                $tokens = Gpt3Tokenizer::count($chunk, $model);
                 yield ['', $chunk, $tokens];
             }
         }

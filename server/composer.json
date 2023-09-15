@@ -8,7 +8,6 @@
         "ext-swoole": ">=5.0",
         "ankane/pgvector": "^0.1.2",
         "gemorroj/archive7z": "^5.6",
-        "gioni06/gpt3-tokenizer": "^1.2",
         "guzzlehttp/guzzle": "^7.5",
         "hashids/hashids": "^5.0",
         "imiphp/imi": "2.1.x-dev",
@@ -23,6 +22,7 @@
         "phpmailer/phpmailer": "^6.8",
         "swoole-inc/open-ai": "^1.5",
         "symfony/http-client": "^6.2",
+        "yurunsoft/tiktoken": "^0.1.3",
         "yurunsoft/yurun-http": "^4.4"
     },
     "require-dev": {

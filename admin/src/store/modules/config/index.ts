@@ -81,7 +81,7 @@ export const defineConfigComponent = (
 
 export const modelSelectOptions = (models: Config.Model[]) => {
   return models.map(model => ({
-    label: model.model,
+    label: model.title.length === 0 ? model.model : model.title,
     value: model.model
   }));
 };

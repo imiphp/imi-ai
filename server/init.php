@@ -8,3 +8,5 @@ declare(strict_types=1);
  */
 ini_set('memory_limit', '512M'); // 进程内存限制
 date_default_timezone_set('Asia/Shanghai'); // 默认时区设置
+// tiktoken 缓存目录
+putenv('TIKTOKEN_CACHE_DIR=' . __DIR__ . '/.runtime/cache/tiktoken');

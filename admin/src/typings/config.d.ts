@@ -1,5 +1,6 @@
 declare namespace Config {
   interface Model {
+    title: string;
     model: string;
     enable: boolean;
     paying: boolean;

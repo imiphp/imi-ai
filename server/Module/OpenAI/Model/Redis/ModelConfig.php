@@ -10,6 +10,14 @@ class ModelConfig
 {
     use TNotRequiredDataToProperty;
 
+    /**
+     * 标题.
+     */
+    public string $title = '';
+
+    /**
+     * 实际模型名称.
+     */
     public string $model = '';
 
     public bool $enable = true;

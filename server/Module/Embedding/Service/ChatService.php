@@ -47,8 +47,6 @@ class ChatService
     ]
     public function sendMessage(string $question, string $projectId, int $memberId, string $ip = '', array|object $config = [], ?float $similarity = null, ?int $topSections = null, ?string $prompt = null): EmbeddingQa
     {
-        $tokens = \count(Gpt3Tokenizer::getInstance()->encode($question));
-
         $project = $this->embeddingService->getReadonlyProject($projectId, $memberId);
 
         if ([] === $config)
@@ -63,6 +61,7 @@ class ChatService
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
+        $tokens = Gpt3Tokenizer::count($question, $model);
 
         // 检查余额
         $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);
@@ -97,7 +96,7 @@ class ChatService
         }
         $vector = new Vector($response['data'][0]['embedding']);
 
-        $tokens = Gpt3Tokenizer::getInstance()->count($q);
+        $tokens = Gpt3Tokenizer::count($q, $model);
         $config = EmbeddingConfig::__getConfig();
         [$payTokens] = TokensUtil::calcDeductToken($config->getEmbeddingModelConfig($model), $tokens, 0);
 
@@ -205,12 +204,11 @@ class ChatService
                 }
                 yield $yieldData;
             }
-            $tokenizer = Gpt3Tokenizer::getInstance();
-            $chatInputTokens = $tokenizer->count($record->prompt) // 系统提示语
-            + $tokenizer->count($question) // 问题提示语
-            + $tokenizer->count($content) // 内容提示语
+            $chatInputTokens = Gpt3Tokenizer::count($record->prompt, $model) // 系统提示语
+            + Gpt3Tokenizer::count($question, $model) // 问题提示语
+            + Gpt3Tokenizer::count($content, $model) // 内容提示语
             ;
-            $chatOutputTokens = $tokenizer->count($content);
+            $chatOutputTokens = Gpt3Tokenizer::count($content, $model);
             $record->answer = $content;
         }
         else
