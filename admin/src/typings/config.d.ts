@@ -9,5 +9,6 @@ declare namespace Config {
     maxTokens: number;
     tips: string;
     additionalTokensPerMessage: number;
+    additionalTokensAfterMessages: number;
   }
 }

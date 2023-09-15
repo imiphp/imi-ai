@@ -51,4 +51,9 @@ class ModelConfig
      * 每条消息额外的Tokens.
      */
     public int $additionalTokensPerMessage = 0;
+
+    /**
+     * 每次消息之后额外的Tokens.
+     */
+    public int $additionalTokensAfterMessages = 0;
 }

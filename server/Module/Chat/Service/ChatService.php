@@ -148,8 +148,8 @@ class ChatService
         {
             throw new \RuntimeException('没有消息');
         }
-        // 每条消息额外的Tokens
-        $inputTokens += (\count($messages) * $modelConfig->additionalTokensPerMessage);
+        // 每条消息额外的Tokens + 每次消息之后额外的Tokens
+        $inputTokens += (\count($messages) * $modelConfig->additionalTokensPerMessage) + $modelConfig->additionalTokensAfterMessages;
         $record->tokens += $inputTokens;
         $client = OpenAIUtil::makeClient($model);
         $beginTime = time();
