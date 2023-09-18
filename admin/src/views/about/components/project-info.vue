@@ -8,10 +8,10 @@
         <n-tag type="primary">{{ latestBuildTime }}</n-tag>
       </n-descriptions-item>
       <n-descriptions-item label="Github地址">
-        <a class="text-primary" href="https://github.com/honghuangdc/soybean-admin" target="_blank">Github地址</a>
+        <a class="text-primary" href="https://github.com/imiphp/imi-ai" target="_blank">Github地址</a>
       </n-descriptions-item>
       <n-descriptions-item label="预览地址">
-        <a class="text-primary" href="https://soybean.pro" target="_blank">预览地址</a>
+        <a class="text-primary" href="https://ai.imiphp.com/" target="_blank">预览地址</a>
       </n-descriptions-item>
     </n-descriptions>
   </n-card>

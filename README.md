@@ -8,13 +8,21 @@
 
 ## 介绍
 
-imi-ai 是一个 ChatGPT 开源项目，你可以用它方便地部署和使用 ChatGPT 功能。
+imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 
-本项目支持 ChatGPT 聊天 AI 和 Embedding 模型训练对话。
+项目架构合理，代码编写优雅，不管是学习自用还是商用二开都很适合。
 
-后端基于 [imi](https://github.com/imiphp/imi)（PHP+Swoole），前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web)。
+本项目现已支持 ChatGPT 聊天 AI 和 Embedding 模型训练对话。
 
 项目采用 MIT 协议开源，你可以方便地进行二次开发，并且可以用于商业用途。
+
+## 技术栈
+
+后端基于 [imi](https://github.com/imiphp/imi) (PHP+Swoole)
+
+前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) (TypeScript+Vue3+Vite3+NaiveUI)
+
+后台基于 [honghuangdc/soybean-admin](https://github.com/honghuangdc/soybean-admin) (TypeScript+Vue3+Vite3+NaiveUI)
 
 ## 示例
 
