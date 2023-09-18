@@ -15,6 +15,7 @@ use app\Module\Chat\Service\ChatService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
+use app\Util\RateLimit;
 use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Log\Log;
@@ -79,13 +80,14 @@ class ChatController extends HttpController
                     if (goWait(fn () => $this->memberCardService->getBalance($this->memberId, true)) <= 0)
                     {
                         // 限流检测
-                        if (!goWait(function () {
+                        if (!goWait(function () use (&$config) {
                             $config = ChatConfig::__getConfig();
 
                             return RateLimiter::limit('rateLimit:chat:' . $this->memberId, $config->getRateLimitAmount(), static fn () => false, unit: $config->getRateLimitUnit());
                         }, 30, true))
                         {
-                            throw new ErrorException('资源有限，免费用户有使用频率限制，请购买卡密解除限制', ApiStatus::MEMBER_RATE_LIMIT);
+                            /** @var ChatConfig $config */
+                            throw new ErrorException(sprintf('资源有限，免费用户有使用频率限制（%d次/%s），请购买卡密解除限制', $config->getRateLimitAmount(), RateLimit::getUnitHumanString($config->getRateLimitUnit())), ApiStatus::MEMBER_RATE_LIMIT);
                         }
                     }
 

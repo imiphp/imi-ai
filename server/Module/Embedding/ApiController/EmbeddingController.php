@@ -18,6 +18,7 @@ use app\Module\Embedding\Service\EmbeddingService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
 use app\Util\IPUtil;
+use app\Util\RateLimit;
 use app\Util\SecureFieldUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Log\Log;
@@ -241,13 +242,14 @@ class EmbeddingController extends HttpController
                     if (goWait(fn () => $this->memberCardService->getBalance($this->memberId, true)) <= 0)
                     {
                         // 限流检测
-                        if (!goWait(function () {
+                        if (!goWait(function () use (&$config) {
                             $config = EmbeddingConfig::__getConfig();
 
                             return RateLimiter::limit('rateLimit:embedding:chat:' . $this->memberId, $config->getChatRateLimitAmount(), static fn () => false, unit: $config->getChatRateLimitUnit());
                         }, 30, true))
                         {
-                            throw new ErrorException('资源有限，免费用户有使用频率限制，请购买卡密解除限制', ApiStatus::MEMBER_RATE_LIMIT);
+                            /** @var EmbeddingConfig $config */
+                            throw new ErrorException(sprintf('资源有限，免费用户有使用频率限制（%d次/%s），请购买卡密解除限制', $config->getChatRateLimitAmount(), RateLimit::getUnitHumanString($config->getChatRateLimitUnit())), ApiStatus::MEMBER_RATE_LIMIT);
                         }
                     }
 
