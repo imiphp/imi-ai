@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\ApiController;
 
+use app\Enum\ApiStatus;
 use app\Exception\BaseException;
+use app\Exception\ErrorException;
+use app\Module\Card\Service\MemberCardService;
 use app\Module\Chat\Enum\SessionType;
 use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
@@ -33,6 +36,9 @@ class ChatController extends HttpController
     #[Inject]
     protected ChatService $chatService;
 
+    #[Inject()]
+    protected MemberCardService $memberCardService;
+
     #[
         Action,
         Route(method: RequestMethod::POST),
@@ -60,8 +66,8 @@ class ChatController extends HttpController
     {
         MemberUtil::allowParamToken($token);
         $memberSession = MemberUtil::getMemberSession();
-        $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId()) extends SseEmitter {
-            public function __construct(private string $id, private chatService $chatService, private int $memberId)
+        $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId(), $this->memberCardService) extends SseEmitter {
+            public function __construct(private string $id, private chatService $chatService, private int $memberId, private MemberCardService $memberCardService)
             {
             }
 
@@ -70,12 +76,18 @@ class ChatController extends HttpController
                 $handler = $this->getHandler();
                 try
                 {
-                    // 限流检测
-                    goWait(function () {
-                        $config = ChatConfig::__getConfig();
+                    if (goWait(fn () => $this->memberCardService->getBalance($this->memberId, true)) <= 0)
+                    {
+                        // 限流检测
+                        if (!goWait(function () {
+                            $config = ChatConfig::__getConfig();
 
-                        return RateLimiter::limit('rateLimit:chat:' . $this->memberId, $config->getRateLimitAmount(), unit: $config->getRateLimitUnit());
-                    }, 30, true);
+                            return RateLimiter::limit('rateLimit:chat:' . $this->memberId, $config->getRateLimitAmount(), static fn () => false, unit: $config->getRateLimitUnit());
+                        }, 30, true))
+                        {
+                            throw new ErrorException('资源有限，免费用户有使用频率限制，请购买卡密解除限制', ApiStatus::MEMBER_RATE_LIMIT);
+                        }
+                    }
 
                     foreach ($this->chatService->chatStream($this->id, $this->memberId, IPUtil::getIP()) as $data)
                     {

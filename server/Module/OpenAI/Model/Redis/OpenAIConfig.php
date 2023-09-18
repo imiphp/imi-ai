@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace app\Module\OpenAI\Model\Redis;
 
+use app\Enum\ApiStatus;
+use app\Exception\ErrorException;
 use app\Module\Config\Annotation\ConfigModel;
 use app\Module\Config\Model\Redis\Traits\TConfigModel;
 use Imi\Model\Annotation\Column;
@@ -74,7 +76,7 @@ class OpenAIConfig extends RedisModel
                 return $api;
             }
         }
-        throw new \RuntimeException('没有可用的 API');
+        throw new ErrorException('没有可用的 API', ApiStatus::API_RATE_LIMIT);
     }
 
     /**

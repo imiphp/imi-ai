@@ -83,4 +83,14 @@ abstract class ApiStatus extends BaseEnum
      * @EnumItem("网络错误")
      */
     public const NETWORK_ERROR = 40004;
+
+    /**
+     * @EnumItem("接口限流")
+     */
+    public const API_RATE_LIMIT = 40005;
+
+    /**
+     * @EnumItem("用户限流")
+     */
+    public const MEMBER_RATE_LIMIT = 40006;
 }
