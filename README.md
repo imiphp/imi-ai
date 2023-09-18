@@ -1,5 +1,11 @@
 # imi-ai
 
+<p align="center">
+    <a href="https://www.imiphp.com" target="_blank">
+        <img src="https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/logo.png" alt="imi" />
+    </a>
+</p>
+
 [![Server test](https://github.com/imiphp/imi-ai/actions/workflows/server.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/server.yml)
 [![Web test](https://github.com/imiphp/imi-ai/actions/workflows/web.yml/badge.svg)](https://github.com/imiphp/imi-ai/actions/workflows/web.yml)
 [![Php Version](https://img.shields.io/badge/php-%3E=8.1-brightgreen.svg)](https://secure.php.net/)
@@ -70,6 +76,12 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 * [x] Tokens 计费系统（卡）
 * [ ] 在线支付购买卡
 * [x] 输入卡号激活
+
+### 其它
+
+* [ ] 接口文档
+* [ ] Docker 支持
+* [ ] 视频讲解教程
 
 更多功能计划中……
 
@@ -268,3 +280,11 @@ npm run build
 #### 编译结果
 
 所有文件都在 `dist` 目录，内部文件放到站点根目录。
+
+## 技术支持
+
+QQ群：17916227
+
+[![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)]
+
+[![赞助](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/pay.png)]
