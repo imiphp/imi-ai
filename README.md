@@ -90,7 +90,7 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
-* Swoole >= v4.8.13 或 Swoole >= v5.0.3
+* Swoole >= v5.0.3
 
 * MySQL >= 8.0.17
 
