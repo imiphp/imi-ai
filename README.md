@@ -285,6 +285,6 @@ npm run build
 
 QQ群：17916227
 
-[![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)]
+![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
 
-[![赞助](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/pay.png)]
+![赞助](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/pay.png)
