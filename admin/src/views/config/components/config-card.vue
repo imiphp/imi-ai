@@ -11,7 +11,7 @@
       <n-card>
         <n-grid cols="1" :y-gap="18" item-responsive responsive="screen">
           <n-form-item-grid-item label="注册赠送余额：">
-            <n-input-number v-model:value="formData.registerGiftTokens" :min="0" />
+            <n-input-number v-model:value="formData.registerGiftAmount" :min="0" />
           </n-form-item-grid-item>
           <n-form-item-grid-item label="最多激活失败次数：">
             <n-input-number v-model:value="formData.activationFailedMaxCount" :min="5" />
@@ -42,7 +42,7 @@ const props = defineProps<ConfigComponentProps>();
 const emit = defineEmits<ConfigComponentEmit>();
 const rules: FormRules = {};
 const formData = ref({
-  registerGiftTokens: 0,
+  registerGiftAmount: 0,
   activationFailedMaxCount: 0,
   activationFailedWaitTime: 0
 });
