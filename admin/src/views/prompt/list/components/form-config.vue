@@ -28,7 +28,7 @@
                 placeholder="请输入"
               ></n-dynamic-input>
             </p>
-            <template v-if="'textarea' === item.type">
+            <template v-else-if="'textarea' === item.type">
               <p>
                 <b>自动换行：</b>
                 <n-radio-group v-model:value="item.autosize" name="autosize">
@@ -42,6 +42,69 @@
                 <n-input v-model:value="item.rowsArr" pair separator="-" clearable />
               </p>
             </template>
+            <template v-else-if="'switch' === item.type">
+              <p>
+                <b>选中值：</b>
+                <n-input v-model:value="item.checkedValue" />
+              </p>
+              <p>
+                <b>未选中值：</b>
+                <n-input v-model:value="item.uncheckedValue" />
+              </p>
+            </template>
+            <!-- 默认值 -->
+            <p>
+              <b>默认值：</b>
+              <!-- 下拉 -->
+              <n-select
+                v-if="'select' === item.type"
+                v-model:value="item.default"
+                :options="item.data"
+                filterable
+                tag
+              />
+              <!-- 多行文本 -->
+              <n-input
+                v-else-if="'textarea' === item.type"
+                v-model:value="item.default"
+                type="textarea"
+                :autosize="
+                  undefined === props.value[index].autosize
+                    ? undefined !== props.value[index].minRows || undefined !== props.value[index].maxRows
+                      ? { minRows: props.value[index].minRows, maxRows: props.value[index].maxRows }
+                      : undefined
+                    : true === props.value[index].autosize
+                "
+              />
+              <!-- 开关 -->
+              <NSwitch
+                v-else-if="'switch' === item.type"
+                v-model:value="item.default"
+                :checked-value="item.checkedValue"
+                :unchecked-value="item.uncheckedValue"
+              />
+              <!-- 单选 -->
+              <n-radio-group v-else-if="'radio' === item.type" v-model:value="item.default" :name="item.id">
+                <NSpace>
+                  <NRadio v-for="(dataItem, key) in item.data" :key="key" :value="dataItem.value">
+                    {{ dataItem.label }}
+                  </NRadio>
+                </NSpace>
+              </n-radio-group>
+              <!-- 多选 -->
+              <n-checkbox-group v-else-if="'checkbox' === item.type" v-model:value="item.default">
+                <NSpace item-style="display: flex;">
+                  <NCheckbox
+                    v-for="(dataItem, key) in item.data"
+                    :key="key"
+                    :label="dataItem.label"
+                    :value="dataItem.value"
+                  />
+                </NSpace>
+              </n-checkbox-group>
+              <!-- 单行文本 -->
+              <n-input v-else v-model:value="item.default" />
+            </p>
           </td>
           <td>
             <n-popconfirm :on-positive-click="() => handleDelete(index)">
@@ -60,7 +123,6 @@
         增加一项
       </n-button>
     </n-space>
-    {{ value }}
   </n-scrollbar>
 </template>
 
@@ -79,6 +141,9 @@ export interface FormItem {
   autosize?: boolean | string;
   minRows?: number;
   maxRows?: number;
+  default?: any;
+  checkedValue?: any;
+  uncheckedValue?: any;
 }
 
 export type FormItemData = {
