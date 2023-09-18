@@ -132,6 +132,10 @@ class EmbeddingService
             {
                 $wheres[] = new Where('id', '=', (int) $search, LogicalOperator::OR);
             }
+            if (!$wheres)
+            {
+                $wheres[] = '1=2';
+            }
             $query->whereBrackets(static fn () => $wheres);
         }
 
