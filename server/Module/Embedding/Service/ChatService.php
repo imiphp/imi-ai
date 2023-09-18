@@ -127,7 +127,7 @@ class ChatService
         }
         $config = EmbeddingConfig::__getConfigAsync();
         $embeddingTokens = $embeddingPayTokens = 0;
-        $list = goWait(function () use ($record) {
+        $list = goWait(function () use ($record, &$embeddingTokens, &$embeddingPayTokens) {
             return $this->search($record->projectId, $record->question, $record->similarity, 1, $record->topSections, $embeddingTokens, $embeddingPayTokens)->getList();
         }, 30, true);
         $params = [];
