@@ -6,5 +6,9 @@ namespace app\Module\Embedding\FileHandler;
 
 interface IFileHandler
 {
-    public function parseSections(string $content, int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator;
+    public function getFileName(): string;
+
+    public function getContent(): string;
+
+    public function parseSections(int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator;
 }

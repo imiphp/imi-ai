@@ -16,4 +16,7 @@ class ContentFileTypes extends BaseEnum
 
     #[EnumItem(text: 'md')]
     public const MD = 'md';
+
+    #[EnumItem(text: 'docx')]
+    public const DOCX = 'docx';
 }

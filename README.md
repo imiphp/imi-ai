@@ -61,7 +61,7 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 * [x] 支持解压文件（zip、rar、7z、xz、gz、bz、tar.*）
 * [x] 支持解析 txt 文件
 * [x] 支持解析 md 文件
-* [ ] 支持解析 doc/docx 文件
+* [x] 支持解析 docx 文件
 * [ ] 支持解析 pdf 文件
 * [ ] 消息队列异步处理训练任务
 * [x] 支持对话限流
@@ -97,12 +97,11 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 
 * Linux / MacOS
 
-* 7-Zip
-（可选，使用模型训练必选。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录）
-
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
 * Swoole >= v5.0.3
+
+> 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
 * MySQL >= 8.0.17
 
@@ -110,7 +109,9 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 
 * PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用模型训练必选）
 
-> 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
+* 7-Zip，可选，但使用模型训练必选，用于解压文件。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录
+
+* Pandoc，可选，安装后可支持 docx 文件模型训练。[下载](https://pandoc.org/installing.html)
 
 **安装依赖：**
 

@@ -8,7 +8,6 @@ use app\Exception\NotFoundException;
 use app\Module\Admin\Enum\OperationLogStatus;
 use app\Module\Admin\Util\OperationLog;
 use app\Module\Embedding\Enum\EmbeddingStatus;
-use app\Module\Embedding\FileHandler\IFileHandler;
 use app\Module\Embedding\Model\Admin\EmbeddingFileAdmin;
 use app\Module\Embedding\Model\Admin\EmbeddingFileInListAdmin;
 use app\Module\Embedding\Model\Admin\EmbeddingProjectAdmin;
@@ -452,7 +451,7 @@ class EmbeddingService
     }
 
     #[Transaction()]
-    public function retryProject(string $id, int $memberId = 0, bool $force = false, bool $reSection = false): void
+    public function retryProject(string $id, int $memberId = 0, bool $force = false): void
     {
         $project = $this->getProject($id, $memberId);
         $project->status = EmbeddingStatus::TRAINING;
@@ -461,13 +460,13 @@ class EmbeddingService
         $retryParser->asyncRun();
         foreach ($this->fileList($id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $file)
         {
-            $this->retryFile($file, $memberId, $retryParser, $force, $reSection, $project);
+            $this->retryFile($file, $memberId, $retryParser, $force, $project);
         }
         $retryParser->endPush();
     }
 
     #[Transaction()]
-    public function retryFile(string|EmbeddingFile $file, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null, bool $force = false, bool $reSection = false, ?EmbeddingProject $project = null): void
+    public function retryFile(string|EmbeddingFile $file, int $memberId = 0, ?EmbeddingRetryParser $_retryParser = null, bool $force = false, ?EmbeddingProject $project = null): void
     {
         if (\is_string($file))
         {
@@ -490,41 +489,9 @@ class EmbeddingService
             $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
             $retryParser->asyncRun();
         }
-        if ($reSection)
+        foreach ($this->sectionList($file->projectId, $file->id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $section)
         {
-            if (!$project)
-            {
-                $project = $this->getProject($file->projectId, $memberId);
-            }
-            $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
-            /** @var IFileHandler $handler */
-            $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
-            $generator = $handler->parseSections($file->content, $project->sectionSplitLength, $project->sectionSeparator, $project->sectionSplitByTitle, 'text-embedding-ada-002');
-            foreach ($generator as $item)
-            {
-                [$title, $chunk, $tokens] = $item;
-                if ('' === $chunk)
-                {
-                    continue;
-                }
-                $section = EmbeddingSection::newInstance();
-                $section->projectId = $file->projectId;
-                $section->fileId = $file->id;
-                $section->status = EmbeddingStatus::TRAINING;
-                $section->title = $title;
-                $section->content = $chunk;
-                $section->vector = '[0]';
-                $section->tokens = $tokens;
-                $section->insert();
-                $this->retrySection($section, $memberId, $retryParser, $force);
-            }
-        }
-        else
-        {
-            foreach ($this->sectionList($file->projectId, $file->id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $section)
-            {
-                $this->retrySection($section, $memberId, $retryParser, $force);
-            }
+            $this->retrySection($section, $memberId, $retryParser, $force);
         }
         if (!$_retryParser)
         {

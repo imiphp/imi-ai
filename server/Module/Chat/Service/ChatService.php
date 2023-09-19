@@ -126,7 +126,7 @@ class ChatService
             $inputTokens += Gpt3Tokenizer::count($message->message, $model);
             if ($inputTokens > $modelMaxTokens)
             {
-                $messages[] = ['role' => $message->role, 'content' => Gpt3Tokenizer::encodeChunks($message->message, $inputTokens - $modelMaxTokens, $model)[0]];
+                $messages[] = ['role' => $message->role, 'content' => Gpt3Tokenizer::chunk($message->message, $inputTokens - $modelMaxTokens, $model)[0]];
                 break;
             }
             $messages[] = ['role' => $message->role, 'content' => $message->message];

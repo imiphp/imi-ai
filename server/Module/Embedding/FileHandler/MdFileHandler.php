@@ -18,15 +18,27 @@ use League\CommonMark\Parser\MarkdownParser;
 /**
  * @Bean("MdFileHandler")
  */
-class MdFileHandler implements IFileHandler
+class MdFileHandler extends BaseFileHandler
 {
-    private array $headingStack = [];
+    protected array $headingStack = [];
 
-    public function parseSections(string $content, int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator
+    protected ?string $content = null;
+
+    public function getContent(): string
+    {
+        if (null === $this->content)
+        {
+            return $this->content = file_get_contents($this->getFileName());
+        }
+
+        return $this->content;
+    }
+
+    public function parseSections(int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator
     {
         if ($splitByTitle)
         {
-            foreach ($this->parseMarkdownSections($content) as $item)
+            foreach ($this->parseMarkdownSections($this->content) as $item)
             {
                 [$heading, $section] = $item;
                 $heading = trim($heading);
@@ -44,7 +56,7 @@ class MdFileHandler implements IFileHandler
                 foreach ($items as $splitItem)
                 {
                     // 长度
-                    foreach (Gpt3Tokenizer::encodeChunks($splitItem, $sectionSplitLength - $headingTokens, $model) as $chunk)
+                    foreach (Gpt3Tokenizer::chunk($splitItem, $sectionSplitLength - $headingTokens, $model) as $chunk)
                     {
                         $tokens = $headingTokens + Gpt3Tokenizer::count($chunk, $model);
                         yield [$heading, $chunk, $tokens];
@@ -57,17 +69,17 @@ class MdFileHandler implements IFileHandler
             // 分隔符分割
             if ('' === $sectionSeparator)
             {
-                $items = (array) $content;
+                $items = (array) $this->content;
             }
             else
             {
-                $items = explode($sectionSeparator, $content);
+                $items = explode($sectionSeparator, $this->content);
             }
             foreach ($items as $splitItem)
             {
                 $splitItem = trim($splitItem);
                 // 长度
-                foreach (Gpt3Tokenizer::encodeChunks($splitItem, $sectionSplitLength, $model) as $chunk)
+                foreach (Gpt3Tokenizer::chunk($splitItem, $sectionSplitLength, $model) as $chunk)
                 {
                     $tokens = Gpt3Tokenizer::count($chunk, $model);
                     yield ['', $chunk, $tokens];

@@ -29,6 +29,7 @@ use Imi\Util\Imi;
 use Pgvector\Vector;
 use Swoole\Coroutine\Channel;
 
+use function Imi\env;
 use function Yurun\Swoole\Coroutine\goWait;
 
 class EmbeddingUploadParser
@@ -194,7 +195,7 @@ class EmbeddingUploadParser
             {
                 throw new \RuntimeException(sprintf('Compressed file size too large. Max size: %s', Imi::formatByte($size)));
             }
-            $archive = new Archive7z($newFileName);
+            $archive = new Archive7z($newFileName, $binary7z = env('BINARY_7Z'));
 
             $totalSize = 0;
             foreach ($archive->getEntries() as $entry)
@@ -210,7 +211,7 @@ class EmbeddingUploadParser
             $archive->extract();
             foreach (File::enumFile($this->extractPath, null, ['tar']) as $file)
             {
-                $archive = new Archive7z($file->getFullPath());
+                $archive = new Archive7z($file->getFullPath(), $binary7z);
                 $archive->setOutputDirectory($this->extractPath);
                 $archive->extract();
             }
@@ -310,7 +311,10 @@ class EmbeddingUploadParser
                 ['name' => $fileName, 'relativeFileName' => $relativeFileName, 'size' => $size, 'file' => $fileRecord] = $file;
                 try
                 {
-                    $content = file_get_contents($fileName);
+                    $fileType = pathinfo($fileName, \PATHINFO_EXTENSION);
+                    /** @var IFileHandler $handler */
+                    $handler = App::newInstance(ucfirst($fileType) . 'FileHandler', $fileName);
+                    $content = $handler->getContent();
                     // 统一转为 UTF-8 编码
                     try
                     {
@@ -339,7 +343,7 @@ class EmbeddingUploadParser
                     $fileRecord->content = $content;
                     $fileRecord->ip = $this->ip;
                     goWait(fn () => $fileRecord->save(), 30, true);
-                    $this->parseSections($fileRecord);
+                    $this->parseSections($handler, $fileRecord);
                 }
                 finally
                 {
@@ -494,18 +498,14 @@ class EmbeddingUploadParser
         }
     }
 
-    private function parseSections(EmbeddingFile $file): void
+    private function parseSections(IFileHandler $handler, EmbeddingFile $file): void
     {
         if ('' === $file->content)
         {
             return;
         }
 
-        $fileType = pathinfo($file->fileName, \PATHINFO_EXTENSION);
-
-        /** @var IFileHandler $handler */
-        $handler = App::newInstance(ucfirst($fileType) . 'FileHandler');
-        $generator = $handler->parseSections($file->content, $this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle, $this->model);
+        $generator = $handler->parseSections($this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle, $this->model);
 
         foreach ($generator as $item)
         {
