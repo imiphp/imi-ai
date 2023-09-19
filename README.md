@@ -113,6 +113,19 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 
 * Pandoc，可选，安装后可支持 docx 文件模型训练。[下载](https://pandoc.org/installing.html)
 
+* poppler-utils，可选，安装后可支持 pdf 文件模型训练。
+
+**安装：**
+
+```shell
+# Debian/Ubuntu
+apt install poppler-utils
+# CentOS
+yum install poppler-utils
+# Alpine
+apk add poppler-utils
+```
+
 **安装依赖：**
 
 `composer update`
