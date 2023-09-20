@@ -14,13 +14,22 @@
 
 ## 介绍
 
-imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
+imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写文章、做作业等功能。
 
-项目架构合理，代码编写优雅，不管是学习自用还是商用二开都很适合。
+项目架构合理，代码编写优雅，简单快速部署。前后端代码完全开源，不管是学习自用还是商用二开都很适合。
 
 本项目现已支持 ChatGPT 聊天 AI 和 Embedding 模型训练对话。
 
 项目采用 MIT 协议开源，你可以方便地进行二次开发，并且可以用于商业用途。
+
+## 演示
+
+公益演示地址：https://ai.imiphp.com/ （注册送额度，付费可用 gpt-4、gpt-3.5-turbo-16k）
+
+![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/1.jpg)
+![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/2.jpg)
+![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/3.jpg)
+![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/4.jpg)
 
 ## 技术栈
 
@@ -29,10 +38,6 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 前端基于 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) (TypeScript+Vue3+Vite3+NaiveUI)
 
 后台基于 [honghuangdc/soybean-admin](https://github.com/honghuangdc/soybean-admin) (TypeScript+Vue3+Vite3+NaiveUI)
-
-## 示例
-
-演示地址：<https://ai.imiphp.com>
 
 ## 功能列表
 
@@ -62,7 +67,7 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 * [x] 支持解析 txt 文件
 * [x] 支持解析 md 文件
 * [x] 支持解析 docx 文件
-* [ ] 支持解析 pdf 文件
+* [x] 支持解析 pdf 文件
 * [ ] 消息队列异步处理训练任务
 * [x] 支持对话限流
 
@@ -76,6 +81,11 @@ imi-ai 是一个 ChatGPT 开源项目，可以简单快速部署。
 * [x] Tokens 计费系统（卡）
 * [ ] 在线支付购买卡
 * [x] 输入卡号激活
+
+### 支持的模型厂商
+
+* [x] OpenAI
+* [x] Swoole AI
 
 ### 其它
 
@@ -296,6 +306,8 @@ npm run build
 所有文件都在 `dist` 目录，内部文件放到站点根目录。
 
 ## 技术支持
+
+可提供以下服务：项目搭建部署、技术咨询、定制开发等
 
 QQ群：17916227
 

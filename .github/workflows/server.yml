@@ -2,6 +2,8 @@ name: Server test
 
 on:
   push:
+    paths:
+      - "server/**"
   pull_request:
 
 jobs:

@@ -2,6 +2,8 @@ name: Admin test
 
 on:
   push:
+    paths:
+      - "admin/**"
   pull_request:
 
 jobs:

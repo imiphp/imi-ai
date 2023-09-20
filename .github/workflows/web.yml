@@ -2,6 +2,8 @@ name: Web test
 
 on:
   push:
+    paths:
+      - "web/**"
   pull_request:
 
 jobs:
