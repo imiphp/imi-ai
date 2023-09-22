@@ -50,6 +50,8 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 ### 聊天 AI
 
 * [x] ChatGPT 聊天 AI（OpenAI）
+* [x] 支持设置提示语（Prompt）
+* [x] 支持模型参数调参
 * [x] 服务端多会话储存和上下文逻辑
 * [x] 渲染代码高亮
 * [x] 渲染 LaTeX 公式
