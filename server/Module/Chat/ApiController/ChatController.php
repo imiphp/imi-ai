@@ -59,14 +59,12 @@ class ChatController extends HttpController
         ];
     }
 
-    #[
-        Action,
-        LoginRequired()
-    ]
+    #[Action]
     public function stream(string $id, string $token = ''): void
     {
         MemberUtil::allowParamToken($token);
         $memberSession = MemberUtil::getMemberSession();
+        $memberSession->checkLogin();
         $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId(), $this->memberCardService) extends SseEmitter {
             public function __construct(private string $id, private chatService $chatService, private int $memberId, private MemberCardService $memberCardService)
             {

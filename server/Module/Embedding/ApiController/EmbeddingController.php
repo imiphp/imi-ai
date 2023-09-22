@@ -229,6 +229,7 @@ class EmbeddingController extends HttpController
     {
         MemberUtil::allowParamToken($token);
         $memberSession = MemberUtil::getMemberSession();
+        $memberSession->checkLogin();
         $this->response->setResponseBodyEmitter(new class($id, $this->chatService, $memberSession->getIntMemberId(), $this->memberCardService) extends SseEmitter {
             public function __construct(private string $id, private ChatService $chatService, private int $memberId, private MemberCardService $memberCardService)
             {
