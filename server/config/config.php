@@ -223,23 +223,19 @@ return (function () {
                             'formatter' => [
                                 'class'     => \Imi\Log\Formatter\ConsoleLineFormatter::class,
                                 'construct' => [
-                                    'level'  => $debug ? \Imi\Log\MonoLogger::DEBUG : \Imi\Log\MonoLogger::INFO,
-                                ],
-                                'construct' => [
                                     'format'                     => null,
                                     'dateFormat'                 => 'Y-m-d H:i:s',
                                     'allowInlineLineBreaks'      => true,
                                     'ignoreEmptyContextAndExtra' => true,
+                                    'level'                      => $debug ? \Imi\Log\MonoLogger::DEBUG : \Imi\Log\MonoLogger::INFO,
                                 ],
                             ],
                         ],
                         [
                             'class'     => \Monolog\Handler\RotatingFileHandler::class,
                             'construct' => [
-                                'level'  => $debug ? \Imi\Log\MonoLogger::DEBUG : \Imi\Log\MonoLogger::INFO,
-                            ],
-                            'construct' => [
                                 'filename' => App::get(AppContexts::APP_PATH_PHYSICS) . '/.runtime/logs/log.log',
+                                'level'    => $debug ? \Imi\Log\MonoLogger::DEBUG : \Imi\Log\MonoLogger::INFO,
                             ],
                             'formatter' => [
                                 'class'     => \Monolog\Formatter\LineFormatter::class,
