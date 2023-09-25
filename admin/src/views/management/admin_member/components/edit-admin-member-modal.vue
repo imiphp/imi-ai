@@ -33,6 +33,7 @@ import { ref, computed, reactive, watch } from 'vue';
 import type { FormInst, FormItemRule } from 'naive-ui';
 import { createRequiredFormRule } from '@/utils';
 import { createAdminMember, updateAdminMember } from '~/src/service';
+import { hashPassword } from '~/src/utils/auth';
 
 export interface Props {
   /** 弹窗可见性 */
@@ -133,14 +134,18 @@ function handleUpdateFormModelByModalType() {
 async function handleSubmit() {
   await formRef.value?.validate();
   let response;
+  let password = formModel.password;
+  if (password.length > 0) {
+    password = hashPassword(password);
+  }
   if (props.type === 'add') {
-    response = await createAdminMember(formModel.account, formModel.nickname, formModel.password, formModel.status);
+    response = await createAdminMember(formModel.account, formModel.nickname, password, formModel.status);
   } else if (props.editData) {
     response = await updateAdminMember(
       props.editData.id,
       formModel.account,
       formModel.nickname,
-      formModel.password,
+      password,
       formModel.status
     );
   } else {
