@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Admin\ApiController;
 
+use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Config\Service\AdminEnumService;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Route\Annotation\Action;
@@ -20,6 +21,7 @@ class EnumController extends \Imi\Server\Http\Controller\HttpController
      */
     #[
         Action,
+        AdminLoginRequired()
     ]
     public function values(string|array $name = []): array
     {
