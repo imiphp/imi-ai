@@ -18,7 +18,7 @@ use Imi\Model\Annotation\Serializables;
  * @Inherit
  */
 #[
-    Serializables(mode: 'deny', fields: ['id', 'projectId']),
+    Serializables(mode: 'deny', fields: ['id', 'projectId', 'memberId']),
 ]
 class EmbeddingQa extends EmbeddingQaBase
 {
