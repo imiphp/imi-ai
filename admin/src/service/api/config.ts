@@ -1,11 +1,11 @@
 import { request } from '../request';
 
 export async function getConfig() {
-  return request.get('/config/admin/get');
+  return request.get('/admin/config/get');
 }
 
 export async function saveConfig(data: any) {
-  return request.post<Api.BaseResponse>('/config/admin/save', {
+  return request.post<Api.BaseResponse>('/admin/config/save', {
     data
   });
 }

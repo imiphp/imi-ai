@@ -12,7 +12,7 @@ use Imi\Server\Http\Route\Annotation\Controller;
 use Imi\Server\Http\Route\Annotation\Route;
 use Imi\Util\Http\Consts\RequestMethod;
 
-#[Controller(prefix: '/config/admin/')]
+#[Controller(prefix: '/admin/config/')]
 class ConfigController extends \Imi\Server\Http\Controller\HttpController
 {
     #[Inject()]
