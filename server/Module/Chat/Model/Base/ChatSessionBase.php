@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.name", default="tb_chat_session"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Chat\Model\ChatSession.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '类型',   `member_id` int unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '提示语',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `update_time` int unsigned NOT NULL COMMENT '最后更新时间',   `delete_time` int unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `delete_time` (`member_id`,`type`,`delete_time`,`update_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天会话'")
+ * @DDL(sql="CREATE TABLE `tb_chat_session` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '类型',   `member_id` int unsigned NOT NULL COMMENT '用户ID',   `title` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',   `qa_status` tinyint unsigned NOT NULL COMMENT '问答状态',   `tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '累计 Token 数量，此为实际数量，不是在平台消耗的数量',   `pay_tokens` bigint unsigned NOT NULL DEFAULT '0' COMMENT '支付 Token 数量',   `config` json NOT NULL COMMENT '配置',   `prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '提示语',   `ip_data` varbinary(16) NOT NULL DEFAULT '' COMMENT 'IP数据',   `ip` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci GENERATED ALWAYS AS ((case length(`ip_data`) when 0 then _utf8mb4'' else inet6_ntoa(`ip_data`) end)) VIRTUAL NOT NULL COMMENT 'IP',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `update_time` int unsigned NOT NULL COMMENT '最后更新时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `delete_time` (`member_id`,`type`,`update_time` DESC) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI聊天会话'")
  *
  * @property int|null                                    $id
  * @property int|null                                    $type       类型
@@ -33,7 +33,6 @@ use Imi\Model\Model;
  * @property string|null                                 $ip         IP
  * @property int|null                                    $createTime 创建时间
  * @property int|null                                    $updateTime 最后更新时间
- * @property int|null                                    $deleteTime 删除时间
  */
 abstract class ChatSessionBase extends Model
 {
@@ -448,36 +447,6 @@ abstract class ChatSessionBase extends Model
     public function setUpdateTime($updateTime)
     {
         $this->updateTime = null === $updateTime ? null : (int) $updateTime;
-
-        return $this;
-    }
-
-    /**
-     * 删除时间.
-     * delete_time.
-     *
-     * @Column(name="delete_time", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
-     */
-    protected ?int $deleteTime = 0;
-
-    /**
-     * 获取 deleteTime - 删除时间.
-     */
-    public function getDeleteTime(): ?int
-    {
-        return $this->deleteTime;
-    }
-
-    /**
-     * 赋值 deleteTime - 删除时间.
-     *
-     * @param int|null $deleteTime delete_time
-     *
-     * @return static
-     */
-    public function setDeleteTime($deleteTime)
-    {
-        $this->deleteTime = null === $deleteTime ? null : (int) $deleteTime;
 
         return $this;
     }

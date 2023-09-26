@@ -38,7 +38,7 @@ abstract class EmbeddingPublicProjectBase extends Model
      * 项目ID.
      * project_id.
      *
-     * @Column(name="project_id", type="int8", length=-1, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=1, isAutoIncrement=false, ndims=0, virtual=false)
+     * @Column(name="project_id", type="int8", length=-1, accuracy=0, nullable=false, default="", isPrimaryKey=true, primaryKeyIndex=0, isAutoIncrement=false, ndims=0, virtual=false)
      */
     protected ?int $projectId = null;
 

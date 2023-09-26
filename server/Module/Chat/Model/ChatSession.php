@@ -14,7 +14,6 @@ use Imi\Model\Annotation\Column;
 use Imi\Model\Annotation\JsonDecode;
 use Imi\Model\Annotation\Serializables;
 use Imi\Model\SoftDelete\Annotation\SoftDelete;
-use Imi\Model\SoftDelete\Traits\TSoftDelete;
 
 /**
  * AI聊天会话.
@@ -29,7 +28,6 @@ class ChatSession extends ChatSessionBase
 {
     use TRecordId;
     use TSecureField;
-    use TSoftDelete;
 
     /**
      * 安全处理字段.
