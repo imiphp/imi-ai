@@ -91,7 +91,8 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 ### 其它
 
-* [ ] 接口文档
+* [x] 设计文档
+* [x] 接口文档
 * [ ] Docker 支持
 * [ ] 视频讲解教程
 
@@ -107,7 +108,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 **环境要求：**
 
-* Linux / MacOS
+* Linux / MacOS，可用内存至少1G
 
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
@@ -311,8 +312,38 @@ npm run build
 
 可提供以下服务：项目搭建部署、技术咨询、定制开发等
 
-QQ群：17916227
+**QQ群：**17916227
+
+**微信群：**
 
 ![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
 
+## 赞助开发
+
+### 赞助等级
+
+| 等级 | 价格 | 说明 |
+| - | - | - |
+| 白嫖用户 | 0 | 完整项目代码，免费用于商业用途，Github/QQ群/微信群交流提问 |
+| 白银赞助 | ￥9.9 | 可获得设计文档，接口文档 |
+| 黄金赞助 | ￥499/年 | 1次免费项目搭建部署，一对一问题咨询 |
+
+### 权益
+
+| 权益 | 白嫖用户 | 白银赞助 | 黄金赞助 | 备注 |
+| - | - | - | - | - |
+| 完整项目代码 | ✔ | ✔ | ✔ |  |
+| 免费用于商业用途 | ✔ | ✔ | ✔ |  |
+| Github/QQ群/微信群交流提问 | ✔ | ✔ | ✔ | 回复时长不确定 |
+| 设计文档 |  | ✔ | ✔ | 在线浏览 |
+| 接口文档（后台+前台） |  | ✔ | ✔ | 在线浏览/Swagger 格式导出/Markdown |
+| 项目搭建部署（1次） |  |  | ✔ | 建议提供干净的服务器，可用内存至少1G |
+| 一对一问题咨询 |  |  | ✔ | 回复及时，隐私更好 |
+
+**支付：**
+
 ![赞助](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/pay.png)
+
+**微信：**
+
+![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
