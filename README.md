@@ -312,13 +312,15 @@ npm run build
 
 可提供以下服务：项目搭建部署、技术咨询、定制开发等
 
-**QQ群：**17916227
+**QQ群：** 17916227
 
 **微信群：**
 
 ![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
 
 ## 赞助开发
+
+imi-ai 是基于 MIT 协议完全开源的项目，为了能够更好地可持续发展，特推出赞助权益。
 
 ### 赞助等级
 
