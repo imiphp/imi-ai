@@ -8,6 +8,43 @@ use Imi\AppContexts;
 use function Imi\env;
 
 return (function () {
+    $poolConfigs = [];
+    if (version_compare(\SWOOLE_VERSION, '5.1', '>=') && \defined('SWOOLE_HOOK_PDO_PGSQL'))
+    {
+        $dbClass = \Imi\Pgsql\Db\Drivers\PdoPgsql\Driver::class;
+    }
+    elseif (class_exists(\Imi\Pgsql\Db\Drivers\SwooleNew\Driver::class))
+    {
+        $dbClass = \Imi\Pgsql\Db\Drivers\SwooleNew\Driver::class;
+    }
+    else
+    {
+        $dbClass = null;
+    }
+    if ($dbClass)
+    {
+        $poolConfigs['pgsql'] = [
+            'pool'    => [
+                // @phpstan-ignore-next-line
+                'class'        => \Imi\Swoole\Db\Pool\CoroutineDbPool::class,
+                'config'       => [
+                    'maxResources'              => 32,
+                    'minResources'              => 0,
+                    'checkStateWhenGetResource' => false,
+                    'heartbeatInterval'         => 60,
+                ],
+            ],
+            'resource'    => [
+                'host'        => env('APP_PGSQL_HOST', '127.0.0.1'),
+                'port'        => env('APP_PGSQL_PORT', 5432),
+                'username'    => env('APP_PGSQL_USERNAME', 'root'),
+                'password'    => env('APP_PGSQL_PASSWORD', 'root'),
+                'database'    => env('APP_PGSQL_DATABASE', 'db_imi_ai'),
+                'dbClass'     => $dbClass,
+            ],
+        ];
+    }
+
     return [
         // 配置文件
         'configs'    => [
@@ -79,27 +116,6 @@ return (function () {
                     ],
                 ],
             ],
-            'pgsql'    => [
-                'pool'    => [
-                    // @phpstan-ignore-next-line
-                    'class'        => \Imi\Swoole\Db\Pool\CoroutineDbPool::class,
-                    'config'       => [
-                        'maxResources'              => 32,
-                        'minResources'              => 0,
-                        'checkStateWhenGetResource' => false,
-                        'heartbeatInterval'         => 60,
-                    ],
-                ],
-                'resource'    => [
-                    'host'        => env('APP_PGSQL_HOST', '127.0.0.1'),
-                    'port'        => env('APP_PGSQL_PORT', 5432),
-                    'username'    => env('APP_PGSQL_USERNAME', 'root'),
-                    'password'    => env('APP_PGSQL_PASSWORD', 'root'),
-                    'database'    => env('APP_PGSQL_DATABASE', 'db_imi_ai'),
-                    'dbClass'     => \Imi\Pgsql\Db\Drivers\SwooleNew\Driver::class,
-                    // 'dbClass'     => \Imi\Pgsql\Db\Drivers\PdoPgsql\Driver::class,
-                ],
-            ],
             'redis'              => [
                 'pool'        => [
                     'class'        => \Imi\Swoole\Redis\Pool\CoroutineRedisPool::class,
@@ -120,6 +136,7 @@ return (function () {
                     ],
                 ],
             ],
+            ...$poolConfigs,
         ],
 
         // 数据库配置

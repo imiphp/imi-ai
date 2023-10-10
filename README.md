@@ -112,7 +112,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
-* Swoole >= v5.0.3
+* Swoole >= v5.0.3（模型训练需启用 [--enable-swoole-pgsql](https://wiki.swoole.com/#/environment?id=-enable-swoole-pgsql)）
 
 > 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
