@@ -9,6 +9,7 @@ use function Imi\env;
 
 return (function () {
     $poolConfigs = [];
+    // @phpstan-ignore-next-line
     if (version_compare(\SWOOLE_VERSION, '5.1', '>=') && \defined('SWOOLE_HOOK_PDO_PGSQL'))
     {
         $dbClass = \Imi\Pgsql\Db\Drivers\PdoPgsql\Driver::class;
