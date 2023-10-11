@@ -24,6 +24,16 @@ const management: AuthRoute.Route = {
       }
     },
     {
+      name: 'config_api_manager',
+      path: '/config/api/manager',
+      component: 'self',
+      meta: {
+        title: '接口管理',
+        requiresAuth: true,
+        icon: 'ic:round-manage-accounts'
+      }
+    },
+    {
       name: 'management_admin_member',
       path: '/management/admin/member',
       component: 'self',

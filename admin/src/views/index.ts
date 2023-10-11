@@ -17,6 +17,7 @@ export const views: Record<
   card_type_list: () => import('./card/type_list/index.vue'),
   chat_list: () => import('./chat/list/index.vue'),
   chat_message_list: () => import('./chat/message_list/index.vue'),
+  config_api_manager: () => import('./config/api_manager/index.vue'),
   config_email_black_list: () => import('./config/email_black_list/index.vue'),
   config: () => import('./config/index.vue'),
   dashboard_analysis: () => import('./dashboard/analysis/index.vue'),

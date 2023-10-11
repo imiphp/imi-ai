@@ -62,6 +62,11 @@ class Client implements IClient
                     }
                 });
             }
+            catch (\Throwable $th)
+            {
+                $this->api->failed();
+                throw $th;
+            }
             finally
             {
                 $channel->push([

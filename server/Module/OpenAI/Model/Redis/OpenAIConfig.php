@@ -67,7 +67,7 @@ class OpenAIConfig extends RedisModel
         {
             $key = array_rand($apis);
             $api = $apis[$key];
-            if ($api->isRateLimit())
+            if ($api->isCircuitBreaker() || $api->isRateLimit())
             {
                 unset($apis[$key]);
             }

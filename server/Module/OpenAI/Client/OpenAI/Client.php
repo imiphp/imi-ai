@@ -49,14 +49,30 @@ class Client implements IClient
 
     public function chat(array $params): \Iterator
     {
-        foreach ($this->client->chat()->createStreamed($params) as $response)
+        try
         {
-            yield $response->toArray();
+            foreach ($this->client->chat()->createStreamed($params) as $response)
+            {
+                yield $response->toArray();
+            }
+        }
+        catch (\Throwable $th)
+        {
+            $this->api->failed();
+            throw $th;
         }
     }
 
     public function embedding(array $params): array
     {
-        return $this->client->embeddings()->create($params)->toArray();
+        try
+        {
+            return $this->client->embeddings()->create($params)->toArray();
+        }
+        catch (\Throwable $th)
+        {
+            $this->api->failed();
+            throw $th;
+        }
     }
 }

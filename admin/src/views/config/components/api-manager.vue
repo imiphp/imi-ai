@@ -10,8 +10,7 @@
           <th width="100">限流</th>
           <th width="200">模型</th>
           <th width="140">客户端</th>
-          <th width="50">启用</th>
-          <th width="50">删除</th>
+          <th width="150">操作</th>
         </tr>
       </thead>
       <tbody>
@@ -22,19 +21,7 @@
           <td><n-dynamic-input v-model:value="item.proxys" /></td>
           <td>
             <n-input-number v-model:value="item.rateLimitAmount" :min="0" />
-            <n-select
-              v-model:value="item.rateLimitUnit"
-              :options="[
-                { label: '秒', value: 'second' },
-                { label: '分钟', value: 'minute' },
-                { label: '小时', value: 'hour' },
-                { label: '天', value: 'day' },
-                { label: '月', value: 'month' },
-                { label: '年', value: 'year' },
-                { label: '毫秒', value: 'millisecond' },
-                { label: '微秒', value: 'microsecond' }
-              ]"
-            />
+            <n-select v-model:value="item.rateLimitUnit" :options="rateLimitUnitOptions" />
           </td>
           <td>
             <n-select
@@ -47,14 +34,20 @@
             ></n-select>
           </td>
           <td><n-select v-model:value="item.client" filterable tag :options="clientListOptions"></n-select></td>
-          <td class="text-center"><n-switch v-model:value="item.enable" /></td>
           <td>
-            <n-popconfirm :on-positive-click="() => handleDelete(index)">
-              <template #default>确认删除？</template>
-              <template #trigger>
-                <n-button text block type="primary">删除</n-button>
-              </template>
-            </n-popconfirm>
+            <n-space justify="center">
+              <n-switch v-model:value="item.enable">
+                <template #checked>启用</template>
+                <template #unchecked>禁用</template>
+              </n-switch>
+              <n-button text type="primary" @click="showCircuitBreakerConfig(index)">熔断设置</n-button>
+              <n-popconfirm :on-positive-click="() => handleDelete(index)">
+                <template #default>确认删除？</template>
+                <template #trigger>
+                  <n-button text type="primary">删除</n-button>
+                </template>
+              </n-popconfirm>
+            </n-space>
           </td>
         </tr>
       </tbody>
@@ -66,12 +59,15 @@
       </n-button>
     </n-space>
   </n-scrollbar>
+  <circuit-breaker-modal v-model:visible="circuitBreakerModalVisible" v-model:edit-data="circuitBreakerModalData" />
 </template>
 
 <script setup lang="tsx">
 import { computed, onMounted, ref } from 'vue';
 import { modelSelectOptions } from '@/store';
 import { fetchOpenAIClientList } from '~/src/service';
+import { rateLimitUnitOptions } from '~/src/utils';
+import CircuitBreakerModal from './circuit-breaker-modal.vue';
 
 export interface Props {
   apis: any[];
@@ -84,6 +80,9 @@ export interface Emit {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
+
+const circuitBreakerModalVisible = ref(false);
+let circuitBreakerModalData: any = null;
 
 const clientList = ref<OpenAI.Client[]>([]);
 const clientListOptions = computed(() => {
@@ -120,6 +119,18 @@ function handleAdd() {
     client: '',
     enable: true
   });
+}
+
+function showCircuitBreakerConfig(index: number) {
+  circuitBreakerModalData = computed({
+    get() {
+      return apis.value[index].circuitBreaker;
+    },
+    set(newValue) {
+      apis.value[index].circuitBreaker = newValue;
+    }
+  });
+  circuitBreakerModalVisible.value = true;
 }
 
 onMounted(async () => {

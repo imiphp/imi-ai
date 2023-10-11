@@ -11,19 +11,7 @@
       <n-card title="限流">
         <n-grid cols="1" :y-gap="18" item-responsive responsive="screen">
           <n-form-item-grid-item label="限流单位：">
-            <n-select
-              v-model:value="formData.rateLimitUnit"
-              :options="[
-                { label: '秒', value: 'second' },
-                { label: '分钟', value: 'minute' },
-                { label: '小时', value: 'hour' },
-                { label: '天', value: 'day' },
-                { label: '月', value: 'month' },
-                { label: '年', value: 'year' },
-                { label: '毫秒', value: 'millisecond' },
-                { label: '微秒', value: 'microsecond' }
-              ]"
-            />
+            <n-select v-model:value="formData.rateLimitUnit" :options="rateLimitUnitOptions" />
           </n-form-item-grid-item>
           <n-form-item-grid-item label="限流数量：">
             <n-input-number v-model:value="formData.rateLimitAmount" :min="0" />
@@ -48,6 +36,7 @@ import { ref } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { defineConfigComponent } from '@/store';
 import type { ConfigComponentProps, ConfigComponentEmit } from '@/store';
+import { rateLimitUnitOptions } from '~/src/utils';
 import ModelManager from './model-manager.vue';
 
 const props = defineProps<ConfigComponentProps>();
