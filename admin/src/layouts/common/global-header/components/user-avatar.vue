@@ -5,9 +5,11 @@
       <span class="pl-8px text-16px font-medium">{{ auth.userInfo.nickname }}</span>
     </hover-container>
   </n-dropdown>
+  <change-password-modal v-model:visible="showChangePasswordModal" />
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import type { DropdownOption } from 'naive-ui';
 import { useAuthStore, useThemeStore } from '@/store';
 import { useIconRender } from '@/composables';
@@ -17,12 +19,13 @@ defineOptions({ name: 'UserAvatar' });
 const auth = useAuthStore();
 const theme = useThemeStore();
 const { iconRender } = useIconRender();
+const showChangePasswordModal = ref(false);
 
 const options: DropdownOption[] = [
   {
-    label: '用户中心',
-    key: 'user-center',
-    icon: iconRender({ icon: 'carbon:user-avatar' })
+    label: '修改密码',
+    key: 'changePassword',
+    icon: iconRender({ icon: 'carbon:password' })
   },
   {
     type: 'divider',
@@ -35,11 +38,13 @@ const options: DropdownOption[] = [
   }
 ];
 
-type DropdownKey = 'user-center' | 'logout';
+type DropdownKey = 'changePassword' | 'logout';
 
 function handleDropdown(optionKey: string) {
   const key = optionKey as DropdownKey;
-  if (key === 'logout') {
+  if (key === 'changePassword') {
+    showChangePasswordModal.value = true;
+  } else if (key === 'logout') {
     window.$dialog?.info({
       title: '提示',
       content: '您确定要退出登录吗？',

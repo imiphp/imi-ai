@@ -8,3 +8,7 @@ import { request } from '../request';
 export function fetchLogin(account: string, password: string, vcode: string, vcodeToken: string) {
   return request.post<ApiAuth.LoginResponse>('/admin/auth/login', { account, password, vcode, vcodeToken });
 }
+
+export function changePassword(oldPassword: string, newPassword: string) {
+  return request.post<Api.BaseResponse>('/admin/auth/changePassword', { oldPassword, newPassword });
+}
