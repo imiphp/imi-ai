@@ -112,7 +112,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 * PHP >= 8.1（扩展：curl、gd、mbstring、pdo_mysql、redis、swoole）
 
-* Swoole >= v5.0.3（模型训练需启用 [--enable-swoole-pgsql](https://wiki.swoole.com/#/environment?id=-enable-swoole-pgsql)）
+* Swoole >= v5.0.3（必须启用 `--enable-openssl --enable-swoole-curl` 编译，模型训练需启用 [--enable-swoole-pgsql](https://wiki.swoole.com/#/environment?id=-enable-swoole-pgsql) 编译）
 
 > 建议直接使用 swoole-cli，可在 [Swoole Release 下载](https://github.com/swoole/swoole-src/releases)。
 
@@ -120,7 +120,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 * Redis
 
-* PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用模型训练必选）
+* PostgreSQL + [pgvector](https://github.com/pgvector/pgvector) （可选，使用模型训练必选，需为项目数据库启用扩展 `CREATE EXTENSION vector;`）
 
 * 7-Zip，可选，但使用模型训练必选，用于解压文件。[下载](https://7-zip.org/download.html) 并将 `7zz` / `7zzs` 解压到 `/usr/bin/7z` 或 `/usr/local/bin/7z` 目录
 
