@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-hidden">
-    <n-card title="接口管理" :bordered="false" class="h-full rounded-8px shadow-sm">
-      <div class="flex-col h-full">
+    <n-card title="接口管理" :bordered="false" class="h-full rounded-8px shadow-sm overflow-auto">
+      <n-scrollbar y-scrollable class="max-h-full">
         <n-table :single-line="false" striped class="w-max min-w-full api-manager-table">
           <thead>
             <tr class="text-center">
@@ -82,7 +82,7 @@
             </tr>
           </tbody>
         </n-table>
-      </div>
+      </n-scrollbar>
     </n-card>
   </div>
 </template>
