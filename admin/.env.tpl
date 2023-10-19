@@ -8,6 +8,9 @@ VITE_APP_DESC=imi AI 管理后台
 
 VITE_API_URL=http://localhost:12333
 
+# Y=hash路由, N=history路由
+VITE_HASH_ROUTE=N
+
 # 权限路由模式: static ｜ dynamic
 VITE_AUTH_ROUTE_MODE=static
 
