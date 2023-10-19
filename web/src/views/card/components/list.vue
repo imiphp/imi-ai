@@ -31,7 +31,7 @@ const createColumns = ({
     {
       title: '余额/面额',
       key: 'amount',
-      minWidth: 250,
+      width: 250,
       render(row) {
         if (row.type === 1) {
           return row.leftAmountText
@@ -51,7 +51,7 @@ const createColumns = ({
           }
 
           return h(NProgress, {
-            // indicatorPlacement: 'inside', // TODO：naive-ui bug，下个版本修复
+            indicatorPlacement: 'inside',
             color,
             percentage: parseFloat(percent.toFixed(2)),
             status,

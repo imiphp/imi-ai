@@ -224,7 +224,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     title: '余额/面额',
     key: 'amount',
-    minWidth: 300,
+    width: 200,
     render(row) {
       if (row.type === 1) {
         return row.leftAmountText;
@@ -241,8 +241,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
       return (
         <n-progress
           color={color}
-          /* naive-ui bug，下个版本修复 */
-          /* indicatorPlacement="inside" */
+          indicatorPlacement="inside"
           percentage={parseFloat(percent.toFixed(2))}
           status={status}
         >

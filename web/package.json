@@ -32,7 +32,7 @@
     "html2canvas": "^1.4.1",
     "katex": "^0.16.8",
     "markdown-it": "^13.0.1",
-    "naive-ui": "^2.34.4",
+    "naive-ui": "^2.35.0",
     "pako": "^2.1.0",
     "pinia": "^2.1.6",
     "tiktoken": "^1.0.10",
