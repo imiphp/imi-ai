@@ -50,6 +50,12 @@ class EmbeddingRetryParser
         $this->config = EmbeddingConfig::__getConfigAsync();
     }
 
+    public function checkBalance(): void
+    {
+        $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
+        $this->memberCardService->checkBalance($this->memberId, 1, paying: $modelConfig ? $modelConfig->paying : false);
+    }
+
     public function asyncRun(): void
     {
         Coroutine::create(function () {

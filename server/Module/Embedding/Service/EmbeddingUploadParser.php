@@ -91,6 +91,12 @@ class EmbeddingUploadParser
         $this->setSectionSeparator($sectionSeparator);
     }
 
+    public function checkBalance(): void
+    {
+        $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
+        $this->memberCardService->checkBalance($this->memberId, 1, paying: $modelConfig ? $modelConfig->paying : false);
+    }
+
     public function setSectionSeparator(string $sectionSeparator): void
     {
         $this->sectionSeparator = stripcslashes($sectionSeparator);

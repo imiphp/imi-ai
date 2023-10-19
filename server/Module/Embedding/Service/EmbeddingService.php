@@ -39,6 +39,8 @@ class EmbeddingService
     {
         $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle);
 
+        $parser->checkBalance();
+
         return $parser->upload();
     }
 
@@ -457,6 +459,7 @@ class EmbeddingService
         $project->status = EmbeddingStatus::TRAINING;
         $project->update();
         $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+        $retryParser->checkBalance();
         $retryParser->asyncRun();
         foreach ($this->fileList($id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $file)
         {
@@ -487,6 +490,7 @@ class EmbeddingService
             $project->status = EmbeddingStatus::TRAINING;
             $project->update();
             $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+            $retryParser->checkBalance();
             $retryParser->asyncRun();
         }
         foreach ($this->sectionList($file->projectId, $file->id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $section)
@@ -534,6 +538,7 @@ class EmbeddingService
             $project->update();
 
             $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+            $retryParser->checkBalance();
             $retryParser->asyncRun();
         }
         $retryParser->push($section);
