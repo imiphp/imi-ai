@@ -59,7 +59,7 @@ const { isMobile } = useBasicLayout()
 
 const collapsed = computed(() => appStore.siderCollapsed)
 
-let timer: NodeJS.Timer | null = null
+let timer: NodeJS.Timeout | null = null
 
 const getMobileClass = computed<CSSProperties>(() => {
   if (isMobile.value) {

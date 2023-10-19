@@ -83,7 +83,7 @@ const sendButtonTitleOrigin = '发送验证码'
 const sendButtonTitle = ref(sendButtonTitleOrigin)
 
 let sendButtonTitleCountdown = 0
-let sendButtonTitleCountdownTimer: NodeJS.Timer | null = null
+let sendButtonTitleCountdownTimer: NodeJS.Timeout | null = null
 
 async function handleClickSendEmail() {
   formRules.value = sendRegisterEmailRules
