@@ -114,6 +114,8 @@ function showPrompt(item: any) {
   delete _setting.prompt
   setting.value = _setting
 
+  formSession.value = null
+  formStreamContent.value = ''
   showPromptData.value = { ...item }
 }
 
