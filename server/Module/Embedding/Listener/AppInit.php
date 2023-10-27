@@ -10,6 +10,7 @@ use Imi\Bean\Annotation\Listener;
 use Imi\Event\EventParam;
 use Imi\Event\IEventListener;
 use Imi\Log\Log;
+use Imi\Pool\PoolManager;
 
 #[
     Listener(eventName: 'IMI.APP.INIT', one: true)
@@ -21,6 +22,12 @@ class AppInit implements IEventListener
 
     public function handle(EventParam $e): void
     {
+        if (!\in_array('pgsql', PoolManager::getNames()))
+        {
+            Log::warning('未启用 PostgreSQL，模型训练相关功能将不可用！');
+
+            return;
+        }
         [
             'project' => $project,
             'file'    => $file,
