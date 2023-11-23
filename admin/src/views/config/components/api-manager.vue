@@ -18,7 +18,7 @@
           <td><n-input v-model:value="item.name" /></td>
           <td><n-dynamic-input v-model:value="item.baseUrls" placeholder="api.openai.com/v1" /></td>
           <td><n-dynamic-input v-model:value="item.apiKeys" /></td>
-          <td><n-dynamic-input v-model:value="item.proxys" /></td>
+          <td><n-dynamic-input v-model:value="item.proxys" placeholder="格式：主机名:端口号" /></td>
           <td>
             <n-input-number v-model:value="item.rateLimitAmount" :min="0" />
             <n-select v-model:value="item.rateLimitUnit" :options="rateLimitUnitOptions" />
