@@ -182,7 +182,7 @@ vendor/bin/imi-swoole generate/table
 为 `db_imi_ai` 或你使用的数据库启用 `pgvector` 扩展：
 
 ```sql
-CREATE EXTENSION pgvector;
+CREATE EXTENSION vector;
 ```
 
 导入 `pgsql.sql` 文件，创建表。
