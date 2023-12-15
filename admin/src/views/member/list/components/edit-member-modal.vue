@@ -33,6 +33,7 @@ import { ref, computed, reactive, watch } from 'vue';
 import type { FormInst, FormItemRule } from 'naive-ui';
 import { createRequiredFormRule } from '@/utils';
 import { updateMember } from '~/src/service';
+import { hashPassword } from '~/src/utils/auth';
 
 export interface Props {
   /** 弹窗可见性 */
@@ -94,10 +95,14 @@ function handleUpdateFormModel(model: Partial<FormModel>) {
 
 async function handleSubmit() {
   await formRef.value?.validate();
+  let password = formModel.password;
+  if (password.length > 0) {
+    password = hashPassword(password);
+  }
   const { data } = await updateMember(props.editData.id, {
     nickname: formModel.nickname,
     email: formModel.email,
-    password: formModel.password,
+    password,
     status: formModel.status
   });
   if (data?.code === 0) closeModal();
