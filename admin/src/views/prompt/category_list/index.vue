@@ -48,11 +48,8 @@ function setTableData(response: Prompt.PromptCategoryListResponse) {
   tableData.value = response.list;
 }
 
-async function getTableData(page: number | null = null) {
+async function getTableData() {
   startLoading();
-  if (page !== null) {
-    pagination.page = page;
-  }
   try {
     const { data } = await fetchPromptCategoryList();
     if (data) {
