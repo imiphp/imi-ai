@@ -71,7 +71,7 @@
               />
             </n-form-item>
             <n-form-item>
-              <n-button attr-type="submit" type="primary" @click="getTableData">
+              <n-button attr-type="submit" type="primary" @click="getTableData(1)">
                 <n-icon :component="SearchSharp" size="20" />
                 查询
               </n-button>
@@ -156,8 +156,11 @@ function setTableData(response: Card.CardListResponse) {
   pagination.itemCount = response.total;
 }
 
-async function getTableData() {
+async function getTableData(page: number | null = null) {
   startLoading();
+  if (page !== null) {
+    pagination.page = page;
+  }
   try {
     const { data } = await fetchCardList(
       listParams.value.memberId,

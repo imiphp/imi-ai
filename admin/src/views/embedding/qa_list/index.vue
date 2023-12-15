@@ -42,8 +42,11 @@ function setTableData(response: Embedding.QAListResponse) {
   pagination.itemCount = response.total;
 }
 
-async function getTableData() {
+async function getTableData(page: number | null = null) {
   startLoading();
+  if (page !== null) {
+    pagination.page = page;
+  }
   try {
     const { data } = await fetchEmbeddingQAList(projectId, pagination.page, pagination.pageSize);
     if (data) {

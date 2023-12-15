@@ -8,7 +8,7 @@
               <n-input v-model:value="listParams.search" clearable placeholder="关键词搜索" />
             </n-form-item>
             <n-form-item>
-              <n-button attr-type="submit" type="primary" @click="getTableData">
+              <n-button attr-type="submit" type="primary" @click="getTableData(1)">
                 <n-icon :component="SearchSharp" size="20" />
                 查询
               </n-button>
@@ -87,8 +87,11 @@ function setTableData(response: Email.EmailBlackListResponse) {
   }
 }
 
-async function getTableData() {
+async function getTableData(page: number | null = null) {
   startLoading();
+  if (page !== null) {
+    pagination.page = page;
+  }
   try {
     const { data } = await fetchEmailBlackList(listParams.value.search, pagination.page, pagination.pageSize);
     if (data) {

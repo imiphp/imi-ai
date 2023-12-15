@@ -241,8 +241,11 @@ function setTableData(response: Embedding.FileListResponse) {
   pagination.itemCount = response.list.length;
 }
 
-async function getTableData() {
+async function getTableData(page: number | null = null) {
   startLoading();
+  if (page !== null) {
+    pagination.page = page;
+  }
   try {
     const { data } = await fetchEmbeddingFileList(projectId);
     if (data) {

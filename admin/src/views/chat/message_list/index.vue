@@ -41,8 +41,11 @@ function setTableData(response: Chat.MessageListResponse) {
   pagination.itemCount = response.total;
 }
 
-async function getTableData() {
+async function getTableData(page: number | null = null) {
   startLoading();
+  if (page !== null) {
+    pagination.page = page;
+  }
   try {
     const { data } = await fetchChatMessageList(sessionId, pagination.page, pagination.pageSize);
     if (data) {
