@@ -35,7 +35,7 @@
           remote
           class="flex-1-hidden"
         />
-        <edit-member-modal v-if="editData" v-model:visible="visible" :edit-data="editData" :enums="enums" />
+        <edit-member-modal v-model:visible="visible" :edit-data="editData" :enums="enums" />
       </div>
     </n-card>
   </div>

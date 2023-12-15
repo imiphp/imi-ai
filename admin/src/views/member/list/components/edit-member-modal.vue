@@ -39,7 +39,7 @@ export interface Props {
   /** 弹窗可见性 */
   visible: boolean;
   /** 编辑的表格行数据 */
-  editData: Member.Member;
+  editData: Member.Member | null;
   enums: any;
 }
 
@@ -94,6 +94,9 @@ function handleUpdateFormModel(model: Partial<FormModel>) {
 }
 
 async function handleSubmit() {
+  if (!props.editData) {
+    return;
+  }
   await formRef.value?.validate();
   let password = formModel.password;
   if (password.length > 0) {
