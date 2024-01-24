@@ -387,9 +387,9 @@ async function onMouseEnter() {
             imi AI
           </h2>
         </RouterLink>
-        <NMenu v-if="!isMobile" v-model:value="selectedKey" class="header-menu ml-10" mode="horizontal" :options="menuOptions" />
+        <NMenu v-if="!isMobile" v-model:value="selectedKey" class="header-menu ml-10 !max-w-fit" mode="horizontal" :options="menuOptions" />
       </div>
-      <NMenu v-model:value="rightMenuSelectedKey" class="member-menu" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
+      <NMenu v-model:value="rightMenuSelectedKey" class="member-menu !max-w-fit" mode="horizontal" :options="rightMenuOptions" dropdown-placement="bottom-end" @mouseenter="onMouseEnter" />
     </div>
   </div>
 
