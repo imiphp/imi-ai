@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "preserve",
+    "jsxImportSource": "vue",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noUnusedLocals": true,
