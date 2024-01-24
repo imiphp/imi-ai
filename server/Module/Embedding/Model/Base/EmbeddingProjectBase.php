@@ -70,9 +70,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setId(?int $id)
+    public function setId($id)
     {
-        $this->id = $id;
+        $this->id = null === $id ? null : (int) $id;
 
         return $this;
     }
@@ -100,9 +100,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setMemberId(?int $memberId)
+    public function setMemberId($memberId)
     {
-        $this->memberId = $memberId;
+        $this->memberId = null === $memberId ? null : (int) $memberId;
 
         return $this;
     }
@@ -130,13 +130,13 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setName(?string $name)
+    public function setName($name)
     {
         if (\is_string($name) && mb_strlen($name) > 32)
         {
             throw new \InvalidArgumentException('The maximum length of $name is 32');
         }
-        $this->name = $name;
+        $this->name = null === $name ? null : $name;
 
         return $this;
     }
@@ -164,9 +164,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setTotalFileSize(?int $totalFileSize)
+    public function setTotalFileSize($totalFileSize)
     {
-        $this->totalFileSize = $totalFileSize;
+        $this->totalFileSize = null === $totalFileSize ? null : (int) $totalFileSize;
 
         return $this;
     }
@@ -194,9 +194,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setCreateTime(?int $createTime)
+    public function setCreateTime($createTime)
     {
-        $this->createTime = $createTime;
+        $this->createTime = null === $createTime ? null : (int) $createTime;
 
         return $this;
     }
@@ -224,9 +224,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setUpdateTime(?int $updateTime)
+    public function setUpdateTime($updateTime)
     {
-        $this->updateTime = $updateTime;
+        $this->updateTime = null === $updateTime ? null : (int) $updateTime;
 
         return $this;
     }
@@ -254,9 +254,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setStatus(?int $status)
+    public function setStatus($status)
     {
-        $this->status = $status;
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }
@@ -284,9 +284,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setTokens(?int $tokens)
+    public function setTokens($tokens)
     {
-        $this->tokens = $tokens;
+        $this->tokens = null === $tokens ? null : (int) $tokens;
 
         return $this;
     }
@@ -314,9 +314,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setPayTokens(?int $payTokens)
+    public function setPayTokens($payTokens)
     {
-        $this->payTokens = $payTokens;
+        $this->payTokens = null === $payTokens ? null : (int) $payTokens;
 
         return $this;
     }
@@ -344,9 +344,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setIp(?string $ip)
+    public function setIp($ip)
     {
-        $this->ip = $ip;
+        $this->ip = null === $ip ? null : $ip;
 
         return $this;
     }
@@ -374,9 +374,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setPublic(?bool $public)
+    public function setPublic($public)
     {
-        $this->public = $public;
+        $this->public = null === $public ? null : (bool) $public;
 
         return $this;
     }
@@ -404,13 +404,13 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setSectionSeparator(?string $sectionSeparator)
+    public function setSectionSeparator($sectionSeparator)
     {
         if (\is_string($sectionSeparator) && mb_strlen($sectionSeparator) > 16)
         {
             throw new \InvalidArgumentException('The maximum length of $sectionSeparator is 16');
         }
-        $this->sectionSeparator = $sectionSeparator;
+        $this->sectionSeparator = null === $sectionSeparator ? null : $sectionSeparator;
 
         return $this;
     }
@@ -438,9 +438,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setSectionSplitLength(?int $sectionSplitLength)
+    public function setSectionSplitLength($sectionSplitLength)
     {
-        $this->sectionSplitLength = $sectionSplitLength;
+        $this->sectionSplitLength = null === $sectionSplitLength ? null : (int) $sectionSplitLength;
 
         return $this;
     }
@@ -468,9 +468,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setSectionSplitByTitle(?bool $sectionSplitByTitle)
+    public function setSectionSplitByTitle($sectionSplitByTitle)
     {
-        $this->sectionSplitByTitle = $sectionSplitByTitle;
+        $this->sectionSplitByTitle = null === $sectionSplitByTitle ? null : (bool) $sectionSplitByTitle;
 
         return $this;
     }
@@ -504,7 +504,7 @@ abstract class EmbeddingProjectBase extends Model
      */
     public function setChatConfig($chatConfig)
     {
-        $this->chatConfig = $chatConfig;
+        $this->chatConfig = null === $chatConfig ? null : $chatConfig;
 
         return $this;
     }
@@ -532,9 +532,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setSimilarity(?float $similarity)
+    public function setSimilarity($similarity)
     {
-        $this->similarity = $similarity;
+        $this->similarity = null === $similarity ? null : (float) $similarity;
 
         return $this;
     }
@@ -562,9 +562,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setTopSections(?int $topSections)
+    public function setTopSections($topSections)
     {
-        $this->topSections = $topSections;
+        $this->topSections = null === $topSections ? null : (int) $topSections;
 
         return $this;
     }
@@ -592,9 +592,9 @@ abstract class EmbeddingProjectBase extends Model
      *
      * @return static
      */
-    public function setPrompt(?string $prompt)
+    public function setPrompt($prompt)
     {
-        $this->prompt = $prompt;
+        $this->prompt = null === $prompt ? null : $prompt;
 
         return $this;
     }

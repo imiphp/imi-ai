@@ -57,9 +57,9 @@ abstract class EmbeddingPublicProjectBase extends Model
      *
      * @return static
      */
-    public function setProjectId(?int $projectId)
+    public function setProjectId($projectId)
     {
-        $this->projectId = $projectId;
+        $this->projectId = null === $projectId ? null : (int) $projectId;
 
         return $this;
     }
@@ -87,9 +87,9 @@ abstract class EmbeddingPublicProjectBase extends Model
      *
      * @return static
      */
-    public function setStatus(?int $status)
+    public function setStatus($status)
     {
-        $this->status = $status;
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }
@@ -117,9 +117,9 @@ abstract class EmbeddingPublicProjectBase extends Model
      *
      * @return static
      */
-    public function setTime(?int $time)
+    public function setTime($time)
     {
-        $this->time = $time;
+        $this->time = null === $time ? null : (int) $time;
 
         return $this;
     }
@@ -147,9 +147,9 @@ abstract class EmbeddingPublicProjectBase extends Model
      *
      * @return static
      */
-    public function setIndex(?int $index)
+    public function setIndex($index)
     {
-        $this->index = $index;
+        $this->index = null === $index ? null : (int) $index;
 
         return $this;
     }

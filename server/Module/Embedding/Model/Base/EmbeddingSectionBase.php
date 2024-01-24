@@ -66,9 +66,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setId(?int $id)
+    public function setId($id)
     {
-        $this->id = $id;
+        $this->id = null === $id ? null : (int) $id;
 
         return $this;
     }
@@ -96,9 +96,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setProjectId(?int $projectId)
+    public function setProjectId($projectId)
     {
-        $this->projectId = $projectId;
+        $this->projectId = null === $projectId ? null : (int) $projectId;
 
         return $this;
     }
@@ -126,9 +126,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setFileId(?int $fileId)
+    public function setFileId($fileId)
     {
-        $this->fileId = $fileId;
+        $this->fileId = null === $fileId ? null : (int) $fileId;
 
         return $this;
     }
@@ -156,9 +156,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setStatus(?int $status)
+    public function setStatus($status)
     {
-        $this->status = $status;
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }
@@ -186,9 +186,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setContent(?string $content)
+    public function setContent($content)
     {
-        $this->content = $content;
+        $this->content = null === $content ? null : $content;
 
         return $this;
     }
@@ -216,9 +216,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setVector(?string $vector)
+    public function setVector($vector)
     {
-        $this->vector = $vector;
+        $this->vector = null === $vector ? null : $vector;
 
         return $this;
     }
@@ -246,9 +246,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setCreateTime(?int $createTime)
+    public function setCreateTime($createTime)
     {
-        $this->createTime = $createTime;
+        $this->createTime = null === $createTime ? null : (int) $createTime;
 
         return $this;
     }
@@ -276,9 +276,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setUpdateTime(?int $updateTime)
+    public function setUpdateTime($updateTime)
     {
-        $this->updateTime = $updateTime;
+        $this->updateTime = null === $updateTime ? null : (int) $updateTime;
 
         return $this;
     }
@@ -306,9 +306,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setBeginTrainingTime(?int $beginTrainingTime)
+    public function setBeginTrainingTime($beginTrainingTime)
     {
-        $this->beginTrainingTime = $beginTrainingTime;
+        $this->beginTrainingTime = null === $beginTrainingTime ? null : (int) $beginTrainingTime;
 
         return $this;
     }
@@ -336,9 +336,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setCompleteTrainingTime(?int $completeTrainingTime)
+    public function setCompleteTrainingTime($completeTrainingTime)
     {
-        $this->completeTrainingTime = $completeTrainingTime;
+        $this->completeTrainingTime = null === $completeTrainingTime ? null : (int) $completeTrainingTime;
 
         return $this;
     }
@@ -366,9 +366,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setReason(?string $reason)
+    public function setReason($reason)
     {
-        $this->reason = $reason;
+        $this->reason = null === $reason ? null : $reason;
 
         return $this;
     }
@@ -396,9 +396,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setTokens(?int $tokens)
+    public function setTokens($tokens)
     {
-        $this->tokens = $tokens;
+        $this->tokens = null === $tokens ? null : (int) $tokens;
 
         return $this;
     }
@@ -426,9 +426,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setPayTokens(?int $payTokens)
+    public function setPayTokens($payTokens)
     {
-        $this->payTokens = $payTokens;
+        $this->payTokens = null === $payTokens ? null : (int) $payTokens;
 
         return $this;
     }
@@ -456,9 +456,9 @@ abstract class EmbeddingSectionBase extends Model
      *
      * @return static
      */
-    public function setTitle(?string $title)
+    public function setTitle($title)
     {
-        $this->title = $title;
+        $this->title = null === $title ? null : $title;
 
         return $this;
     }

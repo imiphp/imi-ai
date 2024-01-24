@@ -69,9 +69,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setId(?int $id)
+    public function setId($id)
     {
-        $this->id = $id;
+        $this->id = null === $id ? null : (int) $id;
 
         return $this;
     }
@@ -99,9 +99,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setMemberId(?int $memberId)
+    public function setMemberId($memberId)
     {
-        $this->memberId = $memberId;
+        $this->memberId = null === $memberId ? null : (int) $memberId;
 
         return $this;
     }
@@ -129,9 +129,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setProjectId(?int $projectId)
+    public function setProjectId($projectId)
     {
-        $this->projectId = $projectId;
+        $this->projectId = null === $projectId ? null : (int) $projectId;
 
         return $this;
     }
@@ -159,9 +159,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setQuestion(?string $question)
+    public function setQuestion($question)
     {
-        $this->question = $question;
+        $this->question = null === $question ? null : $question;
 
         return $this;
     }
@@ -189,9 +189,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setAnswer(?string $answer)
+    public function setAnswer($answer)
     {
-        $this->answer = $answer;
+        $this->answer = null === $answer ? null : $answer;
 
         return $this;
     }
@@ -219,9 +219,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setBeginTime(?int $beginTime)
+    public function setBeginTime($beginTime)
     {
-        $this->beginTime = $beginTime;
+        $this->beginTime = null === $beginTime ? null : (int) $beginTime;
 
         return $this;
     }
@@ -249,9 +249,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setCompleteTime(?int $completeTime)
+    public function setCompleteTime($completeTime)
     {
-        $this->completeTime = $completeTime;
+        $this->completeTime = null === $completeTime ? null : (int) $completeTime;
 
         return $this;
     }
@@ -279,9 +279,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setTokens(?int $tokens)
+    public function setTokens($tokens)
     {
-        $this->tokens = $tokens;
+        $this->tokens = null === $tokens ? null : (int) $tokens;
 
         return $this;
     }
@@ -315,7 +315,7 @@ abstract class EmbeddingQaBase extends Model
      */
     public function setConfig($config)
     {
-        $this->config = $config;
+        $this->config = null === $config ? null : $config;
 
         return $this;
     }
@@ -343,9 +343,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setStatus(?int $status)
+    public function setStatus($status)
     {
-        $this->status = $status;
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }
@@ -373,13 +373,13 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setTitle(?string $title)
+    public function setTitle($title)
     {
         if (\is_string($title) && mb_strlen($title) > 16)
         {
             throw new \InvalidArgumentException('The maximum length of $title is 16');
         }
-        $this->title = $title;
+        $this->title = null === $title ? null : $title;
 
         return $this;
     }
@@ -407,9 +407,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setCreateTime(?int $createTime)
+    public function setCreateTime($createTime)
     {
-        $this->createTime = $createTime;
+        $this->createTime = null === $createTime ? null : (int) $createTime;
 
         return $this;
     }
@@ -437,9 +437,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setPayTokens(?int $payTokens)
+    public function setPayTokens($payTokens)
     {
-        $this->payTokens = $payTokens;
+        $this->payTokens = null === $payTokens ? null : (int) $payTokens;
 
         return $this;
     }
@@ -467,9 +467,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setIp(?string $ip)
+    public function setIp($ip)
     {
-        $this->ip = $ip;
+        $this->ip = null === $ip ? null : $ip;
 
         return $this;
     }
@@ -497,9 +497,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setSimilarity(?float $similarity)
+    public function setSimilarity($similarity)
     {
-        $this->similarity = $similarity;
+        $this->similarity = null === $similarity ? null : (float) $similarity;
 
         return $this;
     }
@@ -527,9 +527,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setTopSections(?int $topSections)
+    public function setTopSections($topSections)
     {
-        $this->topSections = $topSections;
+        $this->topSections = null === $topSections ? null : (int) $topSections;
 
         return $this;
     }
@@ -557,9 +557,9 @@ abstract class EmbeddingQaBase extends Model
      *
      * @return static
      */
-    public function setPrompt(?string $prompt)
+    public function setPrompt($prompt)
     {
-        $this->prompt = $prompt;
+        $this->prompt = null === $prompt ? null : $prompt;
 
         return $this;
     }

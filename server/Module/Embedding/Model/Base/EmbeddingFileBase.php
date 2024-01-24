@@ -65,9 +65,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setId(?int $id)
+    public function setId($id)
     {
-        $this->id = $id;
+        $this->id = null === $id ? null : (int) $id;
 
         return $this;
     }
@@ -95,9 +95,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setProjectId(?int $projectId)
+    public function setProjectId($projectId)
     {
-        $this->projectId = $projectId;
+        $this->projectId = null === $projectId ? null : (int) $projectId;
 
         return $this;
     }
@@ -125,9 +125,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setStatus(?int $status)
+    public function setStatus($status)
     {
-        $this->status = $status;
+        $this->status = null === $status ? null : (int) $status;
 
         return $this;
     }
@@ -155,13 +155,13 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setFileName(?string $fileName)
+    public function setFileName($fileName)
     {
         if (\is_string($fileName) && mb_strlen($fileName) > 255)
         {
             throw new \InvalidArgumentException('The maximum length of $fileName is 255');
         }
-        $this->fileName = $fileName;
+        $this->fileName = null === $fileName ? null : $fileName;
 
         return $this;
     }
@@ -189,9 +189,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setFileSize(?int $fileSize)
+    public function setFileSize($fileSize)
     {
-        $this->fileSize = $fileSize;
+        $this->fileSize = null === $fileSize ? null : (int) $fileSize;
 
         return $this;
     }
@@ -219,9 +219,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setContent(?string $content)
+    public function setContent($content)
     {
-        $this->content = $content;
+        $this->content = null === $content ? null : $content;
 
         return $this;
     }
@@ -249,9 +249,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setCreateTime(?int $createTime)
+    public function setCreateTime($createTime)
     {
-        $this->createTime = $createTime;
+        $this->createTime = null === $createTime ? null : (int) $createTime;
 
         return $this;
     }
@@ -279,9 +279,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setUpdateTime(?int $updateTime)
+    public function setUpdateTime($updateTime)
     {
-        $this->updateTime = $updateTime;
+        $this->updateTime = null === $updateTime ? null : (int) $updateTime;
 
         return $this;
     }
@@ -309,9 +309,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setBeginTrainingTime(?int $beginTrainingTime)
+    public function setBeginTrainingTime($beginTrainingTime)
     {
-        $this->beginTrainingTime = $beginTrainingTime;
+        $this->beginTrainingTime = null === $beginTrainingTime ? null : (int) $beginTrainingTime;
 
         return $this;
     }
@@ -339,9 +339,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setCompleteTrainingTime(?int $completeTrainingTime)
+    public function setCompleteTrainingTime($completeTrainingTime)
     {
-        $this->completeTrainingTime = $completeTrainingTime;
+        $this->completeTrainingTime = null === $completeTrainingTime ? null : (int) $completeTrainingTime;
 
         return $this;
     }
@@ -369,9 +369,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setTokens(?int $tokens)
+    public function setTokens($tokens)
     {
-        $this->tokens = $tokens;
+        $this->tokens = null === $tokens ? null : (int) $tokens;
 
         return $this;
     }
@@ -399,9 +399,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setPayTokens(?int $payTokens)
+    public function setPayTokens($payTokens)
     {
-        $this->payTokens = $payTokens;
+        $this->payTokens = null === $payTokens ? null : (int) $payTokens;
 
         return $this;
     }
@@ -429,9 +429,9 @@ abstract class EmbeddingFileBase extends Model
      *
      * @return static
      */
-    public function setIp(?string $ip)
+    public function setIp($ip)
     {
-        $this->ip = $ip;
+        $this->ip = null === $ip ? null : $ip;
 
         return $this;
     }
