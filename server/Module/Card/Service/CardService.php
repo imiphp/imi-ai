@@ -16,9 +16,16 @@ use app\Module\Card\Model\Card;
 use app\Module\Card\Model\CardDetail;
 use app\Module\Card\Model\CardEx;
 use app\Module\Card\Model\CardType;
+use app\Module\Card\Model\DTO\SaleCardType;
 use app\Module\Card\Model\MemberCardOrder;
 use app\Module\Card\Model\Redis\CardConfig;
 use app\Module\Member\Service\MemberService;
+use app\Module\Payment\Enum\PaymentBusinessType;
+use app\Module\Payment\Enum\SecondaryPaymentChannel;
+use app\Module\Payment\Enum\TertiaryPaymentChannel;
+use app\Module\Payment\Model\Redis\TempPayOrderModel;
+use app\Module\Payment\Service\PaymentService;
+use app\Module\Payment\Struct\PaymentCallbackResult;
 use app\Util\QueryHelper;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
@@ -32,6 +39,9 @@ class CardService
 
     #[Inject]
     protected MemberService $memberService;
+
+    #[Inject]
+    protected PaymentService $paymentService;
 
     public function get(string|int $cardId, int $memberId = 0): Card
     {
@@ -119,7 +129,7 @@ class CardService
      * 创建卡
      */
     #[Transaction()]
-    public function create(int|CardType $type, int $memberId = 0, string $adminRemark = '', bool $paying = false): Card
+    public function create(int|CardType $type, int $memberId = 0, string $adminRemark = '', bool $paying = false, int $payAmount = 0, string $tradeNo = ''): Card
     {
         if (!$type instanceof CardType)
         {
@@ -134,8 +144,10 @@ class CardService
         $record->amount = $record->leftAmount = $type->amount;
         $record->expireTime = 0;
         $record->paying = $paying;
+        $record->payAmount = $payAmount;
         $ex = CardEx::newInstance();
         $ex->setAdminRemark($adminRemark);
+        $ex->setTradeNo($tradeNo);
         $record->setEx($ex);
         $record->insert();
         if ($memberId > 0)
@@ -224,10 +236,7 @@ class CardService
         }
 
         $type = $this->cardTypeService->get($card->type);
-        if ($type->memberActivationLimit > 0 && Card::exists([
-            'member_id' => $memberId,
-            'type'      => $type->id,
-        ]))
+        if ($type->memberActivationLimit > 0 && $this->hasMemberCard($memberId, $type->id))
         {
             throw new \RuntimeException('此卡类型每人只能激活一次');
         }
@@ -408,5 +417,96 @@ class CardService
         }
 
         return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
+    }
+
+    public function saleCardList(int $memberId): array
+    {
+        $result = SaleCardType::query()->where('enable', '=', true)
+                                        ->where('sale_enable', '=', true)
+                                        ->order('sale_index')
+                                        ->select()
+                                        ->getArray();
+
+        foreach ($result as $item)
+        {
+            $item->setMemberId($memberId);
+        }
+        SaleCardType::queryRelationsList($result, 'activationCount');
+
+        return $result;
+    }
+
+    public function pay(int $memberId, string $channelName, SecondaryPaymentChannel $secondaryPaymentChannel, TertiaryPaymentChannel $tertiaryPaymentChannel, int $cardType, array $options = []): array
+    {
+        $cardTypeRecord = $this->cardTypeService->get($cardType);
+        if (!$cardTypeRecord->getEnable())
+        {
+            throw new \RuntimeException('卡类型未启用');
+        }
+        if (!$cardTypeRecord->getSaleEnable())
+        {
+            throw new \RuntimeException('卡类型未启用销售');
+        }
+        $time = time();
+        $beginTime = $cardTypeRecord->getSaleBeginTime();
+        if ($beginTime > 0 && $beginTime > $time)
+        {
+            throw new \RuntimeException('未到销售时间');
+        }
+        $endTime = $cardTypeRecord->getSaleEndTime();
+        if ($endTime > 0 && $endTime < $time)
+        {
+            throw new \RuntimeException('已过销售时间');
+        }
+        $saleLimitQuantity = $cardTypeRecord->getSaleLimitQuantity();
+        if ($saleLimitQuantity > 0 && $this->getMemberCardCount($memberId, $cardType) >= $saleLimitQuantity)
+        {
+            throw new \RuntimeException('已达到购买上限');
+        }
+
+        $amount = $cardTypeRecord->getSaleActualPrice();
+        $data = [
+            'cardType' => $cardType,
+        ];
+
+        return $this->paymentService->pay($channelName, $secondaryPaymentChannel, $tertiaryPaymentChannel, PaymentBusinessType::Card, '充值卡', $memberId, $amount, $data, $options);
+    }
+
+    public function payCallback(TempPayOrderModel $tmpOrder, PaymentCallbackResult $result): Card
+    {
+        [
+            'cardType' => $cardType,
+        ] = $tmpOrder->getData();
+        $cardTypeRecord = $this->cardTypeService->get($cardType);
+        if (!$cardTypeRecord->getEnable())
+        {
+            throw new \RuntimeException('卡类型未启用');
+        }
+        if (!$cardTypeRecord->getSaleEnable())
+        {
+            throw new \RuntimeException('卡类型未启用销售');
+        }
+        $saleLimitQuantity = $cardTypeRecord->getSaleLimitQuantity();
+        if ($saleLimitQuantity > 0 && $this->getMemberCardCount($tmpOrder->getMemberId(), $cardType) >= $saleLimitQuantity)
+        {
+            throw new \RuntimeException('已达到购买上限');
+        }
+
+        return $this->create($cardType, $tmpOrder->getMemberId(), '', $cardTypeRecord->getSalePaying(), $tmpOrder->getAmount(), $tmpOrder->getTradeNo());
+    }
+
+    public function hasMemberCard(int $memberId, int $cardTypeId): bool
+    {
+        return Card::exists([
+            'member_id' => $memberId,
+            'type'      => $cardTypeId,
+        ]);
+    }
+
+    public function getMemberCardCount(int $memberId, int $cardTypeId): int
+    {
+        return Card::query()->where('member_id', '=', $memberId)
+                            ->where('type', '=', $cardTypeId)
+                            ->count();
     }
 }

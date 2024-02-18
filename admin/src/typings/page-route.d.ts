@@ -60,6 +60,8 @@ declare namespace PageRoute {
     | 'management_operation_log'
     | 'member'
     | 'member_list'
+    | 'payment'
+    | 'payment_order'
     | 'prompt'
     | 'prompt_category'
     | 'prompt_category_list'
@@ -98,6 +100,7 @@ declare namespace PageRoute {
     | 'management_admin_member'
     | 'management_operation_log'
     | 'member_list'
+    | 'payment_order'
     | 'prompt_category_list'
     | 'prompt_list'
   >;

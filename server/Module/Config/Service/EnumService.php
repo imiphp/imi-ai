@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\Module\Config\Service;
 
 use app\Module\Config\Annotation\PublicEnum;
+use app\Module\Config\Contract\IEnum;
 use Imi\Bean\Annotation\AnnotationManager;
 use Imi\Enum\BaseEnum;
 use Imi\Log\Log;
@@ -28,17 +29,31 @@ class EnumService
             {
                 Log::warning(sprintf('PublicEnum %s 重复存在', $publicEnumAnnotation->name));
             }
-            /** @var BaseEnum $enumClass */
+            /** @var BaseEnum|IEnum $enumClass */
             $enumClass = $point->getClass();
-            $values = $enumClass::getValues();
             $enum = [];
-            foreach ($values as $value)
+            if (is_subclass_of($enumClass, BaseEnum::class))
             {
-                $data = $enumClass::getData($value);
-                $enum[] = [
-                    'text'  => $data['text'] ?? $value,
-                    'value' => $value,
-                ];
+                foreach ($enumClass::getValues() as $value)
+                {
+                    $data = $enumClass::getData($value);
+                    $enum[] = [
+                        'text'  => $data['text'] ?? $value,
+                        'value' => $value,
+                    ];
+                }
+            }
+            else
+            {
+                // 原生注解
+                /** @var (IEnum&\UnitEnum)|(IEnum&\BackedEnum) $value */
+                foreach ($enumClass::cases() as $value)
+                {
+                    $enum[] = [
+                        'text'  => $value->getTitle(),
+                        'value' => $value->value ?? $value->name,
+                    ];
+                }
             }
             $this->enums[$publicEnumAnnotation->name] = $enum;
         }

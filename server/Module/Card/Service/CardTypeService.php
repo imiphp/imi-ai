@@ -38,12 +38,16 @@ class CardTypeService
         return CardType::newInstance($this->getArray($id));
     }
 
-    public function list(?bool $enable = null, int $page = 1, int $limit = 15): array
+    public function list(?bool $enable = null, ?bool $saleEnable = null, int $page = 1, int $limit = 15): array
     {
         $query = CardType::query();
         if (null !== $enable)
         {
             $query->where('enable', '=', $enable);
+        }
+        if (null !== $saleEnable)
+        {
+            $query->where('sale_enable', '=', $saleEnable)->order('sale_index');
         }
 
         return $query->order('id', 'desc')->paginate($page, $limit)->toArray();
@@ -52,7 +56,7 @@ class CardTypeService
     #[
         Transaction()
     ]
-    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, bool $system = false, int $memberActivationLimit = 0, ?int $id = null, int $operatorMemberId = 0, string $ip = ''): CardType
+    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, bool $system = false, int $memberActivationLimit = 0, int $salePrice = 0, int $saleActualPrice = 0, bool $saleEnable = false, int $saleIndex = 0, int $saleBeginTime = 0, int $saleEndTime = 0, int $saleLimitQuantity = 0, bool $salePaying = true, ?int $id = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = CardType::newInstance();
         $record->id = $id;
@@ -62,6 +66,14 @@ class CardTypeService
         $record->enable = $enable;
         $record->system = $system;
         $record->memberActivationLimit = $memberActivationLimit;
+        $record->salePrice = $salePrice;
+        $record->saleActualPrice = $saleActualPrice;
+        $record->saleEnable = $saleEnable;
+        $record->saleIndex = $saleIndex;
+        $record->saleBeginTime = $saleBeginTime;
+        $record->saleEndTime = $saleEndTime;
+        $record->saleLimitQuantity = $saleLimitQuantity;
+        $record->salePaying = $salePaying;
         $record->insert();
 
         if ($operatorMemberId > 0)
@@ -75,7 +87,7 @@ class CardTypeService
     #[
         Transaction()
     ]
-    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?bool $system = null, ?int $memberActivationLimit = null, int $operatorMemberId = 0, string $ip = ''): CardType
+    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?int $memberActivationLimit = null, ?int $salePrice = null, ?int $saleActualPrice = null, ?bool $saleEnable = null, ?int $saleIndex = null, ?int $saleBeginTime = null, ?int $saleEndTime = null, ?int $saleLimitQuantity = null, ?bool $salePaying = null, ?bool $system = null, int $operatorMemberId = 0, string $ip = ''): CardType
     {
         $record = $this->getNoCache($id);
         if (null !== $name)
@@ -101,6 +113,38 @@ class CardTypeService
         if (null !== $memberActivationLimit)
         {
             $record->memberActivationLimit = $memberActivationLimit;
+        }
+        if (null !== $salePrice)
+        {
+            $record->salePrice = $salePrice;
+        }
+        if (null !== $saleActualPrice)
+        {
+            $record->saleActualPrice = $saleActualPrice;
+        }
+        if (null !== $saleEnable)
+        {
+            $record->saleEnable = $saleEnable;
+        }
+        if (null !== $saleIndex)
+        {
+            $record->saleIndex = $saleIndex;
+        }
+        if (null !== $saleBeginTime)
+        {
+            $record->saleBeginTime = $saleBeginTime;
+        }
+        if (null !== $saleEndTime)
+        {
+            $record->saleEndTime = $saleEndTime;
+        }
+        if (null !== $saleLimitQuantity)
+        {
+            $record->saleLimitQuantity = $saleLimitQuantity;
+        }
+        if (null !== $salePaying)
+        {
+            $record->salePaying = $salePaying;
         }
         $record->update();
 

@@ -25,9 +25,9 @@ class CardTypeController extends HttpController
         Action(),
         AdminLoginRequired(),
     ]
-    public function list(?bool $enable = null, int $page = 1, int $limit = 15): array
+    public function list(?bool $enable = null, ?bool $saleEnable = null, int $page = 1, int $limit = 15): array
     {
-        return $this->cardTypeService->list($enable, $page, $limit);
+        return $this->cardTypeService->list($enable, $saleEnable, $page, $limit);
     }
 
     /**
@@ -38,9 +38,9 @@ class CardTypeController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
-    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, int $memberActivationLimit = 0)
+    public function create(string $name, int $amount, int $expireSeconds, bool $enable = true, int $memberActivationLimit = 0, int $salePrice = 0, int $saleActualPrice = 0, bool $saleEnable = false, int $saleIndex = 0, int $saleBeginTime = 0, int $saleEndTime = 0, int $saleLimitQuantity = 0, bool $salePaying = true)
     {
-        $this->cardTypeService->create($name, $amount, $expireSeconds, $enable, false, $memberActivationLimit, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->cardTypeService->create($name, $amount, $expireSeconds, $enable, false, $memberActivationLimit, $salePrice, $saleActualPrice, $saleEnable, $saleIndex, $saleBeginTime, $saleEndTime, $saleLimitQuantity, $salePaying, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 
     /**
@@ -51,8 +51,8 @@ class CardTypeController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired(),
     ]
-    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?int $memberActivationLimit = null)
+    public function update(int $id, ?string $name = null, ?int $amount = null, ?int $expireSeconds = null, ?bool $enable = null, ?int $memberActivationLimit = null, ?int $salePrice = null, ?int $saleActualPrice = null, ?bool $saleEnable = null, ?int $saleIndex = null, ?int $saleBeginTime = null, ?int $saleEndTime = null, ?int $saleLimitQuantity = null, ?bool $salePaying = null)
     {
-        $this->cardTypeService->update($id, $name, $amount, $expireSeconds, $enable, memberActivationLimit: $memberActivationLimit, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
+        $this->cardTypeService->update($id, $name, $amount, $expireSeconds, $enable, $memberActivationLimit, $salePrice, $saleActualPrice, $saleEnable, $saleIndex, $saleBeginTime, $saleEndTime, $saleLimitQuantity, $salePaying, operatorMemberId: AdminMemberUtil::getMemberSession()->getMemberId(), ip: IPUtil::getIP());
     }
 }

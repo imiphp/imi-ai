@@ -8,6 +8,8 @@ use app\Module\Card\Service\CardService;
 use app\Module\Card\Service\MemberCardService;
 use app\Module\Member\Annotation\LoginRequired;
 use app\Module\Member\Util\MemberUtil;
+use app\Module\Payment\Enum\SecondaryPaymentChannel;
+use app\Module\Payment\Enum\TertiaryPaymentChannel;
 use app\Module\VCode\Service\VCodeService;
 use Imi\Aop\Annotation\Inject;
 use Imi\Server\Http\Controller\HttpController;
@@ -86,5 +88,32 @@ class CardController extends HttpController
         $memberSession = MemberUtil::getMemberSession();
 
         return $this->memberCardService->details($memberSession->getIntMemberId(), $operationType, $businessType, $beginTime, $endTime, $page, $limit);
+    }
+
+    #[
+        Action,
+        LoginRequired()
+    ]
+    public function saleCardList(): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        return [
+            'list' => $this->cardService->saleCardList($memberSession->getIntMemberId()),
+        ];
+    }
+
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
+    public function pay(string $channelName, int $secondaryPaymentChannel, int $tertiaryPaymentChannel, int $cardType, array $options = []): array
+    {
+        $memberSession = MemberUtil::getMemberSession();
+
+        return [
+            'data' => $this->cardService->pay($memberSession->getIntMemberId(), $channelName, SecondaryPaymentChannel::from($secondaryPaymentChannel), TertiaryPaymentChannel::from($tertiaryPaymentChannel), $cardType, $options),
+        ];
     }
 }

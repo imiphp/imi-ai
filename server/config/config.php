@@ -63,6 +63,9 @@ return (function () {
             \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'bin',
             \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'Module/*/template',
             \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'doc',
+            \dirname(__DIR__) . \DIRECTORY_SEPARATOR . '.imi-phar-cfg.php',
+            \dirname(__DIR__) . \DIRECTORY_SEPARATOR . '.php-cs-fixer.php',
+            \dirname(__DIR__) . \DIRECTORY_SEPARATOR . 'init.php',
         ],
 
         // Swoole 主服务器配置
@@ -218,6 +221,12 @@ return (function () {
                             'tb_card_detail',
                             'tb_member_card_order',
                             'tb_member_card_refund_order',
+                        ],
+                    ],
+                    'app\Module\Payment\Model' => [
+                        'tables'    => [
+                            'tb_payment_order',
+                            'tb_payment_channel',
                         ],
                     ],
                 ],

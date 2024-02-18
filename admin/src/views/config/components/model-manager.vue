@@ -8,7 +8,7 @@
           <th width="130">Token 输出倍率</th>
           <th width="130">最大 Token</th>
           <th width="130">额外 Token</th>
-          <th width="70">付费标志</th>
+          <th width="70">VIP余额</th>
           <th>选中提示</th>
           <th width="70">启用</th>
           <th width="70">删除</th>

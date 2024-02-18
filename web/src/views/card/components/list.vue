@@ -62,7 +62,7 @@ const createColumns = ({
       },
     },
     {
-      title: '付费标志',
+      title: '类型',
       key: 'paying',
       width: 100,
       render(row) {
@@ -70,8 +70,8 @@ const createColumns = ({
         <NSwitch
           value={row.paying}
           v-slots={{
-            checked: () => '付费',
-            unchecked: () => '免费',
+            checked: () => 'VIP',
+            unchecked: () => '普通',
           }}
         />
         )

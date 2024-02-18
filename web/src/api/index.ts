@@ -8,6 +8,7 @@ export * from './card'
 export * from './config'
 export * from './prompt'
 export * from './invitation'
+export * from './payment'
 
 export function fetchChatAPIProcess(
   id: string,

@@ -26,6 +26,28 @@
                 value-field="value"
               />
             </n-form-item>
+            <n-form-item label="销售">
+              <n-select
+                v-model:value="listParams.saleEnable"
+                class="!w-[140px]"
+                :options="[
+                  {
+                    text: '不限',
+                    value: -1
+                  },
+                  {
+                    text: '仅销售',
+                    value: 1
+                  },
+                  {
+                    text: '仅非销售',
+                    value: 0
+                  }
+                ]"
+                label-field="text"
+                value-field="value"
+              />
+            </n-form-item>
             <n-form-item>
               <n-button attr-type="submit" type="primary" @click="getTableData(1)">
                 <n-icon :component="SearchSharp" size="20" />
@@ -48,7 +70,7 @@
           :loading="loading"
           :pagination="pagination"
           :row-key="row => row.id"
-          scroll-x="1600"
+          scroll-x="1200"
           flex-height
           remote
           class="flex-1-hidden"
@@ -83,7 +105,8 @@ watch(visible, () => {
 });
 
 const listParams = ref({
-  enable: 1
+  enable: 1,
+  saleEnable: -1
 });
 
 const pagination = defaultPaginationProps(getTableData);
@@ -103,6 +126,7 @@ async function getTableData(page: number | null = null) {
   try {
     const { data } = await fetchCardTypeList(
       undefined === listParams.value.enable ? undefined : Boolean(listParams.value.enable),
+      listParams.value.saleEnable < 0 ? undefined : Boolean(listParams.value.saleEnable),
       pagination.page,
       pagination.pageSize
     );
@@ -117,20 +141,24 @@ async function getTableData(page: number | null = null) {
 const columns: Ref<DataTableColumns<Card.CardType>> = ref([
   {
     key: 'id',
-    title: 'ID'
+    title: 'ID',
+    width: 100
   },
   {
     key: 'name',
-    title: '名称'
+    title: '名称',
+    width: 150
   },
   {
     key: 'amount',
-    title: '初始余额'
+    title: '初始余额',
+    width: 100
   },
   {
     key: 'expireSeconds',
     title: '有效期',
     align: 'center',
+    width: 160,
     render: row => {
       if (row.expireSeconds > 0) {
         return <>{timespanHuman(row.expireSeconds)}</>;
@@ -142,7 +170,7 @@ const columns: Ref<DataTableColumns<Card.CardType>> = ref([
   {
     key: 'enable',
     title: '状态',
-    width: 220,
+    width: 100,
     render: row => {
       return (
         <n-switch
@@ -172,7 +200,7 @@ const columns: Ref<DataTableColumns<Card.CardType>> = ref([
   {
     key: 'system',
     title: '系统内置',
-    width: 220,
+    width: 100,
     render: row => {
       return (
         <n-popover
@@ -199,9 +227,48 @@ const columns: Ref<DataTableColumns<Card.CardType>> = ref([
   {
     key: 'createTime',
     title: '创建时间',
-    width: 220,
+    width: 180,
     render: row => {
       return <>{row.createTime > 0 ? new Date(row.createTime * 1000).toLocaleString() : ''}</>;
+    }
+  },
+  {
+    key: 'sale',
+    title: '销售',
+    width: 240,
+    render: row => {
+      const beginTimeNode = row.saleBeginTime > 0 ? <n-time time={row.saleBeginTime * 1000} /> : '-';
+      const endTimeNode = row.saleEndTime > 0 ? <n-time time={row.saleEndTime * 1000} /> : '-';
+
+      return (
+        <>
+          <p>
+            状态：
+            <n-switch
+              value={row.saleEnable}
+              v-slots={{
+                checked: () => '启用',
+                unchecked: () => '禁用'
+              }}
+            />
+          </p>
+          <p>原价：{(row.salePrice / 100).toFixed(2)}元</p>
+          <p>实际售价：{(row.saleActualPrice / 100).toFixed(2)}元</p>
+          <p>排序：{row.saleIndex}</p>
+          <p>
+            开始时间：
+            {beginTimeNode}
+          </p>
+          <p>
+            结束时间：
+            {endTimeNode}
+          </p>
+          <p>
+            VIP：
+            <n-switch value={row.salePaying} />
+          </p>
+        </>
+      );
     }
   },
   {

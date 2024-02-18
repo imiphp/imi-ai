@@ -28,6 +28,9 @@
             <n-tab-pane name="prompt" tab="提示语设置">
               <config-prompt v-model:value="config" v-model:loading="loading" />
             </n-tab-pane>
+            <n-tab-pane name="payment" tab="支付设置">
+              <config-payment v-model:value="config" v-model:loading="loading" />
+            </n-tab-pane>
             <n-tab-pane name="vcode" tab="验证码设置">
               <config-vcode v-model:value="config" v-model:loading="loading" />
             </n-tab-pane>
@@ -54,6 +57,7 @@ import ConfigVcode from './components/config-vcode.vue';
 import ConfigAdmin from './components/config-admin.vue';
 import ConfigPrompt from './components/config-prompt.vue';
 import ConfigOpenai from './components/config-openai.vue';
+import ConfigPayment from './components/config-payment.vue';
 
 const config = ref<any>({});
 const loading = ref(false);

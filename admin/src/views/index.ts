@@ -31,6 +31,7 @@ export const views: Record<
   management_admin_member: () => import('./management/admin_member/index.vue'),
   management_operation_log: () => import('./management/operation_log/index.vue'),
   member_list: () => import('./member/list/index.vue'),
+  payment_order: () => import('./payment/order/index.vue'),
   prompt_category_list: () => import('./prompt/category_list/index.vue'),
   prompt_list: () => import('./prompt/list/index.vue')
 };

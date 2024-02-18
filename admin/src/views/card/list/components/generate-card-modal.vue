@@ -12,7 +12,7 @@
           <n-form-item-grid-item label="备注">
             <n-input v-model:value="formModel.remark" type="textarea" rows="3" />
           </n-form-item-grid-item>
-          <n-form-item-grid-item label="付费标志">
+          <n-form-item-grid-item label="VIP余额">
             <n-switch v-model:value="formModel.paying" />
           </n-form-item-grid-item>
         </n-grid>

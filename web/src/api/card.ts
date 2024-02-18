@@ -92,3 +92,22 @@ export async function memberCardDetails(
 
   return response
 }
+
+export async function saleCardList() {
+  return await get({
+    url: '/card/saleCardList',
+  })
+}
+
+export async function pay(channelName: string, secondaryPaymentChannel: number, tertiaryPaymentChannel: number, cardType: number, options: any = {}) {
+  return await post({
+    url: '/card/pay',
+    data: {
+      channelName,
+      secondaryPaymentChannel,
+      tertiaryPaymentChannel,
+      cardType,
+      options,
+    },
+  })
+}

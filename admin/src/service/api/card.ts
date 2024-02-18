@@ -86,14 +86,24 @@ export const fetchCardDetails = async (
   });
 };
 
-export const fetchCardTypeList = async (enable: boolean | undefined = undefined, page = 1, limit = 15) => {
+export const fetchCardTypeList = async (
+  enable: boolean | undefined | null = undefined,
+  saleEnable: boolean | undefined | null = undefined,
+  page = 1,
+  limit = 15
+) => {
   let enableParam;
   if (enable !== undefined) {
     enableParam = enable ? '1' : '0';
   }
+  let saleEnableParam;
+  if (saleEnable !== undefined) {
+    saleEnableParam = saleEnable ? '1' : '0';
+  }
   return request.get<Card.CardTypeListResponse>('/admin/card/type/list', {
     params: {
       enable: enableParam,
+      saleEnable: saleEnableParam,
       page,
       limit
     }
@@ -105,20 +115,47 @@ export const createCardType = async (
   amount: number,
   expireSeconds: number,
   enable = true,
-  memberActivationLimit = 0
+  memberActivationLimit = 0,
+  salePrice: number = 0,
+  saleActualPrice: number = 0,
+  saleEnable: boolean = false,
+  saleIndex: number = 0,
+  saleBeginTime: number = 0,
+  saleEndTime: number = 0,
+  saleLimitQuantity: number = 0
 ) => {
   return request.post<Api.BaseResponse>('/admin/card/type/create', {
     name,
     amount,
     expireSeconds,
     enable,
-    memberActivationLimit
+    memberActivationLimit,
+    salePrice,
+    saleActualPrice,
+    saleEnable,
+    saleIndex,
+    saleBeginTime,
+    saleEndTime,
+    saleLimitQuantity
   });
 };
 
 export const updateCardType = async (
   id: number,
-  data: { name?: string; amount?: number; expireSeconds?: number; enable?: boolean }
+  data: {
+    name?: string;
+    amount?: number;
+    expireSeconds?: number;
+    enable?: boolean;
+    memberActivationLimit?: number;
+    salePrice?: number;
+    saleActualPrice?: number;
+    saleEnable?: boolean;
+    saleIndex?: number;
+    saleBeginTime?: number;
+    saleEndTime?: number;
+    saleLimitQuantity?: number;
+  }
 ) => {
   return request.post<Api.BaseResponse>('/admin/card/type/update', {
     id,

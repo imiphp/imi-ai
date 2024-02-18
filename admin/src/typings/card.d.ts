@@ -99,6 +99,14 @@ declare namespace Card {
     system: boolean;
     createTime: number;
     memberActivationLimit: number;
+    salePrice: number;
+    saleActualPrice: number;
+    saleEnable: boolean;
+    saleIndex: number;
+    saleBeginTime: number;
+    saleEndTime: number;
+    saleLimitQuantity: number;
+    salePaying: boolean;
   }
 
   type CardTypeListResponse = {

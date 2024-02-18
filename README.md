@@ -24,7 +24,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 ## 演示
 
-公益演示地址：https://ai.imiphp.com/ （注册送额度，付费可用 gpt-4、gpt-3.5-turbo-16k）
+公益演示地址：<https://ai.imiphp.com/> （注册送额度，付费可用 gpt-4、gpt-3.5-turbo-16k）
 
 ![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/1.jpg)
 ![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/2.jpg)
@@ -81,7 +81,9 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 ### 计费系统
 
 * [x] Tokens 计费系统（卡）
-* [ ] 在线支付购买卡
+* [x] 在线支付购买卡（接口层）
+* [ ] 微信支付
+* [ ] 支付宝支付
 * [x] 输入卡号激活
 
 ### 支持的模型厂商

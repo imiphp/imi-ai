@@ -18,10 +18,11 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\CardEx.name", default="tb_card_ex"), usePrefix=false, id={"card_id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\CardEx.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card_ex` (   `card_id` int unsigned NOT NULL,   `admin_remark` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '后台备注',   PRIMARY KEY (`card_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='卡扩展数据'")
+ * @DDL(sql="CREATE TABLE `tb_card_ex` (   `card_id` int unsigned NOT NULL,   `admin_remark` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '后台备注',   `trade_no` varchar(24) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '支付订单号',   PRIMARY KEY (`card_id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='卡扩展数据'")
  *
  * @property int|null    $cardId
  * @property string|null $adminRemark 后台备注
+ * @property string|null $tradeNo     支付订单号
  */
 abstract class CardExBase extends Model
 {
@@ -94,6 +95,40 @@ abstract class CardExBase extends Model
             throw new \InvalidArgumentException('The maximum length of $adminRemark is 65535');
         }
         $this->adminRemark = null === $adminRemark ? null : (string) $adminRemark;
+
+        return $this;
+    }
+
+    /**
+     * 支付订单号.
+     * trade_no.
+     *
+     * @Column(name="trade_no", type="varchar", length=24, accuracy=0, nullable=false, default="", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=false, virtual=false)
+     */
+    protected ?string $tradeNo = '';
+
+    /**
+     * 获取 tradeNo - 支付订单号.
+     */
+    public function getTradeNo(): ?string
+    {
+        return $this->tradeNo;
+    }
+
+    /**
+     * 赋值 tradeNo - 支付订单号.
+     *
+     * @param string|null $tradeNo trade_no
+     *
+     * @return static
+     */
+    public function setTradeNo($tradeNo)
+    {
+        if (\is_string($tradeNo) && mb_strlen($tradeNo) > 24)
+        {
+            throw new \InvalidArgumentException('The maximum length of $tradeNo is 24');
+        }
+        $this->tradeNo = null === $tradeNo ? null : (string) $tradeNo;
 
         return $this;
     }

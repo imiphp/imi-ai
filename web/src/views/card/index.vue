@@ -2,13 +2,11 @@
 import { NCard, NTabPane, NTabs } from 'naive-ui'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { CardActivation, CardList, MemberCardDetails } from './components'
+import { BuyCard, CardActivation, CardList, MemberCardDetails } from './components'
 
 const route = useRoute()
 const tab = ref(route.params.tab ? route.params.tab.toString() : 'list')
 const success = ref(false)
-
-const buyCardText = import.meta.env.VITE_BUY_CARD_TEXT
 
 watch(success, (val) => {
   if (val)
@@ -36,8 +34,8 @@ watch(success, (val) => {
         <NTabPane name="activation" tab="卡号激活">
           <CardActivation v-model:success="success" />
         </NTabPane>
-        <NTabPane name="buy" tab="卡号购买">
-          <pre class="font-sans mt-2 leading-6 whitespace-pre-wrap">{{ buyCardText }}</pre>
+        <NTabPane name="buy" tab="套餐购买">
+          <BuyCard />
         </NTabPane>
         <NTabPane name="expiredList" tab="过期卡包">
           <CardList :expired="true" />

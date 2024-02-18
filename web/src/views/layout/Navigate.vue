@@ -230,7 +230,7 @@ const rightMenuOptions = ref([
                 name: 'Card',
               },
             },
-            { default: () => `付费余额 (${payingBalance.value})` },
+            { default: () => `VIP余额 (${payingBalance.value})` },
           ),
         key: 'PayingCard',
         show: computed(() => logined.value),

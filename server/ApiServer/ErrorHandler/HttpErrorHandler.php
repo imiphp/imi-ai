@@ -31,18 +31,34 @@ class HttpErrorHandler implements IErrorHandler
         {
             $code = ApiStatus::ERROR;
         }
-        $data = [
-            'code'    => $code,
-            'message' => $throwable->getMessage(),
-        ];
         if (App::isDebug())
         {
-            $data['exception'] = [
-                'message'   => $throwable->getMessage(),
-                'code'      => $throwable->getCode(),
-                'file'      => $throwable->getFile(),
-                'line'      => $throwable->getLine(),
-                'trace'     => explode(\PHP_EOL, $throwable->getTraceAsString()),
+            $message = $throwable->getMessage();
+            $data = [
+                'code'      => $code,
+                'message'   => $message,
+                'exception' => [
+                    'message'   => $message,
+                    'code'      => $throwable->getCode(),
+                    'file'      => $throwable->getFile(),
+                    'line'      => $throwable->getLine(),
+                    'trace'     => explode(\PHP_EOL, $throwable->getTraceAsString()),
+                ],
+            ];
+        }
+        else
+        {
+            if ($throwable instanceof \TypeError)
+            {
+                $message = 'Type Error';
+            }
+            else
+            {
+                $message = $throwable->getMessage();
+            }
+            $data = [
+                'code'    => $code,
+                'message' => $message,
             ];
         }
         $requestContext = RequestContext::getContext();

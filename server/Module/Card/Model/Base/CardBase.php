@@ -18,7 +18,7 @@ use Imi\Model\Model;
  *
  * @Table(name=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.name", default="tb_card"), usePrefix=false, id={"id"}, dbPoolName=@ConfigValue(name="@app.models.app\Module\Card\Model\Card.poolName"))
  *
- * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` int unsigned NOT NULL COMMENT '卡类型',   `member_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint NOT NULL COMMENT '初始金额',   `left_amount` bigint NOT NULL COMMENT '剩余金额',   `enable` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否启用',   `paying` bit(1) NOT NULL DEFAULT b'0' COMMENT '付费标识',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `activation_time` int unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `type` (`member_id`,`type`) USING BTREE,   KEY `member_id` (`member_id`,`expire_time`,`enable`,`paying`,`left_amount`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='卡'")
+ * @DDL(sql="CREATE TABLE `tb_card` (   `id` bigint unsigned NOT NULL AUTO_INCREMENT,   `type` int unsigned NOT NULL COMMENT '卡类型',   `member_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',   `amount` bigint NOT NULL COMMENT '初始金额',   `left_amount` bigint NOT NULL COMMENT '剩余金额',   `enable` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否启用',   `paying` bit(1) NOT NULL DEFAULT b'0' COMMENT '付费标识',   `pay_amount` int unsigned NOT NULL DEFAULT '0' COMMENT '购买此卡实际支付的金额',   `create_time` int unsigned NOT NULL COMMENT '创建时间',   `activation_time` int unsigned NOT NULL DEFAULT '0' COMMENT '激活时间',   `expire_time` int unsigned NOT NULL COMMENT '过期时间',   PRIMARY KEY (`id`) USING BTREE,   KEY `type` (`member_id`,`type`) USING BTREE,   KEY `member_id` (`member_id`,`expire_time`,`enable`,`paying`,`left_amount`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='卡'")
  *
  * @property int|null  $id
  * @property int|null  $type           卡类型
@@ -27,6 +27,7 @@ use Imi\Model\Model;
  * @property int|null  $leftAmount     剩余金额
  * @property bool|null $enable         是否启用
  * @property bool|null $paying         付费标识
+ * @property int|null  $payAmount      购买此卡实际支付的金额
  * @property int|null  $createTime     创建时间
  * @property int|null  $activationTime 激活时间
  * @property int|null  $expireTime     过期时间
@@ -248,6 +249,36 @@ abstract class CardBase extends Model
     public function setPaying($paying)
     {
         $this->paying = null === $paying ? null : (bool) $paying;
+
+        return $this;
+    }
+
+    /**
+     * 购买此卡实际支付的金额.
+     * pay_amount.
+     *
+     * @Column(name="pay_amount", type="int", length=0, accuracy=0, nullable=false, default="0", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, unsigned=true, virtual=false)
+     */
+    protected ?int $payAmount = 0;
+
+    /**
+     * 获取 payAmount - 购买此卡实际支付的金额.
+     */
+    public function getPayAmount(): ?int
+    {
+        return $this->payAmount;
+    }
+
+    /**
+     * 赋值 payAmount - 购买此卡实际支付的金额.
+     *
+     * @param int|null $payAmount pay_amount
+     *
+     * @return static
+     */
+    public function setPayAmount($payAmount)
+    {
+        $this->payAmount = null === $payAmount ? null : (int) $payAmount;
 
         return $this;
     }

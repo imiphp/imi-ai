@@ -48,7 +48,7 @@
                 value-field="value"
               />
             </n-form-item>
-            <n-form-item label="付费标志">
+            <n-form-item label="VIP余额">
               <n-select
                 v-model:value="listParams.paying"
                 class="!w-[140px]"
@@ -222,7 +222,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     title: '名称',
     key: 'cardType.name',
-    width: 100
+    width: 150
   },
   {
     title: '余额/面额',
@@ -256,7 +256,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
     }
   },
   {
-    title: '付费标志',
+    title: 'VIP余额',
     key: 'paying',
     width: 100,
     render(row) {
@@ -345,6 +345,7 @@ const columns: Ref<DataTableColumns<Card.Card>> = ref([
   {
     title: '备注',
     key: 'ex.adminRemark',
+    width: 150,
     render(row) {
       return (
         <>

@@ -71,7 +71,13 @@ class ConfigService
                 throw new \RuntimeException(sprintf('Config %s not found', $name));
             }
             $model = $configItem['class']::__getConfigNoCache();
-            $model->set($config);
+            foreach ($model as $key => $value)
+            {
+                if (\array_key_exists($key, $config))
+                {
+                    $model[$key] = $config[$key];
+                }
+            }
             $model->save();
         }
     }
