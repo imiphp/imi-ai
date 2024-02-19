@@ -240,7 +240,7 @@ npm install
 
 * `VITE_GLOB_API_URL`，服务端接口地址，如：`http://127.0.0.1:12333/`
 
-* `VITE_APP_API_BASE_URL` 前端调试访问地址，如：`http://127.0.0.1:1002/`
+* `VITE_APP_API_BASE_URL` 前端调试访问地址，如：`http://127.0.0.1:3100/`
 
 **开发调试：**
 

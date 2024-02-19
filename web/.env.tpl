@@ -1,7 +1,7 @@
 # Glob API URL
 VITE_GLOB_API_URL=http://127.0.0.1:12333/
 
-VITE_APP_API_BASE_URL=http://127.0.0.1:1002/
+VITE_APP_API_BASE_URL=http://127.0.0.1:3100/
 
 # Whether long replies are supported, which may result in higher API fees
 VITE_GLOB_OPEN_LONG_REPLY=false

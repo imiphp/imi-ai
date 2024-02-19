@@ -60,7 +60,7 @@ class AppUtil
         $webUrl = $commonConfig->getWebUrl();
         if ('' === $webUrl)
         {
-            $webUrl = 'http://127.0.0.1:1002';
+            $webUrl = 'http://127.0.0.1:3100';
         }
 
         if (str_ends_with($webUrl, '/'))
