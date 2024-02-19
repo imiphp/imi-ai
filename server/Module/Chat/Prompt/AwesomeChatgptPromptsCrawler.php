@@ -14,7 +14,7 @@ use Yurun\Util\HttpRequest;
 ]
 class AwesomeChatgptPromptsCrawler implements IPromptCrawler
 {
-    protected string $url = 'https://ghproxy.com/https://raw.githubusercontent.com/PlexPt/awesome-chatgpt-prompts-zh/main/prompts-zh.json';
+    protected string $url = 'https://raw.githubusercontent.com/PlexPt/awesome-chatgpt-prompts-zh/main/prompts-zh.json';
 
     /**
      * @return \Iterator<\app\Module\Chat\Model\Prompt>
