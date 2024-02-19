@@ -57,6 +57,7 @@ class SaleCardType extends CardType
             return;
         }
         $result = Card::dbQuery()->whereIn('type', $cardTypes)
+                                // @phpstan-ignore-next-line
                                 ->where('member_id', '=', $model->memberId)
                                 ->group('type')
                                 ->field('type')
