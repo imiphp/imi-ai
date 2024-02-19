@@ -1,6 +1,6 @@
 <script setup lang='tsx'>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { NButton, NCard, NGi, NGrid, NIcon, NModal, NQrCode, NRadioButton, NRadioGroup, NSpin, useMessage } from 'naive-ui'
+import { NButton, NCard, NCountdown, NGi, NGrid, NIcon, NModal, NQrCode, NRadioButton, NRadioGroup, NSpin, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { config, pay, saleCardList } from '@/api'
 import { convertCentToYuan, formatNumberToChinese, timespanHuman } from '@/utils/functions'
@@ -94,6 +94,15 @@ let payResultMonitor: PayResultMonitor | undefined
 
 async function loadSaleCards() {
   const response = await saleCardList()
+  const now = parseInt(((new Date()).getTime() / 1000).toString())
+  response.list.forEach((item: any) => {
+    if (item.saleBeginTime > 0)
+      item.countDownDuration = (item.saleBeginTime - now) * 1000
+    else if (item.saleEndTime > 0 && item.saleEndTime > now)
+      item.countDownDuration = (item.saleEndTime - now) * 1000
+    else
+      item.countDownDuration = 0
+  })
   saleCards.value = response.list
 }
 
@@ -221,23 +230,13 @@ onUnmounted(() => {
           <p class="text-lg text-gray-500 mt-4">
             <template v-if="item.saleActualPrice === item.salePrice">
               <span>售价：￥{{ convertCentToYuan(item.salePrice) }}</span>
-              <span v-if="item.expireSeconds > 0"
-                >/{{ timespanHuman(item.expireSeconds) }}</span
-              >
+              <span v-if="item.expireSeconds > 0">/{{ timespanHuman(item.expireSeconds) }}</span>
             </template>
             <template v-else>
-              <span
-                >优惠价：￥{{ convertCentToYuan(item.saleActualPrice) }}</span
-              >
-              <span v-if="item.expireSeconds > 0"
-                >/{{ timespanHuman(item.expireSeconds) }}</span
-              >
-              <span class="line-through ml-2"
-                >￥{{ convertCentToYuan(item.salePrice) }}</span
-              >
-              <span v-if="item.expireSeconds > 0" class="line-through"
-                >/{{ timespanHuman(item.expireSeconds) }}</span
-              >
+              <span>优惠价：￥{{ convertCentToYuan(item.saleActualPrice) }}</span>
+              <span v-if="item.expireSeconds > 0">/{{ timespanHuman(item.expireSeconds) }}</span>
+              <span class="line-through ml-2">￥{{ convertCentToYuan(item.salePrice) }}</span>
+              <span v-if="item.expireSeconds > 0" class="line-through">/{{ timespanHuman(item.expireSeconds) }}</span>
             </template>
           </p>
           <div class="mt-4">
@@ -251,13 +250,14 @@ onUnmounted(() => {
               @click="onClickBuy(item)"
             >
               {{ getCardButtonText(item) }}
-              <span v-if="item.saleLimitQuantity > 0" class="ml-2"
-                >{{ item.activationCount }}/{{ item.saleLimitQuantity }}</span
-              >
+              <NCountdown
+                v-if="item.countDownDuration > 0"
+                :duration="item.countDownDuration"
+                @finish="item.countDownDuration = 0"
+              />
+              <span v-else-if="item.saleLimitQuantity > 0" class="ml-2">{{ item.activationCount }}/{{ item.saleLimitQuantity }}</span>
             </NButton>
-            <span v-if="item.salePaying" class="ml-4 text-gray-500"
-              >支持所有功能</span
-            >
+            <span v-if="item.salePaying" class="ml-4 text-gray-500">支持所有功能</span>
             <span v-else class="ml-4 text-gray-500">仅支持部分功能</span>
           </div>
         </NCard>
@@ -302,7 +302,7 @@ onUnmounted(() => {
                   : 'filter: grayscale(1);',
               ]"
             >
-              <img :src="paymentMethod.icon" />
+              <img :src="paymentMethod.icon">
             </NIcon>
             <span class="text-base align-middle">{{
               paymentMethod.label
