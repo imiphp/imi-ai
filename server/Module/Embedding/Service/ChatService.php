@@ -61,7 +61,7 @@ class ChatService
         {
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
-        $tokens = Gpt3Tokenizer::count($question, $model);
+        $tokens = OpenAIUtil::makeClient($model)->calcTokens($question, $model);
 
         // 检查余额
         $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);

@@ -7,6 +7,7 @@ namespace app\Module\OpenAI\Client\OpenAI;
 use app\Module\OpenAI\Client\Annotation\OpenAIClient;
 use app\Module\OpenAI\Client\Contract\IClient;
 use app\Module\OpenAI\Model\Redis\Api;
+use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use Imi\Config;
 use Imi\Util\Text;
 use Psr\Http\Message\RequestInterface;
@@ -47,14 +48,27 @@ class Client implements IClient
         return $this->api;
     }
 
-    public function chat(array $params): \Iterator
+    public function chat(array $params, ?int &$inputTokens = null, ?int &$outputTokens = null): \Iterator
     {
+        $inputTokens = $outputTokens = 0;
+        foreach ($params['messages'] as $message)
+        {
+            $inputTokens += Gpt3Tokenizer::count($message['content'], $params['model']);
+        }
         try
         {
+            $contents = '';
             foreach ($this->client->chat()->createStreamed($params) as $response)
             {
-                yield $response->toArray();
+                $data = $response->toArray();
+                $content = $data['choices'][0]['delta']['content'] ?? null;
+                if (null !== $content && '' !== $content)
+                {
+                    $contents .= $content;
+                }
+                yield $data;
             }
+            $outputTokens = Gpt3Tokenizer::count($contents, $params['model']);
         }
         catch (\Throwable $th)
         {
@@ -74,5 +88,10 @@ class Client implements IClient
             $this->api->failed();
             throw $th;
         }
+    }
+
+    public function calcTokens(string $string, string $model): int
+    {
+        return Gpt3Tokenizer::count($string, $model);
     }
 }

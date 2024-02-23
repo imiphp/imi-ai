@@ -16,7 +16,6 @@ use app\Module\Chat\Model\ChatSession;
 use app\Module\Chat\Model\Redis\ChatConfig;
 use app\Module\Member\Service\MemberService;
 use app\Module\OpenAI\Model\Redis\ModelConfig;
-use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
@@ -63,7 +62,7 @@ class ChatService
             throw new \RuntimeException('不允许使用模型：' . $model);
         }
 
-        $tokens = Gpt3Tokenizer::count($message, $model);
+        $tokens = OpenAIUtil::makeClient($model)->calcTokens($message, $model);
         // 检查余额
         $this->memberCardService->checkBalance($memberId, $tokens + 1, paying: $modelConfig->paying);
 
@@ -112,30 +111,12 @@ class ChatService
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
-        $inputTokens = 0;
         $messages = [];
-        if ('' !== $record->prompt)
-        {
-            $inputTokens += Gpt3Tokenizer::count($record->prompt, $model);
-        }
         $historyMessages = goWait(fn () => $this->selectMessages($record->id, 'desc', limit: $config->getTopConversations() * 2 + 1), 30, true);
-        $modelMaxTokens = $modelConfig->maxTokens;
         foreach ($historyMessages as $message)
         {
-            /** @var ChatMessage $message */
-            $inputTokens += Gpt3Tokenizer::count($message->message, $model);
-            if ($inputTokens > $modelMaxTokens)
-            {
-                $messages[] = ['role' => $message->role, 'content' => Gpt3Tokenizer::chunk($message->message, $inputTokens - $modelMaxTokens, $model)[0]];
-                break;
-            }
             $messages[] = ['role' => $message->role, 'content' => $message->message];
-            if ($inputTokens === $modelMaxTokens)
-            {
-                break;
-            }
         }
-        $inputTokens = min($inputTokens, $modelMaxTokens);
         if ('' !== $record->prompt)
         {
             $messages[] = [
@@ -149,15 +130,12 @@ class ChatService
             throw new \RuntimeException('没有消息');
         }
         // 每条消息额外的Tokens + 每次消息之后额外的Tokens
-        $inputTokens += (\count($messages) * $modelConfig->additionalTokensPerMessage) + $modelConfig->additionalTokensAfterMessages;
-        $record->tokens += $inputTokens;
         $client = OpenAIUtil::makeClient($model);
         $beginTime = time();
         $params['messages'] = $messages;
         $params['stream'] = true;
         // @phpstan-ignore-next-line
-        $stream = $client->chat($params);
-        goWait(static fn () => $record->update(), 30, true);
+        $stream = $client->chat($params, $inputTokens, $outputTokens);
         $role = null;
         $content = '';
         $finishReason = null;
@@ -195,11 +173,11 @@ class ChatService
             }
         }
         $endTime = time();
-        $outputTokens = Gpt3Tokenizer::count($content, $model);
+        $inputTokens += (\count($messages) * $modelConfig->additionalTokensPerMessage) + $modelConfig->additionalTokensAfterMessages;
         [$payInputTokens, $payOutputTokens] = TokensUtil::calcDeductToken($modelConfig, $inputTokens, $outputTokens);
         $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
-        $record->tokens += $outputTokens;
+        $record->tokens += $inputTokens + $outputTokens;
         $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
         $record->qaStatus = QAStatus::ASK;
         $record->update();

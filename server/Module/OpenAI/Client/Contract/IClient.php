@@ -12,7 +12,9 @@ interface IClient
 
     public function getApi(): Api;
 
-    public function chat(array $params): \Iterator;
+    public function chat(array $params, ?int &$inputTokens = null, ?int &$outputTokens = null): \Iterator;
 
     public function embedding(array $params): array;
+
+    public function calcTokens(string $string, string $model): int;
 }

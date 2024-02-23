@@ -7,6 +7,7 @@ namespace app\Module\OpenAI\Client\SwooleAI;
 use app\Module\OpenAI\Client\Annotation\OpenAIClient;
 use app\Module\OpenAI\Client\Contract\IClient;
 use app\Module\OpenAI\Model\Redis\Api;
+use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use Imi\Swoole\Util\Coroutine;
 use Swoole\Coroutine\Channel;
 use Swoole\OpenAi\OpenAi;
@@ -33,14 +34,20 @@ class Client implements IClient
         return $this->api;
     }
 
-    public function chat(array $params): \Iterator
+    public function chat(array $params, ?int &$inputTokens = null, ?int &$outputTokens = null): \Iterator
     {
+        $inputTokens = $outputTokens = 0;
+        foreach ($params['messages'] as $message)
+        {
+            $inputTokens += Gpt3Tokenizer::count($message['content'], $params['model']);
+        }
         $channel = new Channel();
-        Coroutine::create(function () use ($channel, $params) {
+        Coroutine::create(function () use ($channel, $params, &$outputTokens) {
             try
             {
+                $contents = '';
                 // @phpstan-ignore-next-line
-                $this->client->chat($params, function ($curlInfo, $data) use ($channel) {
+                $this->client->chat($params, function ($curlInfo, $data) use ($channel, $params, &$outputTokens, &$contents) {
                     // 请求结束
                     if ('[DONE]' === $data)
                     {
@@ -54,6 +61,10 @@ class Client implements IClient
                     }
                     else
                     {
+                        if (null !== $chunk && '' !== $chunk)
+                        {
+                            $contents.=$chunk;
+                        }
                         $channel->push([
                             'delta' => [
                                 'content' => $chunk,
@@ -61,6 +72,7 @@ class Client implements IClient
                         ]);
                     }
                 });
+                $outputTokens = Gpt3Tokenizer::count($contents, $params['model']);
             }
             catch (\Throwable $th)
             {
@@ -89,5 +101,10 @@ class Client implements IClient
     public function embedding(array $params): array
     {
         throw new \RuntimeException('Unsupport method ' . __METHOD__);
+    }
+
+    public function calcTokens(string $string, string $model): int
+    {
+        return Gpt3Tokenizer::count($string, $model);
     }
 }
