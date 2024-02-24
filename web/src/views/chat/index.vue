@@ -57,7 +57,7 @@ const runtimeStore = useRuntimeStore()
 
 watch(currentChatHistory, () => {
   runtimeStore.$state.headerTitle = currentChatHistory.value?.title || ''
-})
+}, { immediate: true })
 
 let lastMessageId = ''
 const messagePageSize = 15
