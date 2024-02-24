@@ -234,31 +234,33 @@ onUnmounted(() => {
             <template v-else>
               <span>优惠价：￥{{ convertCentToYuan(item.saleActualPrice) }}</span>
               <span class="line-through ml-2">￥{{ convertCentToYuan(item.salePrice) }}</span>
-              <NButton
-                strong
-                type="error"
-                size="large"
-                color="#ff5678"
-                text-color="#FFF"
-                :disabled="!isEnableCardButton(item)"
-                class="!ml-4 align-middle"
-                @click="onClickBuy(item)"
-              >
-                {{ getCardButtonText(item) }}
-                <NCountdown
-                  v-if="item.countDownDuration > 0"
-                  :duration="item.countDownDuration"
-                  @finish="item.countDownDuration = 0"
-                />
-                <span v-else-if="item.saleLimitQuantity > 0" class="ml-2">{{ item.activationCount }}/{{ item.saleLimitQuantity }}</span>
-              </NButton>
             </template>
           </p>
-          <NSpace class="mt-2">
-            <span v-if="item.salePaying" class="text-gray-500">支持所有功能</span>
-            <span v-else class="text-gray-500">仅支持部分功能</span>
-            <span v-if="item.expireSeconds > 0" class="text-gray-500">有效期：{{ timespanHuman(item.expireSeconds) }}</span>
-            <span v-else class="text-gray-500">永不过期</span>
+          <NSpace class="mt-2 center" vertical>
+            <NButton
+              strong
+              type="error"
+              size="large"
+              color="#ff5678"
+              text-color="#FFF"
+              :disabled="!isEnableCardButton(item)"
+              block
+              @click="onClickBuy(item)"
+            >
+              {{ getCardButtonText(item) }}
+              <NCountdown
+                v-if="item.countDownDuration > 0"
+                :duration="item.countDownDuration"
+                @finish="item.countDownDuration = 0"
+              />
+              <span v-else-if="item.saleLimitQuantity > 0" class="ml-2">{{ item.activationCount }}/{{ item.saleLimitQuantity }}</span>
+            </NButton>
+            <NSpace>
+              <span v-if="item.salePaying" class="text-gray-500">支持所有功能</span>
+              <span v-else class="text-gray-500">仅支持部分功能</span>
+              <span v-if="item.expireSeconds > 0" class="text-gray-500">有效期：{{ timespanHuman(item.expireSeconds) }}</span>
+              <span v-else class="text-gray-500">永不过期</span>
+            </NSpace>
           </NSpace>
         </NCard>
       </NGi>
