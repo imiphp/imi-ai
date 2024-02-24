@@ -1,8 +1,7 @@
 <script setup lang='tsx'>
-import { NButton, NCard, NGi, NGrid, NLayout, NLayoutContent, NLayoutFooter, NSpace, useMessage } from 'naive-ui'
+import { NButton, NCard, NGi, NGrid, NLayout, NLayoutContent, NLayoutFooter, NSpace } from 'naive-ui'
 import { useRouter } from 'vue-router'
 
-const message = useMessage()
 const router = useRouter()
 
 const moduleCards = [
@@ -19,6 +18,10 @@ const moduleCards = [
     description: '上传的模型数据训练完成后，可以进行 AI 智能对话，AI 会帮你解读文件中的数据、总结归纳和分析文件内容，给你满意的答案。',
   },
 ]
+
+function download() {
+  window.open('https://github.com/imiphp/imi-ai')
+}
 </script>
 
 <template>
@@ -38,7 +41,7 @@ const moduleCards = [
           <NButton type="primary" size="large" @click="router.push({ name: 'Embedding' })">
             开始模型训练
           </NButton>
-          <NButton size="large" disabled @click="message.info('敬请期待！')">
+          <NButton size="large" @click="download">
             源码下载
           </NButton>
         </NSpace>
