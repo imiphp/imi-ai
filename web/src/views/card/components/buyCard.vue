@@ -89,6 +89,7 @@ const selectedPaymethodChannels = computed(() => {
 const buyItem = ref<any>(null)
 const firstClickPay = ref(true)
 const qrCodeValue = ref('')
+const payUrl = ref('')
 const payLoading = ref(false)
 let payResultMonitor: PayResultMonitor | undefined
 
@@ -136,6 +137,7 @@ function isEnableCardButton(item: any) {
 function onChangePaymentMethod() {
   firstClickPay.value = true
   qrCodeValue.value = ''
+  payUrl.value = ''
 }
 
 function onClickBuy(item: any) {
@@ -143,12 +145,14 @@ function onClickBuy(item: any) {
   selectedPaymethodValue.value = null
   firstClickPay.value = true
   qrCodeValue.value = ''
+  payUrl.value = ''
   showPayModal.value = true
 }
 
 async function onClickPay() {
   payLoading.value = true
   qrCodeValue.value = ''
+  payUrl.value = ''
   try {
     const selectedPaymethodChannelsValue = selectedPaymethodChannels.value
     if (!selectedPaymethodChannelsValue) {
@@ -161,6 +165,9 @@ async function onClickPay() {
       case 'xxx':
         // 二维码赋值
         // qrCodeValue.value = response.data.data.jumpUrl
+
+        // 点击按钮跳转支付赋值
+        // payUrl.value = response.data.data.jumpUrl
         break
       default:
         message.error('暂不支持该支付方式')
@@ -182,6 +189,10 @@ async function onClickPay() {
   finally {
     payLoading.value = false
   }
+}
+
+function jumpToPayUrl() {
+  location.href = payUrl.value
 }
 
 onMounted(async () => {
@@ -320,10 +331,10 @@ onUnmounted(() => {
           />
         </div>
         <!-- 支付按钮 -->
-        <div class="mt-4 text-center">
+        <NSpace class="mt-4" justify="center">
           <NButton
             strong
-            type="success"
+            :type="firstClickPay ? 'success' : 'default'"
             :color="selectedPaymethod?.color"
             size="large"
             :disabled="!selectedPaymethodValue"
@@ -331,7 +342,16 @@ onUnmounted(() => {
           >
             {{ firstClickPay ? "立即支付" : "重新支付" }}
           </NButton>
-        </div>
+          <NButton
+            v-if="payUrl.length > 0"
+            strong
+            type="success"
+            size="large"
+            @click="jumpToPayUrl"
+          >
+            跳转支付
+          </NButton>
+        </NSpace>
       </template>
       <template v-else>
         <p>后台未配置支付渠道</p>
