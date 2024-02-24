@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { NInput, NInputNumber } from 'naive-ui'
 import type { EmbeddingChatSetting } from '@/store/modules/embedding'
+import { useBasicLayout } from '@/hooks/useBasicLayout'
 
 interface Props {
   setting: EmbeddingChatSetting
@@ -14,7 +15,7 @@ interface Emit {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emit>()
-
+const { isMobile } = useBasicLayout()
 const setting = computed({
   get() {
     return props.setting
@@ -46,10 +47,10 @@ const setting = computed({
           <NInputNumber v-model:value="setting.similarity" min="0" max="1" step="0.1" />
         </div>
       </div>
-      <div class="flex items-center space-x-4">
+      <div class="items-center space-x-4" :class="isMobile ? [] : ['flex']">
         <span class="flex-shrink-0 w-[130px]">提示语</span>
-        <div class="flex-1">
-          <NInput v-model:value="setting.prompt" type="textarea" />
+        <div class="flex-1" :class="isMobile ? ['!ml-0 mt-2'] : []">
+          <NInput v-model:value="setting.prompt" type="textarea" rows="5" />
         </div>
       </div>
     </div>

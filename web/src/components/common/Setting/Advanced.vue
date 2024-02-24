@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NButton, NInput, NRadioButton, NRadioGroup, NSlider } from 'naive-ui'
+import { NButton, NInput, NSelect, NSlider } from 'naive-ui'
 import { computed, ref } from 'vue'
 import type { ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
@@ -54,6 +54,16 @@ const model = computed(() => {
   return null
 })
 
+const modelsSelectOptions = computed(() => {
+  return props.models.map((item) => {
+    return {
+      label: item.title.length === 0 ? item.model : item.title,
+      value: item.model,
+      disabled: !item.enable,
+    }
+  })
+})
+
 function ok() {
   if (undefined !== props.prompt)
     emit('update:prompt', prompt.value ?? '')
@@ -77,16 +87,8 @@ function handleReset() {
       </div> -->
       <div class="items-center space-x-4" :class="isMobile ? [] : ['flex']">
         <span class="flex-shrink-0 w-[130px]">{{ $t('setting.model') }} </span>
-        <div class="flex-1 overflow-x-auto overflow-y-hidden" :class="isMobile ? ['!ml-0 mt-1'] : []">
-          <NRadioGroup v-model:value="setting.model" name="model">
-            <NRadioButton
-              v-for="modelItem of models"
-              :key="modelItem.model"
-              :value="modelItem.model"
-              :label="0 === modelItem.title.length ? modelItem.model : modelItem.title"
-              :disabled="!modelItem.enable || readonly"
-            />
-          </NRadioGroup>
+        <div class="flex-1" :class="isMobile ? ['!ml-0 mt-2'] : []">
+          <NSelect v-model:value="setting.model" :options="modelsSelectOptions" />
         </div>
       </div>
       <div v-if="model" class="leading-10 !mt-2">
@@ -95,10 +97,10 @@ function handleReset() {
           <b>提示：</b>{{ model.tips }}
         </p>
       </div>
-      <div v-if="undefined !== props.prompt" class="flex items-center space-x-4">
+      <div v-if="undefined !== props.prompt" class="items-center space-x-4" :class="isMobile ? [] : ['flex']">
         <span class="flex-shrink-0 w-[130px]">提示语</span>
-        <div class="flex-1">
-          <NInput v-model:value="prompt" type="textarea" :readonly="readonly" />
+        <div class="flex-1" :class="isMobile ? ['!ml-0 mt-2'] : []">
+          <NInput v-model:value="prompt" type="textarea" :readonly="readonly" rows="5" />
         </div>
       </div>
       <div class="flex items-center space-x-4">
