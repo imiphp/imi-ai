@@ -225,18 +225,28 @@ class MemberCardService
         $payingWhere = $paying ? ' AND paying = 1' : '';
 
         return Db::select(<<<SQL
-        SELECT id, left_amount as leftAmount FROM {$tableName},( SELECT @memberLeftAmount := 0 ) AS _ 
+        SELECT `data`.*
+        FROM
+            (
+            SELECT
+                id,
+                left_amount AS leftAmount
+            FROM
+                {$tableName}
+            WHERE
+                member_id = :memberId
+                AND left_amount > 0
+                AND (expire_time = 0 OR expire_time > :expireTime)
+                AND `enable` = 1
+                {$payingWhere}
+            ORDER BY
+                expire_time = 0,
+                expire_time,
+                paying ASC
+            ) AS `data`,
+            (SELECT @memberLeftAmount := 0) AS _
         WHERE
-            member_id = :memberId 
-            AND left_amount > 0 
-            AND ( expire_time = 0 OR expire_time > :expireTime )
-            AND `enable` = 1
-            {$payingWhere}
-            AND ( (@memberLeftAmount := @memberLeftAmount + left_amount) < :amount OR @memberLeftAmount = left_amount ) 
-        ORDER BY
-            paying ASC,
-            expire_time = 0,
-            expire_time 
+            (@memberLeftAmount := @memberLeftAmount + leftAmount) < :amount OR @memberLeftAmount = leftAmount
         LIMIT :limit
         FOR UPDATE
         SQL, [
