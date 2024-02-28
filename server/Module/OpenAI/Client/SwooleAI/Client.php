@@ -47,7 +47,7 @@ class Client implements IClient
             {
                 $contents = '';
                 // @phpstan-ignore-next-line
-                $this->client->chat($params, function ($curlInfo, $data) use ($channel, $params, &$outputTokens, &$contents) {
+                $this->client->chat($params, function ($curlInfo, $data) use ($channel, &$outputTokens, &$contents) {
                     // 请求结束
                     if ('[DONE]' === $data)
                     {
@@ -63,7 +63,7 @@ class Client implements IClient
                     {
                         if (null !== $chunk && '' !== $chunk)
                         {
-                            $contents.=$chunk;
+                            $contents .= $chunk;
                         }
                         $channel->push([
                             'delta' => [
