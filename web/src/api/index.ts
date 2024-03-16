@@ -134,6 +134,12 @@ export function deleteSession(
   })
 }
 
+export function clearSession() {
+  return post({
+    url: '/chat/clear',
+  })
+}
+
 export function decodeChatSessionSecureFields(data: any) {
   data.title = decodeSecureField(data.title)
   data.prompt = decodeSecureField(data.prompt)

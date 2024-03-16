@@ -20,6 +20,7 @@ use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
+use Imi\Db\Db;
 use Imi\Db\Mysql\Consts\LogicalOperator;
 use Imi\Db\Query\Where\Where;
 use Imi\Log\Log;
@@ -309,6 +310,20 @@ class ChatService
         {
             OperationLog::log($operatorMemberId, self::LOG_OBJECT, OperationLogStatus::SUCCESS, sprintf('删除会话，id=%d, title=%s', $record->id, $record->title), $ip);
         }
+    }
+
+    #[Transaction()]
+    public function clear(int $memberId = 0, int $type = 0): void
+    {
+        Db::exec(<<<'SQL'
+        DELETE tb_chat_session, tb_chat_message
+        FROM
+            tb_chat_session
+            JOIN tb_chat_message ON tb_chat_message.session_id = tb_chat_session.id
+        WHERE
+            `member_id` = ?
+            AND `type` = ?
+        SQL, [$memberId, $type]);
     }
 
     public function appendMessage(int $sessionId, string $role, array|object $config, int $tokens, string $message, int $beginTime, int $completeTime, string $ip): ChatMessage

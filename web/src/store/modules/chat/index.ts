@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { getLocalState } from './helper'
 import { router } from '@/router'
-import { deleteSession, sessionList } from '@/api'
+import { clearSession, deleteSession, sessionList } from '@/api'
 
 export const enum QAStatus {
   ASK = 1,
@@ -141,6 +141,14 @@ export const useChatStore = defineStore('chat-store', {
         this.active = id
         this.reloadRoute(id, null)
       }
+    },
+
+    async clearHistory() {
+      await clearSession()
+      this.history = []
+      this.chat = []
+      this.active = null
+      this.reloadRoute(undefined, null)
     },
 
     async deleteHistoryById(id: string, reload = true) {

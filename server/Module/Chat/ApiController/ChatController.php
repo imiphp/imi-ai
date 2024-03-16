@@ -176,6 +176,20 @@ class ChatController extends HttpController
         $this->chatService->delete($id, $memberSession->getIntMemberId(), SessionType::CHAT);
     }
 
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        LoginRequired()
+    ]
+    public function clear()
+    {
+        $memberSession = MemberUtil::getMemberSession();
+        $this->chatService->clear($memberSession->getIntMemberId(), SessionType::CHAT);
+    }
+
     #[
         Action,
         LoginRequired()
