@@ -8,6 +8,7 @@
         "ext-swoole": ">=5.0",
         "ankane/pgvector": "^0.1.2",
         "gemorroj/archive7z": "^5.6",
+        "google-gemini-php/client": "^1.0",
         "guzzlehttp/guzzle": "^7.5",
         "hashids/hashids": "^5.0",
         "imiphp/imi": "~2.1.0",

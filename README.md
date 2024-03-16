@@ -88,9 +88,10 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 
 ### 支持的模型厂商
 
-* [x] OpenAI
-* [x] Swoole AI
-* [x] ChatGLM3
+* [x] [OpenAI](https://openai.com/)
+* [x] [Swoole AI](https://ai.swoole.com/)
+* [x] [ChatGLM3](https://github.com/THUDM/ChatGLM3)
+* [x] [Google Gemini](https://aistudio.google.com/)
 
 ### 其它
 
@@ -264,6 +265,8 @@ npm run build-only
 所有文件都在 `dist` 目录，内部文件放到站点根目录。
 
 ### 管理后台
+
+后台默认账号密码都是 `admin`
 
 **目录：**`admin`
 
