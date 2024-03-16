@@ -245,6 +245,7 @@ async function fetchStream() {
                     error: false,
                     loading: true,
                     tokens: data.message.tokens,
+                    model: data.message.config.model ?? null,
                   },
                 )
               }
@@ -468,6 +469,7 @@ async function handleMessageNextPage() {
     const response = await messageList(id, lastMessageId, messagePageSize)
     for (const item of response.list) {
       const resultItem: Chat.Chat = { ...item }
+      resultItem.model = item.config.model ?? null
       resultItem.inversion = item.role === 'user'
       chatStore.addChatByUuid(id, resultItem, 'unshift')
       lastMessageId = item.recordId
@@ -520,6 +522,7 @@ onMounted(async () => {
     const result: Chat.Chat[] = []
     for (const item of messageResponse.list) {
       const resultItem: Chat.Chat = { ...item }
+      resultItem.model = item.config.model ?? null
       resultItem.inversion = item.role === 'user'
       result.push(resultItem)
       lastMessageId = item.recordId
@@ -602,6 +605,7 @@ onUnmounted(() => {
                   :error="item.error"
                   :loading="item.loading"
                   :tokens="item.tokens"
+                  :model="item.model"
                   @delete="handleDelete(index)"
                 />
               </template>

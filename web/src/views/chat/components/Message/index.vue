@@ -17,6 +17,7 @@ interface Props {
   loading?: boolean
   tokens?: number
   tokenPrefix?: string
+  model?: string
 }
 
 interface Emit {
@@ -106,6 +107,9 @@ async function handleCopy() {
     <div class="overflow-hidden text-sm " :class="[inversion ? 'items-end' : 'items-start']">
       <p class="text-xs text-[#b4bbc4]" :class="[inversion ? 'text-right' : 'text-left']">
         {{ (new Date((dateTime ?? 0) * 1000)).toLocaleString() }}
+        <template v-if="!inversion && model">
+          | {{ model }}
+        </template>
         <template v-if="undefined !== tokens">
           | {{ tokenPrefix }}Tokens：{{ tokens }}
         </template>

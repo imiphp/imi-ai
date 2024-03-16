@@ -9,6 +9,7 @@ declare namespace Chat {
 		loading?: boolean
 		conversationOptions?: ConversationRequest | null
 		tokens?: number
+		model?: string
 	}
 
 	interface History {
