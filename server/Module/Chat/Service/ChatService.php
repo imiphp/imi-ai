@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\Module\Chat\Service;
 
+use app\Exception\ErrorException;
 use app\Exception\NotFoundException;
 use app\Module\Admin\Enum\OperationLogObject;
 use app\Module\Admin\Enum\OperationLogStatus;
@@ -95,7 +96,7 @@ class ChatService
         $record = goWait(fn () => $this->getById($id, $memberId), 30, true);
         if (QAStatus::ANSWER !== $record->qaStatus)
         {
-            throw new \RuntimeException('AI 已回答完毕');
+            throw new ErrorException('AI 已回答完毕，请刷新界面');
         }
         $params = [];
         foreach (self::ALLOW_PARAMS as $name)
@@ -111,7 +112,7 @@ class ChatService
         $modelConfig = $config->getModelConfig($params['model']);
         if (!$modelConfig || !$modelConfig->enable)
         {
-            throw new \RuntimeException('不允许使用模型：' . $params['model']);
+            throw new ErrorException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
         $client = OpenAIUtil::makeClient($model);
@@ -144,6 +145,10 @@ class ChatService
             }
             $messages[] = ['role' => $message->role, 'content' => $message->message];
         }
+        if ($historyMessages && !$messages)
+        {
+            throw new ErrorException(sprintf('输入内容不能超过 %d Tokens', $modelMaxTokens));
+        }
         unset($historyMessages); // 释放空间
         // 保存消息记录
         Coroutine::create(function () use (&$saveMessages) {
@@ -170,7 +175,7 @@ class ChatService
         $messages = array_reverse($messages);
         if (!$messages)
         {
-            throw new \RuntimeException('没有消息');
+            throw new ErrorException('没有消息');
         }
         // 每条消息额外的Tokens + 每次消息之后额外的Tokens
         $beginTime = time();
