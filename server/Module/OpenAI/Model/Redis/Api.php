@@ -10,6 +10,7 @@ use Imi\Util\Traits\TNotRequiredDataToProperty;
 
 use function Yurun\Swoole\Coroutine\goWait;
 
+#[\AllowDynamicProperties]
 class Api implements \JsonSerializable
 {
     use TNotRequiredDataToProperty{

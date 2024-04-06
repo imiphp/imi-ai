@@ -6,6 +6,7 @@ namespace app\Module\OpenAI\Model\Redis;
 
 use Imi\Util\Traits\TNotRequiredDataToProperty;
 
+#[\AllowDynamicProperties]
 class ModelConfig
 {
     use TNotRequiredDataToProperty;
