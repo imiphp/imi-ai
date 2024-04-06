@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace app\Module\OpenAI\Client\Gemini;
 
+use app\Exception\ErrorException;
 use app\Module\OpenAI\Client\Annotation\OpenAIClient;
 use app\Module\OpenAI\Client\Contract\IClient;
 use app\Module\OpenAI\Model\Redis\Api;
+use app\Util\MaskUtil;
 use Gemini\Data\Content;
 use Gemini\Data\GenerationConfig;
 use Gemini\Enums\Role;
@@ -110,7 +112,7 @@ class Client implements IClient
                 $contents .= $content;
                 $content = '';
             }
-            $outputTokens = mb_strlen($contents);
+            $outputTokens = $this->calcTokens($contents, $params['model']);
             yield [
                 'choices' => [
                     [
@@ -123,7 +125,7 @@ class Client implements IClient
         catch (\Throwable $th)
         {
             $this->api->failed();
-            throw $th;
+            throw new ErrorException(MaskUtil::replaceUrl($th->getMessage()), previous: $th);
         }
     }
 
@@ -134,6 +136,6 @@ class Client implements IClient
 
     public function calcTokens(string $string, string $model): int
     {
-        return mb_strlen($string);
+        return $this->client->generativeModel($model)->countTokens($string)->totalTokens;
     }
 }

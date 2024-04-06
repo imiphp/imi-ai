@@ -24,6 +24,8 @@ use Imi\Db\Db;
 use Imi\Db\Mysql\Consts\LogicalOperator;
 use Imi\Db\Query\Where\Where;
 use Imi\Log\Log;
+use Imi\Swoole\Util\Coroutine;
+use Imi\Util\LazyArrayObject;
 use Imi\Util\ObjectArrayHelper;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
@@ -112,11 +114,51 @@ class ChatService
             throw new \RuntimeException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
-        $messages = [];
+        $client = OpenAIUtil::makeClient($model);
+        $inputTokens = 0;
+        if ('' !== $record->prompt)
+        {
+            // 提前加上 Prompt tokens
+            $inputTokens += $client->calcTokens($record->prompt, $model);
+        }
         $historyMessages = goWait(fn () => $this->selectMessages($record->id, 'desc', limit: $config->getTopConversations() * 2 + 1), 30, true);
+        $modelMaxTokens = $modelConfig->maxTokens;
+        $messages = [];
+        $saveMessages = [];
         foreach ($historyMessages as $message)
         {
+            /** @var ChatMessage $message */
+            if (isset($message->config['__tokens'][$model]))
+            {
+                $inputTokens += $message->config['__tokens'][$model];
+            }
+            else
+            {
+                $message->config['__tokens'][$model] = $tokens = $client->calcTokens($message->message, $model);
+                $inputTokens += $tokens;
+                $saveMessages[] = $message;
+            }
+            if ($inputTokens > $modelMaxTokens)
+            {
+                break;
+            }
             $messages[] = ['role' => $message->role, 'content' => $message->message];
+        }
+        unset($historyMessages); // 释放空间
+        // 保存消息记录
+        Coroutine::create(function () use (&$saveMessages) {
+            Db::transUse(function () use ($saveMessages) {
+                foreach ($saveMessages as $message)
+                {
+                    $message->update();
+                }
+            });
+            $saveMessages = null; // 释放空间
+        });
+        if (0 === \count($messages) % 2)
+        {
+            // 删除一条最旧的回复
+            array_pop($messages);
         }
         if ('' !== $record->prompt)
         {
@@ -131,7 +173,6 @@ class ChatService
             throw new \RuntimeException('没有消息');
         }
         // 每条消息额外的Tokens + 每次消息之后额外的Tokens
-        $client = OpenAIUtil::makeClient($model);
         $beginTime = time();
         $params['messages'] = $messages;
         $params['stream'] = true;
@@ -331,6 +372,12 @@ class ChatService
         $record = ChatMessage::newInstance();
         $record->sessionId = $sessionId;
         $record->role = $role;
+        $model = ObjectArrayHelper::get($config, 'model');
+        if (null !== $model)
+        {
+            $config = new LazyArrayObject($config);
+            $config['__tokens'][$model] = $tokens;
+        }
         $record->config = [] === $config ? new \stdClass() : $config;
         $record->tokens = $tokens;
         $record->message = $message;

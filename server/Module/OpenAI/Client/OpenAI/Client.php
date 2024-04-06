@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace app\Module\OpenAI\Client\OpenAI;
 
+use app\Exception\ErrorException;
 use app\Module\OpenAI\Client\Annotation\OpenAIClient;
 use app\Module\OpenAI\Client\Contract\IClient;
 use app\Module\OpenAI\Model\Redis\Api;
 use app\Module\OpenAI\Util\Gpt3Tokenizer;
+use app\Util\MaskUtil;
 use Imi\Config;
 use Imi\Util\Text;
 use Psr\Http\Message\RequestInterface;
@@ -73,7 +75,7 @@ class Client implements IClient
         catch (\Throwable $th)
         {
             $this->api->failed();
-            throw $th;
+            throw new ErrorException(MaskUtil::replaceUrl($th->getMessage()), previous: $th);
         }
     }
 
@@ -86,7 +88,7 @@ class Client implements IClient
         catch (\Throwable $th)
         {
             $this->api->failed();
-            throw $th;
+            throw new ErrorException(MaskUtil::replaceUrl($th->getMessage()), previous: $th);
         }
     }
 
