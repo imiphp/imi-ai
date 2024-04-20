@@ -6,7 +6,7 @@
         "php": ">=8.1",
         "ext-gd": "*",
         "ext-swoole": ">=5.0",
-        "ankane/pgvector": "^0.1.2",
+        "pgvector/pgvector": "^0.1.4",
         "gemorroj/archive7z": "^5.6",
         "google-gemini-php/client": "^1.0",
         "guzzlehttp/guzzle": "^7.5",
@@ -23,7 +23,7 @@
         "phpmailer/phpmailer": "^6.8",
         "swoole-inc/open-ai": "^1.5",
         "symfony/http-client": "^6.2",
-        "yurunsoft/tiktoken": "^0.1.3",
+        "yethee/tiktoken": "^0.3.0",
         "yurunsoft/yurun-http": "^4.4"
     },
     "require-dev": {

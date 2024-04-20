@@ -32,7 +32,12 @@ class Gpt3Tokenizer
 
     public static function chunk(string $text, int $maxTokenPerChunk, string $model): array
     {
-        return self::getInstance($model)->chunk($text, $maxTokenPerChunk);
+        $instance = self::getInstance($model);
+
+        return array_map(
+            $instance->decode(...),
+            $instance->encodeInChunks($text, $maxTokenPerChunk),
+        );
     }
 
     public static function decode(array $tokens, string $model): string
