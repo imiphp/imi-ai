@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch } from 'vue';
 import type { FormInst, FormItemRule } from 'naive-ui';
-import { createRequiredFormRule, timespanHuman } from '@/utils';
+import { createRequiredFormRule } from '@/utils';
 import { createCardType, updateCardType } from '~/src/service';
 
 export interface Props {

@@ -2,28 +2,42 @@
   <div class="overflow-hidden">
     <n-card title="用户管理" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="flex-col h-full">
-        <n-form label-placement="left" :show-feedback="false" class="pb-2.5">
-          <n-space class="flex flex-row flex-wrap">
-            <n-form-item label="状态">
-              <n-select
-                v-model:value="listParams.status"
-                class="!w-[140px]"
-                :options="parseEnumWithAll(enums.MemberStatus ?? [])"
-                label-field="text"
-                value-field="value"
-              />
-            </n-form-item>
-            <n-form-item>
-              <n-input v-model:value="listParams.search" clearable placeholder="关键词搜索" />
-            </n-form-item>
-            <n-form-item>
-              <n-button attr-type="submit" type="primary" @click="getTableData(1)">
-                <n-icon :component="SearchSharp" size="20" />
-                查询
-              </n-button>
-            </n-form-item>
-          </n-space>
-        </n-form>
+        <n-grid cols="2" class="mb-2.5">
+          <n-grid-item>
+            <n-form label-placement="left" :show-feedback="false">
+              <n-space class="flex flex-row flex-wrap">
+                <n-form-item label="状态">
+                  <n-select
+                    v-model:value="listParams.status"
+                    class="!w-[140px]"
+                    :options="parseEnumWithAll(enums.MemberStatus ?? [])"
+                    label-field="text"
+                    value-field="value"
+                  />
+                </n-form-item>
+                <n-form-item>
+                  <n-input v-model:value="listParams.search" clearable placeholder="关键词搜索" />
+                </n-form-item>
+                <n-form-item>
+                  <n-button attr-type="submit" type="primary" @click="getTableData(1)">
+                    <n-icon :component="SearchSharp" size="20" />
+                    查询
+                  </n-button>
+                </n-form-item>
+              </n-space>
+            </n-form>
+          </n-grid-item>
+          <n-grid-item>
+            <n-space justify="end">
+              <n-space>
+                <n-button type="primary" @click="handleAddTable">
+                  <icon-ic-round-plus class="mr-4px text-20px" />
+                  创建用户
+                </n-button>
+              </n-space>
+            </n-space>
+          </n-grid-item>
+        </n-grid>
         <n-data-table
           :columns="columns"
           :data="tableData"
@@ -35,7 +49,13 @@
           remote
           class="flex-1-hidden"
         />
-        <edit-member-modal v-model:visible="visible" :edit-data="editData" :enums="enums" />
+        <edit-member-modal
+          v-if="editData"
+          v-model:visible="visible"
+          :edit-data="editData"
+          :enums="enums"
+          :type="modalType"
+        />
       </div>
     </n-card>
   </div>
@@ -53,6 +73,7 @@ import { useAdminEnums, parseEnumWithAll } from '~/src/store';
 import { defaultPaginationProps } from '~/src/utils';
 import { useRouterPush } from '~/src/composables';
 import EditMemberModal from './components/edit-member-modal.vue';
+import type { ModalType } from './components/edit-member-modal.vue';
 
 const { routerPush } = useRouterPush();
 const dialog = useDialog();
@@ -236,6 +257,17 @@ function setEditData(data: Member.Member | null) {
   editData.value = data;
 }
 
+const modalType = ref<ModalType>('add');
+
+function setModalType(type: ModalType) {
+  modalType.value = type;
+}
+
+function handleAddTable() {
+  setModalType('add');
+  openModal();
+}
+
 function handleEditTable(rowId: number) {
   const findItem = tableData.value.find(item => item.id === rowId);
   if (findItem) {
@@ -243,6 +275,7 @@ function handleEditTable(rowId: number) {
     data.password = '';
     setEditData(data);
   }
+  setModalType('edit');
   openModal();
 }
 

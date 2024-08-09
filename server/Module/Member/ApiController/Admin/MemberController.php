@@ -7,6 +7,7 @@ namespace app\Module\Member\ApiController\Admin;
 use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Admin\Util\AdminMemberUtil;
 use app\Module\Member\Model\Admin\Member;
+use app\Module\Member\Service\AuthService;
 use app\Module\Member\Service\MemberService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
@@ -21,6 +22,9 @@ class MemberController extends HttpController
 {
     #[Inject()]
     protected MemberService $memberService;
+
+    #[Inject()]
+    public AuthService $authService;
 
     #[
         Action,
@@ -46,8 +50,21 @@ class MemberController extends HttpController
         Route(method: RequestMethod::POST),
         AdminLoginRequired()
     ]
-    public function update(int $id, ?string $nickname = null, ?string $email = null, ?string $password = null, ?int $status = null)
+    public function create(string $nickname, string $email, string $password, int $status, int $phone = 0)
     {
-        $this->memberService->update($id, $nickname, $email, $password, $status, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP());
+        $this->memberService->create($email, $phone, '' === $password ? '' : $this->authService->passwordHash($password), $nickname, $status, IPUtil::getIP(), AdminMemberUtil::getMemberSession()->getMemberId());
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST),
+        AdminLoginRequired()
+    ]
+    public function update(int $id, ?string $nickname = null, ?string $email = null, ?string $password = null, ?int $status = null, ?int $phone = null)
+    {
+        $this->memberService->update($id, $nickname, $email, $password, $status, AdminMemberUtil::getMemberSession()->getMemberId(), IPUtil::getIP(), $phone);
     }
 }

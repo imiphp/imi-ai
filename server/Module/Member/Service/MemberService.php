@@ -30,7 +30,7 @@ class MemberService
     protected AuthService $authService;
 
     #[Transaction()]
-    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = '', int $status = MemberStatus::NORMAL, string $ip = ''): Member
+    public function create(string $email = '', int $phone = 0, string $password = '', string $nickname = '', int $status = MemberStatus::NORMAL, string $ip = '', int $operatorMemberId = 0): Member
     {
         $record = Member::newInstance();
         $record->status = $status;
@@ -41,6 +41,10 @@ class MemberService
         $record->nickname = $nickname;
         $record->registerIpData = inet_pton($ip) ?: '';
         $record->insert();
+        if ($operatorMemberId > 0)
+        {
+            OperationLog::log($operatorMemberId, self::LOG_OBJECT, OperationLogStatus::SUCCESS, sprintf('后台创建用户，id=%d, email=%s, phone=%s', $record->id, $record->email, $record->phone), $ip);
+        }
 
         return $record;
     }
@@ -49,7 +53,7 @@ class MemberService
         AutoValidation(),
         Text(name: 'nickname', min: 1, message: '昵称不能为空', optional: true)
     ]
-    public function update(int|string $id, ?string $nickname = null, ?string $email = null, ?string $password = null, ?int $status = null, int $operatorMemberId = 0, string $ip = ''): Member
+    public function update(int|string $id, ?string $nickname = null, ?string $email = null, ?string $password = null, ?int $status = null, int $operatorMemberId = 0, string $ip = '', ?int $phone = null): Member
     {
         $record = $this->get($id);
         if (null !== $nickname)
@@ -79,6 +83,10 @@ class MemberService
         if (null !== $status)
         {
             $record->status = $status;
+        }
+        if (null !== $phone)
+        {
+            $record->phone = $phone;
         }
         $record->update();
         if ($operatorMemberId > 0)

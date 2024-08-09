@@ -19,6 +19,16 @@ export const fetchMemberList = async (search = '', status = 0, page = 1, limit =
   return response;
 };
 
+export const createMember = async (
+  id: number,
+  data: { nickname?: string; email?: string; password?: string; status?: number }
+) => {
+  return request.post<Api.BaseResponse>('/admin/member/create', {
+    id,
+    ...data
+  });
+};
+
 export const updateMember = async (
   id: number,
   data: { nickname?: string; email?: string; password?: string; status?: number }

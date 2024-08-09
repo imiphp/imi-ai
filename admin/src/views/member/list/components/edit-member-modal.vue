@@ -1,5 +1,5 @@
 <template>
-  <n-modal v-model:show="modalVisible" preset="card" title="编辑用户" class="w-700px max-w-full">
+  <n-modal v-model:show="modalVisible" preset="card" :title="title" class="w-700px max-w-full">
     <n-form ref="formRef" label-placement="left" :label-width="80" :model="formModel" :rules="rules">
       <n-grid cols="1 s:2" :x-gap="18" item-responsive responsive="screen">
         <n-form-item-grid-item label="昵称" path="nickname">
@@ -32,16 +32,24 @@
 import { ref, computed, reactive, watch } from 'vue';
 import type { FormInst, FormItemRule } from 'naive-ui';
 import { createRequiredFormRule } from '@/utils';
-import { updateMember } from '~/src/service';
+import { createMember, updateMember } from '~/src/service';
 import { hashPassword } from '~/src/utils/auth';
 
 export interface Props {
   /** 弹窗可见性 */
   visible: boolean;
+  /**
+   * 弹窗类型
+   * add: 新增
+   * edit: 编辑
+   */
+  type: 'add' | 'edit';
   /** 编辑的表格行数据 */
-  editData: Member.Member | null;
+  editData: Member.Member;
   enums: any;
 }
+
+export type ModalType = NonNullable<Props['type']>;
 
 defineOptions({ name: 'TableActionModal' });
 
@@ -72,12 +80,20 @@ type FormModel = Pick<Member.Member, 'email' | 'nickname' | 'status'> & { passwo
 const formModel = reactive<FormModel>(createDefaultFormModel());
 
 const constRules: Record<string, FormItemRule | FormItemRule[]> = {
-  account: createRequiredFormRule('请输入用户名'),
-  nickname: createRequiredFormRule('请输入昵称')
+  nickname: createRequiredFormRule('请输入昵称'),
+  email: createRequiredFormRule('请输入邮箱')
 };
 const rules = computed(() => {
   const result = { ...constRules };
   return result;
+});
+
+const title = computed(() => {
+  const titles: Record<ModalType, string> = {
+    add: '创建用户',
+    edit: '编辑用户'
+  };
+  return titles[props.type];
 });
 
 function createDefaultFormModel(): FormModel {
@@ -102,12 +118,25 @@ async function handleSubmit() {
   if (password.length > 0) {
     password = hashPassword(password);
   }
-  const { data } = await updateMember(props.editData.id, {
-    nickname: formModel.nickname,
-    email: formModel.email,
-    password,
-    status: formModel.status
-  });
+  let response;
+  if (props.type === 'add') {
+    response = await createMember(props.editData.id, {
+      nickname: formModel.nickname,
+      email: formModel.email,
+      password,
+      status: formModel.status
+    });
+  } else if (props.editData) {
+    response = await updateMember(props.editData.id, {
+      nickname: formModel.nickname,
+      email: formModel.email,
+      password,
+      status: formModel.status
+    });
+  } else {
+    throw new Error('未知错误');
+  }
+  const { data } = response;
   if (data?.code === 0) closeModal();
 }
 
@@ -115,7 +144,9 @@ watch(
   () => props.visible,
   newValue => {
     if (newValue) {
-      if (props.editData) {
+      if (props.type === 'add') {
+        handleUpdateFormModel(createDefaultFormModel());
+      } else {
         handleUpdateFormModel(props.editData);
       }
     }
