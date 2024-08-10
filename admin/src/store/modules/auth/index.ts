@@ -81,11 +81,12 @@ export const useAuthStore = defineStore('auth-store', {
           });
         }
 
-        return;
+        return loginSuccess;
       }
 
       // 不成功则重置状态
       this.resetAuthStore();
+      return loginSuccess;
     },
     /**
      * 根据token进行登录
@@ -104,11 +105,15 @@ export const useAuthStore = defineStore('auth-store', {
      */
     async login(account: string, password: string, vcode: string, vcodeToken: string) {
       this.loginLoading = true;
-      const { data } = await fetchLogin(account, hashPassword(password), vcode, vcodeToken);
-      if (data) {
-        await this.handleActionAfterLogin(data);
+      try {
+        const { data } = await fetchLogin(account, hashPassword(password), vcode, vcodeToken);
+        if (data) {
+          return await this.handleActionAfterLogin(data);
+        }
+        return false;
+      } finally {
+        this.loginLoading = false;
       }
-      this.loginLoading = false;
     }
   }
 });

@@ -13,7 +13,7 @@
     </n-form-item>
     <n-form-item path="vcode" label="图形验证码">
       <n-input ref="inputVcode" v-model:value="model.vcode" />
-      <Vcode ref="vcode" v-model:token="model.vcodeToken" />
+      <Vcode ref="vcodeRef" v-model:token="model.vcodeToken" />
     </n-form-item>
     <n-space :vertical="true" :size="24">
       <n-button
@@ -41,6 +41,9 @@ const auth = useAuthStore();
 const { login } = useAuthStore();
 
 const formRef = ref<HTMLElement & FormInst>();
+const vcodeRef = ref<{
+  loadVCode: () => Promise<void>;
+}>();
 
 const model = reactive({
   account: '',
@@ -58,7 +61,9 @@ async function handleSubmit() {
 
   const { account, password, vcode, vcodeToken } = model;
 
-  login(account, password, vcode, vcodeToken);
+  if (!(await login(account, password, vcode, vcodeToken))) {
+    await vcodeRef.value?.loadVCode();
+  }
 }
 </script>
 
