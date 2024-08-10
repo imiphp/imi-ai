@@ -444,7 +444,8 @@ class EmbeddingUploadParser
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
-                    [$payTokens] = TokensUtil::calcDeductToken($this->config->getEmbeddingModelConfig($this->model), $sectionRecord->tokens, 0);
+                    [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $this->config->getEmbeddingModelConfig($this->model), $sectionRecord->tokens, 0);
+                    $payTokens += $modelConfig->tokensPerTime;
                     $sectionRecord->payTokens = $payTokens;
                     $this->projectPayTokens += $payTokens;
                     $this->filePayTokens[$sectionRecord->fileId] ??= 0;

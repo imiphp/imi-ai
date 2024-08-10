@@ -22,7 +22,6 @@ use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
 use Imi\Db\Annotation\Transaction;
 use Imi\Db\Query\Interfaces\IPaginateResult;
-use Imi\Log\Log;
 use Imi\Util\ObjectArrayHelper;
 use Imi\Validate\Annotation\AutoValidation;
 use Imi\Validate\Annotation\Text;
@@ -98,7 +97,8 @@ class ChatService
 
         $tokens = Gpt3Tokenizer::count($q, $model);
         $config = EmbeddingConfig::__getConfig();
-        [$payTokens] = TokensUtil::calcDeductToken($config->getEmbeddingModelConfig($model), $tokens, 0);
+        [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $config->getEmbeddingModelConfig($model), $tokens, 0);
+        $payTokens += $modelConfig->tokensPerTime;
 
         $query = EmbeddingSectionSearched::query()->where('project_id', '=', $projectId)
                                                     ->where('status', '=', EmbeddingStatus::COMPLETED)
@@ -181,7 +181,6 @@ class ChatService
                 $data = $response['choices'][0] ?? null;
                 if (!$data)
                 {
-                    Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
                     continue;
                 }
                 $delta = $data['delta'];
@@ -201,7 +200,6 @@ class ChatService
                 }
                 if (!$yieldData)
                 {
-                    Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
                     continue;
                 }
                 yield $yieldData;
@@ -227,7 +225,7 @@ class ChatService
         $endTime = (int) (microtime(true) * 1000);
         [$chatPayInputTokens, $chatPayOutputTokens] = TokensUtil::calcDeductToken($modelConfig, $chatInputTokens, $chatOutputTokens);
         $record->tokens = $embeddingTokens + $chatInputTokens + $chatOutputTokens;
-        $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens;
+        $record->payTokens = $payTokens = $embeddingPayTokens + $chatPayInputTokens + $chatPayOutputTokens + $modelConfig->tokensPerTime;
         $record->status = EmbeddingQAStatus::SUCCESS;
         $record->completeTime = $endTime;
         $record->update();

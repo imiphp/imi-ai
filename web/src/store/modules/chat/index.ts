@@ -12,6 +12,7 @@ export interface ModelConfig {
   title: string
   model: string
   enable: boolean
+  tokensPerTime: number
   inputTokenMultiple: string
   outputTokenMultiple: string
   tips: string

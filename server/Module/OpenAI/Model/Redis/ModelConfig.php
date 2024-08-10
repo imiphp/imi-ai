@@ -29,6 +29,11 @@ class ModelConfig
     public bool $paying = false;
 
     /**
+     * 每次计费的 Token 数量.
+     */
+    public int $tokensPerTime = 0;
+
+    /**
      * 输入Token倍数，字符串小数.
      */
     public string|float $inputTokenMultiple = '1.0';

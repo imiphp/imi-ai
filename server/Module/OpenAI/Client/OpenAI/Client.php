@@ -53,10 +53,11 @@ class Client implements IClient
     public function chat(array $params, ?int &$inputTokens = null, ?int &$outputTokens = null): \Iterator
     {
         $inputTokens = $outputTokens = 0;
-        foreach ($params['messages'] as $message)
+        if (!isset($params['stream_options']['include_usage']))
         {
-            $inputTokens += Gpt3Tokenizer::count($message['content'], $params['model']);
+            $params['stream_options']['include_usage'] = true;
         }
+
         try
         {
             $contents = '';
@@ -68,9 +69,11 @@ class Client implements IClient
                 {
                     $contents .= $content;
                 }
+                var_dump($data);
                 yield $data;
             }
-            $outputTokens = Gpt3Tokenizer::count($contents, $params['model']);
+            $inputTokens = $data['usage']['prompt_tokens'] ?? 0;
+            $outputTokens = $data['usage']['completion_tokens'] ?? 0;
         }
         catch (\Throwable $th)
         {

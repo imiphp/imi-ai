@@ -167,7 +167,8 @@ class EmbeddingRetryParser
                     $section->status = EmbeddingStatus::COMPLETED;
                     $section->beginTrainingTime = $beginTrainingTime;
                     $section->completeTrainingTime = $completeTrainingTime;
-                    [$payTokens] = TokensUtil::calcDeductToken($this->config->getEmbeddingModelConfig($this->model), $section->tokens, 0);
+                    [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $this->config->getEmbeddingModelConfig($this->model), $section->tokens, 0);
+                    $payTokens += $modelConfig->tokensPerTime;
                     $section->payTokens = $payTokens;
                     $this->projectTokens[$section->projectId] ??= 0;
                     $this->fileTokens[$section->fileId] ??= 0;

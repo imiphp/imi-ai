@@ -191,7 +191,6 @@ class ChatService
             $data = $response['choices'][0] ?? null;
             if (!$data)
             {
-                Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
                 continue;
             }
             $delta = $data['delta'];
@@ -213,7 +212,6 @@ class ChatService
                 }
                 if (!$yieldData)
                 {
-                    Log::error('Unknown response: ' . json_encode($data, \JSON_UNESCAPED_UNICODE | \JSON_PRETTY_PRINT));
                     continue;
                 }
                 yield $yieldData;
@@ -225,7 +223,7 @@ class ChatService
         $messageRecord = $this->appendMessage($record->id, $role ?? 'assistant', $record->config, $outputTokens, $content, $beginTime, $endTime, $ip);
         $record = $this->getById($record->id);
         $record->tokens += $inputTokens + $outputTokens;
-        $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens);
+        $record->payTokens += ($payTokens = $payInputTokens + $payOutputTokens + $modelConfig->tokensPerTime);
         $record->qaStatus = QAStatus::ASK;
         $record->update();
 

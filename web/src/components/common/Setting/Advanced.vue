@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NButton, NInput, NSelect, NSlider } from 'naive-ui'
+import { NButton, NInput, NSelect, NSlider, NSpace } from 'naive-ui'
 import { computed, ref } from 'vue'
 import type { ModelConfig } from '@/store'
 import { defaultChatSetting } from '@/store'
@@ -92,7 +92,20 @@ function handleReset() {
         </div>
       </div>
       <div v-if="model" class="leading-10 !mt-2">
-        <p><b>费用：</b>输入倍率-<span class="text-[#f0a020] font-bold">{{ model.inputTokenMultiple }}</span>，输出倍率-<span class="text-[#f0a020] font-bold">{{ model.outputTokenMultiple }}</span></p>
+        <p>
+          <b>计费：</b>
+          <NSpace>
+            <template v-if="Number(model.inputTokenMultiple) > 0">
+              <span>输入：<span class="text-[#f0a020] font-bold">{{ model.inputTokenMultiple }}</span> / <span class="font-size-[20px]">Tokens</span></span>
+            </template>
+            <template v-if="Number(model.inputTokenMultiple) > 0">
+              <span>输出：<span class="text-[#f0a020] font-bold">{{ model.outputTokenMultiple }}</span> / Tokens</span>
+            </template>
+            <template v-if="model.tokensPerTime > 0">
+              <span><span class="text-[#f0a020] font-bold">{{ model.tokensPerTime }}</span> Tokens /次</span>
+            </template>
+          </NSpace>
+        </p>
         <p v-show="model.tips.length > 0">
           <b>提示：</b>{{ model.tips }}
         </p>

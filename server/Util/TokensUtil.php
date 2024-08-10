@@ -33,6 +33,9 @@ class TokensUtil
         return $result . (self::BYTE_UNITS[$i] ?? '');
     }
 
+    /**
+     * @return array{int,int}
+     */
     public static function calcDeductToken(?ModelConfig $modelConfig, int $inputTokens, int $outputTokens): array
     {
         // 按最大倍率计算返回
