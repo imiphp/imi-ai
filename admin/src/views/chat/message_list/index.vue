@@ -60,7 +60,7 @@ const columns: Ref<DataTableColumns<Chat.Message>> = ref([
   {
     key: 'id',
     title: 'ID',
-    width: 160,
+    width: 120,
     render: row => {
       return (
         <>
@@ -77,8 +77,22 @@ const columns: Ref<DataTableColumns<Chat.Message>> = ref([
   },
   {
     key: 'tokens',
-    title: 'Tokens',
-    width: 100
+    title: '模型信息',
+    width: 140,
+    render: row => {
+      let model;
+      if (row.config.model) {
+        model = <>模型：{row.config.model}</>;
+      } else {
+        model = '';
+      }
+      return (
+        <>
+          {model}
+          <p>Tokens: {row.tokens}</p>
+        </>
+      );
+    }
   },
   {
     key: 'message',
@@ -95,7 +109,7 @@ const columns: Ref<DataTableColumns<Chat.Message>> = ref([
   {
     key: 'time',
     title: '信息',
-    width: 230,
+    width: 210,
     render: row => {
       return (
         <>
