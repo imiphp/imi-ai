@@ -24,7 +24,6 @@ use Imi\Db\Annotation\Transaction;
 use Imi\Db\Db;
 use Imi\Db\Mysql\Consts\LogicalOperator;
 use Imi\Db\Query\Where\Where;
-use Imi\Log\Log;
 use Imi\Swoole\Util\Coroutine;
 use Imi\Util\LazyArrayObject;
 use Imi\Util\ObjectArrayHelper;
