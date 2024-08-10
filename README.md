@@ -92,6 +92,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 * [x] [Swoole AI](https://ai.swoole.com/)
 * [x] [ChatGLM3](https://github.com/THUDM/ChatGLM3)
 * [x] [Google Gemini](https://aistudio.google.com/)
+* [x] [Qwen2](https://github.com/QwenLM/Qwen2) (Gitee AI Serverless API)
 
 ### 其它
 
