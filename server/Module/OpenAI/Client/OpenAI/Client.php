@@ -60,13 +60,19 @@ class Client implements IClient
 
         try
         {
+            $contents = '';
             foreach ($this->client->chat()->createStreamed($params) as $response)
             {
                 $data = $response->toArray();
+                $content = $data['choices'][0]['delta']['content'] ?? null;
+                if (null !== $content && '' !== $content)
+                {
+                    $contents .= $content;
+                }
                 yield $data;
             }
             $inputTokens = $data['usage']['prompt_tokens'] ?? 0;
-            $outputTokens = $data['usage']['completion_tokens'] ?? 0;
+            $outputTokens = $data['usage']['completion_tokens'] ?? $this->calcTokens($contents, $params['model']);
         }
         catch (\Throwable $th)
         {
