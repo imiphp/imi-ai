@@ -93,6 +93,9 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 * [x] [ChatGLM3](https://github.com/THUDM/ChatGLM3)
 * [x] [Google Gemini](https://aistudio.google.com/)
 * [x] [Qwen2](https://github.com/QwenLM/Qwen2) (Gitee AI Serverless API)
+* [x] [Ollama](https://ollama.com/)
+
+> 使用 Ollama 提供的类 OpenAI API，可以支持几乎所有开源模型私有化部署
 
 ### 其它
 

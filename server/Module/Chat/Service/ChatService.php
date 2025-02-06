@@ -197,24 +197,21 @@ class ChatService
             {
                 $role = $delta['role'];
             }
-            else
+            $yieldData = [];
+            if ($finishReason = ($data['finish_reason'] ?? null))
             {
-                $yieldData = [];
-                if ($finishReason = ($data['finish_reason'] ?? null))
-                {
-                    $yieldData['finishReason'] = $finishReason;
-                }
-                if (isset($delta['content']))
-                {
-                    $content .= $delta['content'];
-                    $yieldData['content'] = $delta['content'];
-                }
-                if (!$yieldData)
-                {
-                    continue;
-                }
-                yield $yieldData;
+                $yieldData['finishReason'] = $finishReason;
             }
+            if (isset($delta['content']))
+            {
+                $content .= $delta['content'];
+                $yieldData['content'] = $delta['content'];
+            }
+            if (!$yieldData)
+            {
+                continue;
+            }
+            yield $yieldData;
         }
         $endTime = time();
         $inputTokens += (\count($messages) * $modelConfig->additionalTokensPerMessage) + $modelConfig->additionalTokensAfterMessages;
