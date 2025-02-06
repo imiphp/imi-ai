@@ -113,7 +113,7 @@ function handleAdd() {
     baseUrls: [],
     apiKeys: [],
     proxys: [],
-    rateLimitUnit: '',
+    rateLimitUnit: 'second',
     rateLimitAmount: 0,
     models: [],
     client: '',
