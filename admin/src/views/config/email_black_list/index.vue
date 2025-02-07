@@ -32,7 +32,7 @@
           :data="tableData"
           :loading="loading"
           :pagination="pagination"
-          :row-key="row => row.domain"
+          :row-key="(row: any) => row.domain"
           scroll-x="1024"
           flex-height
           remote

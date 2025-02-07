@@ -14,7 +14,7 @@
           :columns="columns"
           :data="tableData"
           :loading="loading"
-          :row-key="row => row.id"
+          :row-key="(row: any) => row.id"
           flex-height
           remote
           class="flex-1-hidden"

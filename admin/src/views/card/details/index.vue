@@ -10,8 +10,7 @@
                 class="!w-[140px]"
                 :options="parseEnumWithAll(enums.BusinessType ?? [])"
                 label-field="text"
-                value-field="value"
-              />
+                value-field="value" />
             </n-form-item>
             <n-form-item label="操作类型">
               <n-select
@@ -19,8 +18,7 @@
                 class="!w-[140px]"
                 :options="parseEnumWithAll(enums.OperationType ?? [])"
                 label-field="text"
-                value-field="value"
-              />
+                value-field="value" />
             </n-form-item>
             <n-form-item label="时间">
               <NDatePicker v-model:value="listParams.timeRange" class="pr-2 flex-1" type="daterange" clearable />
@@ -38,12 +36,11 @@
           :data="tableData"
           :loading="loading"
           :pagination="pagination"
-          :row-key="row => row.id"
+          :row-key="(row: any) => row.id"
           scroll-x="1024"
           flex-height
           remote
-          class="flex-1-hidden"
-        />
+          class="flex-1-hidden" />
       </div>
     </n-card>
   </div>

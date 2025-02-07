@@ -296,7 +296,7 @@ onMounted(async () => {
     style="width: 720px; max-width: 100vw; max-height: 100vh"
     mask-closable
     content-style="overflow: auto"
-    @update-show="(show) => { showPromptData = show ? showPromptData : null }"
+    @update-show="(show: boolean) => { showPromptData = show ? showPromptData : null }"
     @close="showPromptData = null"
   >
     <NTabs v-model:value="activedPromptTab" animated>

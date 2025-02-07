@@ -48,7 +48,7 @@
           :data="tableData"
           :loading="loading"
           :pagination="pagination"
-          :row-key="row => row.id"
+          :row-key="(row: any) => row.id"
           scroll-x="1600"
           flex-height
           remote
