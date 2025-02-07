@@ -4,7 +4,7 @@ import type { CSSProperties } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
-import { DownloadOutline, PaperPlaneSharp, SettingsOutline, Sparkles, StopCircleOutline } from '@vicons/ionicons5'
+import { DownloadOutline, PaperPlaneSharp, RefreshSharp, SettingsOutline, Sparkles, StopCircleOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from '../chat/components'
 import { useScroll } from '../chat/hooks/useScroll'
@@ -176,6 +176,7 @@ async function onConversation() {
     }
 
     scrollToBottomIfAtBottom()
+    return
   }
   finally {
     loading.value = false
@@ -220,6 +221,8 @@ async function fetchStream() {
                 if (currentChatReply.value)
                   currentChatReply.value.tokens = data.message.tokens
               }
+              if (data.finishReason === 'error' && currentChatReply.value)
+                currentChatReply.value.error = true
             }
             catch (error) {
             //
@@ -367,6 +370,19 @@ async function handleMessageNextPage() {
   finally {
     messageNextPageLoading.value = false
   }
+}
+
+function retry() {
+  if (currentChatReply.value) {
+    Object.assign(currentChatReply.value, {
+      message: '',
+      inversion: false,
+      error: false,
+      loading: true,
+    })
+  }
+
+  fetchStream()
 }
 
 onMounted(async () => {
@@ -525,17 +541,26 @@ onMounted(async () => {
                     </div>
                   </template>
                   <template v-else>
-                    <Message
-                      v-for="(item, index) of dataSources"
-                      :key="index"
-                      :date-time="item.completeTime > 0 ? item.completeTime : item.beginTime"
-                      :text="item.message"
-                      :inversion="item.inversion"
-                      :error="item.error"
-                      :loading="item.loading"
-                      :tokens="item.inversion ? undefined : item.tokens"
-                      token-prefix="消耗"
-                    />
+                    <template
+                      v-for="item of dataSources"
+                      :key="item.beginTime"
+                    >
+                      <Message
+                        :date-time="item.completeTime > 0 ? item.completeTime : item.beginTime"
+                        :text="item.message"
+                        :inversion="item.inversion"
+                        :error="item.error"
+                        :loading="item.loading"
+                        :tokens="item.inversion ? undefined : item.tokens"
+                        token-prefix="消耗"
+                      />
+                      <div v-if="item.error" class="text-center mt-1">
+                        <NButton @click="retry">
+                          <NIcon :component="RefreshSharp" size="20" />
+                          重试
+                        </NButton>
+                      </div>
+                    </template>
                     <div class="sticky bottom-0 left-0 flex justify-center">
                       <NButton v-if="loading" type="warning" @click="handleStop">
                         <template #icon>

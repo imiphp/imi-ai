@@ -105,7 +105,7 @@ onUnmounted(() => {
 
 <template>
   <div class="text-black" :class="wrapClass">
-    <div ref="textRef" class="leading-relaxed break-words">
+    <div ref="textRef" class="message-text-wrap first-letter:leading-relaxed break-words">
       <div v-if="!inversion">
         <div v-if="!asRawText" class="markdown-body" v-html="text" />
         <div v-else class="whitespace-pre-wrap" v-text="text" />
@@ -120,4 +120,9 @@ onUnmounted(() => {
 
 <style lang="less">
 @import url(./style.less);
+.message-text-wrap {
+  .markdown-body, .whitespace-pre-wrap {
+    color: inherit;
+  }
+}
 </style>

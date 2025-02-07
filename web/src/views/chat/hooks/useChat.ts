@@ -19,10 +19,15 @@ export function useChat() {
     chatStore.updateChatSomeByUuid(id, index, chat)
   }
 
+  const deleteChatByUuid = (id: string, index: number) => {
+    chatStore.deleteChatByUuid(id, index)
+  }
+
   return {
     addChat,
     updateChat,
     updateChatSome,
     getChatByUuidAndIndex,
+    deleteChatByUuid,
   }
 }

@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NAlert, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
-import { DownloadOutline, PaperPlaneSharp, SettingsOutline, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
+import { DownloadOutline, PaperPlaneSharp, RefreshSharp, SettingsOutline, StopCircleOutline, TrashOutline } from '@vicons/ionicons5'
 import HeaderComponent from '../layout/components/Header/index.vue'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -35,7 +35,7 @@ const chatStore = useChatStore()
 const usePrompt = (props.usePrompt === '1' && chatStore.prompt)
 
 const { isMobile } = useBasicLayout()
-const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
+const { addChat, updateChat, updateChatSome, deleteChatByUuid, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
 let { id } = route.params as { id: string }
@@ -222,7 +222,7 @@ async function fetchStream() {
                     {
                       message: lastText += (data.content ?? ''),
                       inversion: false,
-                      error: false,
+                      error: data.finishReason === 'error',
                       loading: true,
                     },
                   )
@@ -483,6 +483,11 @@ async function handleMessageNextPage() {
   }
 }
 
+function retry() {
+  deleteChatByUuid(id, dataSources.value.length - 1)
+  fetchStream()
+}
+
 onMounted(async () => {
   if (scrollRef.value) {
     scrollRef.value.onscroll = () => {
@@ -608,6 +613,12 @@ onUnmounted(() => {
                   :model="item.model"
                   @delete="handleDelete(index)"
                 />
+                <div v-if="item.error" class="text-center mt-1">
+                  <NButton @click="retry">
+                    <NIcon :component="RefreshSharp" size="20" />
+                    重试
+                  </NButton>
+                </div>
               </template>
               <div class="sticky bottom-0 left-0 flex justify-center">
                 <NButton v-if="loading" type="warning" @click="handleStop">
