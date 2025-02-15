@@ -30,7 +30,6 @@ class AdminMemberService
         AutoValidation(),
         Text(name: 'account', min: 1, message: '账号不能为空'),
         Text(name: 'password', min: 1, message: '密码不能为空'),
-        Text(name: 'nickname', min: 1, message: '昵称不能为空')
     ]
     public function create(string $account, string $password, string $nickname, int $status = AdminMemberStatus::NORMAL, int $operatorMemberId = 0, string $ip = ''): AdminMember
     {
@@ -45,6 +44,10 @@ class AdminMemberService
             $record->account = $account;
             $record->status = $status;
             $record->password = $this->authService->passwordHash($password);
+            if ('' === $nickname)
+            {
+                $nickname = $account;
+            }
             $record->nickname = $nickname;
             $record->insert();
             OperationLog::log($operatorMemberId, self::LOG_OBJECT, OperationLogStatus::SUCCESS, sprintf('创建后台用户，id=%d, account=%s', $record->id, $record->account), $ip);

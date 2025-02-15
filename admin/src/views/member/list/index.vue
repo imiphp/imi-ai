@@ -265,6 +265,19 @@ function setModalType(type: ModalType) {
 
 function handleAddTable() {
   setModalType('add');
+  editData.value = {
+    id: 0,
+    recordId: '',
+    email: '',
+    nickname: '',
+    password: '',
+    status: 1,
+    statusText:'',
+    registerTime: 0,
+    registerIp: '',
+    lastLoginTime: 0,
+    lastLoginIp: '',
+  }
   openModal();
 }
 

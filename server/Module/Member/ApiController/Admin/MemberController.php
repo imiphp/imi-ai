@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace app\Module\Member\ApiController\Admin;
 
+use app\Exception\ErrorException;
 use app\Module\Admin\Annotation\AdminLoginRequired;
 use app\Module\Admin\Util\AdminMemberUtil;
 use app\Module\Member\Model\Admin\Member;
 use app\Module\Member\Service\AuthService;
+use app\Module\Member\Service\EmailAuthService;
 use app\Module\Member\Service\MemberService;
 use app\Util\IPUtil;
 use Imi\Aop\Annotation\Inject;
@@ -25,6 +27,9 @@ class MemberController extends HttpController
 
     #[Inject()]
     public AuthService $authService;
+
+    #[Inject()]
+    public EmailAuthService $emailAuthService;
 
     #[
         Action,
@@ -52,6 +57,10 @@ class MemberController extends HttpController
     ]
     public function create(string $nickname, string $email, string $password, int $status, int $phone = 0)
     {
+        if ('' !== $email && $this->emailAuthService->isRegistered($email))
+        {
+            throw new ErrorException('该邮箱已注册');
+        }
         $this->memberService->create($email, $phone, '' === $password ? '' : $this->authService->passwordHash($password), $nickname, $status, IPUtil::getIP(), AdminMemberUtil::getMemberSession()->getMemberId());
     }
 

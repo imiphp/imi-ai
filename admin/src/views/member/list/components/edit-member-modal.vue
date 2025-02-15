@@ -80,11 +80,13 @@ type FormModel = Pick<Member.Member, 'email' | 'nickname' | 'status'> & { passwo
 const formModel = reactive<FormModel>(createDefaultFormModel());
 
 const constRules: Record<string, FormItemRule | FormItemRule[]> = {
-  nickname: createRequiredFormRule('请输入昵称'),
   email: createRequiredFormRule('请输入邮箱')
 };
 const rules = computed(() => {
   const result = { ...constRules };
+  if (props.type === 'edit') {
+    result.nickname = createRequiredFormRule('请输入昵称');
+  }
   return result;
 });
 
