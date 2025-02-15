@@ -84,3 +84,46 @@ export function changePassword(oldPassword: string, newPassword: string) {
     },
   })
 }
+
+export function sendForgotEmail(
+  data: {
+    email: string
+    password: string
+    vcodeToken: string
+    vcode: string
+  },
+) {
+  return post({
+    url: '/auth/email/sendForgotEmail',
+    data,
+  })
+}
+
+export function emailForgot(
+  data: {
+    email: string
+    vcodeToken: string
+    vcode: string
+  }) {
+  return post({
+    url: '/auth/email/forgot',
+    data,
+  })
+}
+
+export function verifyForgotFromEmail(
+  email: string,
+  token: string,
+  verifyToken: string,
+  apiFailHandler?: (res: AxiosResponse<Response>) => void,
+) {
+  return post({
+    url: '/auth/email/verifyForgotFromEmail',
+    data: {
+      email,
+      token,
+      verifyToken,
+    },
+    apiFailHandler,
+  })
+}

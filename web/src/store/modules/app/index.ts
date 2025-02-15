@@ -44,6 +44,11 @@ export const useAppStore = defineStore('app-store', {
           history.replaceState(null, '', url)
           window.$router.replace({ name: 'VerifyRegisterEmail', params })
           break
+        case 'verifyForgotEmail':
+          url.search = ''
+          history.replaceState(null, '', url)
+          window.$router.replace({ name: 'VerifyForgotEmail', params })
+          break
       }
     },
   },

@@ -63,4 +63,40 @@ class EmailAuthController extends HttpController
             'member' => $member,
         ];
     }
+
+    #[
+        Action,
+        Route(method: RequestMethod::POST)
+    ]
+    public function sendForgotEmail(string $email, string $password, string $vcodeToken, string $vcode): array
+    {
+        $this->vCodeService->autoCheck($vcodeToken, $vcode);
+
+        return $this->emailAuthService->sendForgotEmail($email, $password, IPUtil::getIP());
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST)
+    ]
+    public function forgot(string $email, string $vcodeToken, string $vcode)
+    {
+        $store = $this->emailAuthService->autoCheckForgotCode($vcodeToken, $vcode, $email);
+        $this->emailAuthService->emailForgot($email, $store->getPassword(), $ip = IPUtil::getIP());
+    }
+
+    /**
+     * @return mixed
+     */
+    #[
+        Action,
+        Route(method: RequestMethod::POST)
+    ]
+    public function verifyForgotFromEmail(string $email, string $token, string $verifyToken)
+    {
+        $this->emailAuthService->verifyForgotFromEmail($email, $token, $verifyToken, $ip = IPUtil::getIP());
+    }
 }

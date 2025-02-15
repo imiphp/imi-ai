@@ -88,11 +88,27 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: '/auth/forgot/:invitationCode?',
+        name: 'Forgot',
+        component: () => import('@/views/auth/forgot.vue'),
+        meta: {
+          title: '忘记密码',
+        },
+      },
+      {
         path: '/auth/verifyRegisterEmail/:email/:token/:verifyToken',
         name: 'VerifyRegisterEmail',
         component: () => import('@/views/auth/verifyRegisterEmail.vue'),
         meta: {
           title: '验证注册邮箱',
+        },
+      },
+      {
+        path: '/auth/verifyForgotEmail/:email/:token/:verifyToken',
+        name: 'VerifyForgotEmail',
+        component: () => import('@/views/auth/verifyForgotEmail.vue'),
+        meta: {
+          title: '验证忘记密码邮箱',
         },
       },
       // 卡包

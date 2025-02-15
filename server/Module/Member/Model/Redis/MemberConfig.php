@@ -118,6 +118,101 @@ class MemberConfig extends RedisModel
     }
 
     /**
+     * 启用邮箱找回密码.
+     */
+    #[Column]
+    protected bool $emailForgot = true;
+
+    public function getEmailForgot(): bool
+    {
+        return $this->emailForgot;
+    }
+
+    public function setEmailForgot(bool $emailForgot): self
+    {
+        $this->emailForgot = $emailForgot;
+
+        return $this;
+    }
+
+    /**
+     * 找回密码验证码有效时长.
+     *
+     * 单位：秒.
+     */
+    #[Column]
+    protected int $forgotCodeTTL = 3600;
+
+    public function getForgotCodeTTL(): int
+    {
+        return $this->forgotCodeTTL;
+    }
+
+    public function setForgotCodeTTL(int $forgotCodeTTL): self
+    {
+        $this->forgotCodeTTL = $forgotCodeTTL;
+
+        return $this;
+    }
+
+    /**
+     * 找回密码邮件标题.
+     */
+    #[Column]
+    protected string $forgotEmailTitle = 'imi AI 邮箱找回密码';
+
+    public function getForgotEmailTitle(): string
+    {
+        return $this->forgotEmailTitle;
+    }
+
+    public function setForgotEmailTitle(string $forgotEmailTitle): self
+    {
+        $this->forgotEmailTitle = $forgotEmailTitle;
+
+        return $this;
+    }
+
+    /**
+     * 找回密码邮件内容.
+     */
+    #[Column]
+    protected string $forgotEmailContent = <<<'HTML'
+    <p>验证码：<span style="color: #ff0000;">{code}</span></p>
+    <p><a href="{url}" target="_blank">点我验证</a></p>
+    HTML;
+
+    public function getForgotEmailContent(): string
+    {
+        return $this->forgotEmailContent;
+    }
+
+    public function setForgotEmailContent(string $forgotEmailContent): self
+    {
+        $this->forgotEmailContent = $forgotEmailContent;
+
+        return $this;
+    }
+
+    /**
+     * 找回密码邮件是否html.
+     */
+    #[Column]
+    protected bool $forgotEmailIsHtml = true;
+
+    public function getForgotEmailIsHtml(): bool
+    {
+        return $this->forgotEmailIsHtml;
+    }
+
+    public function setForgotEmailIsHtml(bool $forgotEmailIsHtml): self
+    {
+        $this->forgotEmailIsHtml = $forgotEmailIsHtml;
+
+        return $this;
+    }
+
+    /**
      * 登录Token有效时长.
      *
      * 单位：秒.

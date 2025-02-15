@@ -1,6 +1,6 @@
 <script setup lang='tsx'>
 import type { FormInst } from 'naive-ui'
-import { NButton, NForm, NFormItemRow, NInput } from 'naive-ui'
+import { NButton, NForm, NFormItemRow, NInput, NSpace } from 'naive-ui'
 import type { Ref } from 'vue'
 import { computed, ref } from 'vue'
 
@@ -81,6 +81,10 @@ async function handleClickLogin() {
 function handleClickRegister() {
   router.push({ name: 'Register' })
 }
+
+function handleClickForgot() {
+  router.push({ name: 'Forgot' })
+}
 </script>
 
 <template>
@@ -95,11 +99,16 @@ function handleClickRegister() {
       <NInput ref="inputVcode" v-model:value="formData.vcode" />
       <VCode ref="vcode" v-model:token="formData.vcodeToken" />
     </NFormItemRow>
-    <NButton attr-type="submit" type="primary" block strong :loading="loading" @click="handleClickLogin">
-      登录
-    </NButton>
-    <NButton secondary block :loading="loading" @click="handleClickRegister">
-      没有账号？点击注册
-    </NButton>
+    <NSpace vertical>
+      <NButton attr-type="submit" type="primary" block strong :loading="loading" @click="handleClickLogin">
+        登录
+      </NButton>
+      <NButton secondary block :loading="loading" @click="handleClickRegister">
+        没有账号？点击注册
+      </NButton>
+      <NButton secondary block :loading="loading" @click="handleClickForgot">
+        找回密码
+      </NButton>
+    </NSpace>
   </NForm>
 </template>

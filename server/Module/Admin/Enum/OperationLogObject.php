@@ -46,4 +46,7 @@ class OperationLogObject extends BaseEnum
 
     #[EnumItem(text: '操作日志')]
     public const OPERATION_LOG = 'operation_log';
+
+    #[EnumItem(text: '找回密码')]
+    public const FORGOT_PASSWORD = 'forgotPassword';
 }

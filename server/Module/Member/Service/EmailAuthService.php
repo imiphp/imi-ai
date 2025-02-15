@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace app\Module\Member\Service;
 
 use app\Exception\ErrorException;
+use app\Module\Admin\Enum\OperationLogObject;
+use app\Module\Admin\Enum\OperationLogStatus;
+use app\Module\Admin\Util\OperationLog;
 use app\Module\Common\Service\TokenService;
 use app\Module\Email\Service\EmailService;
 use app\Module\Member\Model\Member;
 use app\Module\Member\Model\Redis\MemberConfig;
+use app\Module\Member\Struct\EmailForgotTokenStore;
 use app\Module\Member\Struct\EmailRegisterTokenStore;
 use app\Util\AppUtil;
 use app\Util\Generator;
@@ -23,6 +27,8 @@ use Imi\Validate\Annotation\Text;
 class EmailAuthService
 {
     public const REGISTER_TOKEN_TYPE = 'email_register';
+
+    public const FORGOT_TOKEN_TYPE = 'email_forgot';
 
     #[Inject()]
     public AuthService $authService;
@@ -155,5 +161,104 @@ class EmailAuthService
         }
 
         return $store;
+    }
+
+    #[
+        AutoValidation(),
+        Condition(name: 'email', callable: '\Imi\Validate\ValidatorHelper::email', message: '邮箱格式错误'),
+        Text(name: 'password', min: 6, message: '密码最小长度为6位'),
+    ]
+    public function sendForgotEmail(string $email, string $password, string $ip = ''): array
+    {
+        if (!$this->isRegistered($email))
+        {
+            throw new ErrorException('该邮箱未注册');
+        }
+        $config = MemberConfig::__getConfig();
+        $code = Generator::generateCode(6);
+        $verifyToken = Generator::generateToken(32);
+        $store = new EmailForgotTokenStore($email, $password, $code, $verifyToken);
+        $token = $this->tokenService->generateToken(self::FORGOT_TOKEN_TYPE, 32, $store, $config->getForgotCodeTTL());
+        $params = [
+            'code' => $code,
+            'url'  => AppUtil::webUrl('/', [
+                'action'      => 'verifyForgotEmail',
+                'email'       => $email,
+                'token'       => $token,
+                'verifyToken' => $verifyToken,
+            ]),
+        ];
+        $this->emailService->sendMail($email, $config->getForgotEmailTitle(), $config->getForgotEmailContent(), $params, $config->getForgotEmailIsHtml(), '找回密码邮件', ip: $ip);
+
+        return [
+            'token' => $token,
+        ];
+    }
+
+    public function verifyForgotFromEmail(string $email, string $token, string $verifyToken, string $ip): Member
+    {
+        $store = $this->autoCheckForgotVerifyToken($token, $verifyToken, $email);
+        if (!$this->isRegistered($email))
+        {
+            throw new ErrorException('该邮箱未注册');
+        }
+
+        return $this->emailForgot($email, $store->getPassword(), $ip);
+    }
+
+    public function getForgotStore(string $token): EmailForgotTokenStore
+    {
+        return $this->tokenService->getStore(self::FORGOT_TOKEN_TYPE, $token);
+    }
+
+    public function checkForgotCode(string $token, string $code, string $email, ?EmailForgotTokenStore &$store = null): bool
+    {
+        $store = $this->getForgotStore($token);
+
+        return 0 === strcasecmp($store->getCode(), $code) && $store->getEmail() === $email;
+    }
+
+    public function autoCheckForgotCode(string $token, string $code, string $email): EmailForgotTokenStore
+    {
+        if (!$this->checkForgotCode($token, $code, $email, $store))
+        {
+            throw new ErrorException('验证码错误');
+        }
+
+        return $store;
+    }
+
+    public function checkForgotVerifyToken(string $token, string $verifyToken, string $email, ?EmailForgotTokenStore &$store = null): bool
+    {
+        $store = $this->getForgotStore($token);
+
+        return $store->getVerifyToken() === $verifyToken && $store->getEmail() === $email;
+    }
+
+    public function autoCheckForgotVerifyToken(string $token, string $verifyToken, string $email): EmailForgotTokenStore
+    {
+        if (!$this->checkForgotVerifyToken($token, $verifyToken, $email, $store))
+        {
+            throw new ErrorException('验证码错误');
+        }
+
+        return $store;
+    }
+
+    #[Transaction()]
+    public function emailForgot(string $email, string $password, string $ip): Member
+    {
+        if (!$this->isRegistered($email))
+        {
+            throw new ErrorException('该邮箱未注册');
+        }
+
+        $member = $this->memberService->getByEmail($email);
+        $member->password = $this->authService->passwordHash($password);
+        $member->update();
+
+        OperationLog::log(0, OperationLogObject::FORGOT_PASSWORD, OperationLogStatus::SUCCESS, sprintf('找回密码，id=%d, email=%s, phone=%s', $member->id, $member->email, $member->phone), $ip);
+
+        return $member;
     }
 }
