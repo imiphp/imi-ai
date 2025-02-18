@@ -19,7 +19,7 @@
         "imiphp/imi-swoole": "~2.1.0",
         "league/commonmark": "^2.4",
         "nyholm/psr7": "^1.6",
-        "openai-php/client": "0.10.2",
+        "yurunsoft/openai-client": "^1.0.1",
         "phpmailer/phpmailer": "^6.8",
         "swoole-inc/open-ai": "^1.5",
         "symfony/http-client": "^6.2",
