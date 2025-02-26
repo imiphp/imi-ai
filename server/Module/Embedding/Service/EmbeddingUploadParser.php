@@ -409,7 +409,7 @@ class EmbeddingUploadParser
         $sectionRecords = [];
         $sectionRecordCount = 0;
         $embedding = function () use (&$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
-            $client = OpenAIUtil::makeClient($this->model);
+            $client = OpenAIUtil::makeClient($this->model, true);
             $updateFileIds = [];
             $input = array_map(function (EmbeddingSection $sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
                 if (!isset($fileUpdateMap[$sectionRecord->fileId]))

@@ -13,10 +13,10 @@ class OpenAIUtil
 {
     use TStaticClass;
 
-    public static function makeClient(?string $model = null): IClient
+    public static function makeClient(?string $model = null, bool $checkAvaiable = false): IClient
     {
         $openaiConfig = OpenAIConfig::__getConfigAsync();
-        $api = $openaiConfig->getRandomApi($model);
+        $api = $openaiConfig->getRandomApi($model, $checkAvaiable);
 
         return App::newInstance($api->client, $api);
     }

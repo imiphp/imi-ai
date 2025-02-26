@@ -114,7 +114,7 @@ class ChatService
             throw new ErrorException('不允许使用模型：' . $params['model']);
         }
         $model = $params['model'];
-        $client = OpenAIUtil::makeClient($model);
+        $client = OpenAIUtil::makeClient($model, true);
         $inputTokens = 0;
         if ('' !== $record->prompt)
         {

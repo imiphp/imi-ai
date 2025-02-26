@@ -52,7 +52,7 @@ class OpenAIConfig extends RedisModel
         return $this;
     }
 
-    public function getRandomApi(?string $model = null): Api
+    public function getRandomApi(?string $model = null, bool $checkAvaiable = false): Api
     {
         $apis = $this->apis;
         foreach ($apis as $i => $api)
@@ -67,7 +67,7 @@ class OpenAIConfig extends RedisModel
         {
             $key = array_rand($apis);
             $api = $apis[$key];
-            if ($api->isCircuitBreaker() || $api->isRateLimit())
+            if ($checkAvaiable && ($api->isCircuitBreaker() || $api->isRateLimit()))
             {
                 unset($apis[$key]);
             }

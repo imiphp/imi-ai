@@ -84,7 +84,7 @@ class ChatService
     public function search(int $projectId, string $q = '', float $similarity = 0, int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
         $model = 'text-embedding-ada-002';
-        $client = OpenAIUtil::makeClient($model);
+        $client = OpenAIUtil::makeClient($model, true);
         $response = $client->embedding([
             'model' => $model,
             'input' => $q,
@@ -170,7 +170,7 @@ class ChatService
             $params['messages'] = $messages;
             $params['stream'] = true;
             $record->beginTime = (int) (microtime(true) * 1000);
-            $client = OpenAIUtil::makeClient($model);
+            $client = OpenAIUtil::makeClient($model, true);
             // @phpstan-ignore-next-line
             $stream = $client->chat($params);
             goWait(static fn () => $record->update(), 30, true);
