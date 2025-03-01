@@ -23,7 +23,7 @@
         "phpmailer/phpmailer": "^6.8",
         "swoole-inc/open-ai": "^1.5",
         "symfony/http-client": "^6.2",
-        "yethee/tiktoken": "^0.3.0",
+        "yethee/tiktoken": "^0.7.0",
         "yurunsoft/yurun-http": "^4.4"
     },
     "require-dev": {
