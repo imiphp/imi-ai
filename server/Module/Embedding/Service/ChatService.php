@@ -106,11 +106,11 @@ class ChatService
                                                     ->order('update_time', 'desc');
         if ($similarity > 0)
         {
-            $query->whereRaw('cosine_distance("vector", :keyword)>=:similarity', binds: [':similarity' => $similarity]);
+            $query->whereRaw('cosine_distance("vector", :keyword)<=:similarity', binds: [':similarity' => (1 - $similarity)]);
         }
         else
         {
-            $query->whereRaw('cosine_distance("vector", :keyword)>0');
+            $query->whereRaw('cosine_distance("vector", :keyword)<1');
         }
 
         return $query->bindValue(':keyword', (string) $vector)

@@ -28,9 +28,9 @@ class EmbeddingSectionSearched extends EmbeddingSection
         return $this->distance;
     }
 
-    public function setDistance(?float $distance): self
+    public function setDistance(float|string|null $distance): self
     {
-        $this->distance = $distance;
+        $this->distance = null === $distance ? null : (float) $distance;
 
         return $this;
     }
