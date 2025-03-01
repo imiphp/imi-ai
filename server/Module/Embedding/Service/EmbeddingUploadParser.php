@@ -55,8 +55,6 @@ class EmbeddingUploadParser
 
     private EmbeddingConfig $config;
 
-    private string $model = 'text-embedding-ada-002';
-
     private bool $isCompressedFile = false;
 
     private bool $projectFailedUpdated = false;
@@ -75,12 +73,14 @@ class EmbeddingUploadParser
 
     private string $sectionSeparator = '';
 
+    private ?EmbeddingProject $project = null;
+
     /**
      * @param string $id        项目ID
      * @param bool   $override  是否覆盖已存在文件
      * @param string $directory 上传文件解压目标目录
      */
-    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/', string $sectionSeparator = '', ?int $sectionSplitLength = null, private bool $sectionSplitByTitle = true)
+    public function __construct(private int $memberId, private string $fileName, private string $clientFileName, private string $ip, private string $id = '', private bool $override = true, private string $directory = '/', string $sectionSeparator = '', ?int $sectionSplitLength = null, private bool $sectionSplitByTitle = true, private string $embeddingModel = '')
     {
         $this->assertFileType();
         $this->extractPath = $this->getExtractPath();
@@ -91,9 +91,18 @@ class EmbeddingUploadParser
         $this->setSectionSeparator($sectionSeparator);
     }
 
+    public function __init(): void
+    {
+        if ('' !== $this->id)
+        {
+            $this->project = $this->embeddingService->getProject($this->id, $this->memberId);
+            $this->embeddingModel = $this->project->getEmbeddingModel();
+        }
+    }
+
     public function checkBalance(): void
     {
-        $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
+        $modelConfig = $this->config->getEmbeddingModelConfig($this->embeddingModel);
         $this->memberCardService->checkBalance($this->memberId, 1, paying: $modelConfig ? $modelConfig->paying : false);
     }
 
@@ -146,6 +155,7 @@ class EmbeddingUploadParser
                 $project->topSections = $this->config->getChatTopSections();
                 $project->similarity = $this->config->getSimilarity();
                 $project->prompt = $this->config->getChatPrompt();
+                $project->setEmbeddingModel($this->embeddingModel);
                 goWait(fn () => $project->insert(), 30, true);
             }
 
@@ -394,7 +404,7 @@ class EmbeddingUploadParser
                                           ->setFieldInc('pay_tokens', $this->filePayTokens[$fileId] ?? 0)
                                           ->update();
                 }
-                $modelConfig = $this->config->getEmbeddingModelConfig($this->model);
+                $modelConfig = $this->config->getEmbeddingModelConfig($this->embeddingModel);
                 // 扣除余额
                 $this->memberCardService->pay($this->memberId, $this->projectPayTokens, BusinessType::EMBEDDING, $project->id, paying: $modelConfig ? $modelConfig->paying : false);
                 File::deleteDir($this->extractPath);
@@ -409,7 +419,7 @@ class EmbeddingUploadParser
         $sectionRecords = [];
         $sectionRecordCount = 0;
         $embedding = function () use (&$sectionRecords, &$sectionRecordCount, &$fileUpdateMap) {
-            $client = OpenAIUtil::makeClient($this->model, true);
+            $client = OpenAIUtil::makeClient($this->embeddingModel, true);
             $updateFileIds = [];
             $input = array_map(function (EmbeddingSection $sectionRecord) use (&$updateFileIds, &$fileUpdateMap) {
                 if (!isset($fileUpdateMap[$sectionRecord->fileId]))
@@ -433,7 +443,7 @@ class EmbeddingUploadParser
             try
             {
                 $response = $client->embedding([
-                    'model' => $this->model,
+                    'model' => $this->embeddingModel,
                     'input' => $input,
                 ]);
                 $time = (int) (microtime(true) * 1000);
@@ -444,7 +454,7 @@ class EmbeddingUploadParser
                     $sectionRecord->status = EmbeddingStatus::COMPLETED;
                     $sectionRecord->beginTrainingTime = $beginTrainingTime;
                     $sectionRecord->completeTrainingTime = $time;
-                    [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $this->config->getEmbeddingModelConfig($this->model), $sectionRecord->tokens, 0);
+                    [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $this->config->getEmbeddingModelConfig($this->embeddingModel), $sectionRecord->tokens, 0);
                     $payTokens += $modelConfig->tokensPerTime;
                     $sectionRecord->payTokens = $payTokens;
                     $this->projectPayTokens += $payTokens;
@@ -512,7 +522,7 @@ class EmbeddingUploadParser
             return;
         }
 
-        $generator = $handler->parseSections($this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle, $this->model);
+        $generator = $handler->parseSections($this->sectionSplitLength, $this->sectionSeparator, $this->sectionSplitByTitle, $this->embeddingModel);
 
         foreach ($generator as $item)
         {

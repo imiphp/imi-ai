@@ -16,6 +16,15 @@ class Client extends \app\Module\OpenAI\Client\OpenAI\Client
 {
     public function calcTokens(string $string, string $model): int
     {
-        return mb_strlen($string);
+        try
+        {
+            // 优先尝试用 OpenAI 方式计算
+            return parent::calcTokens($string, $model);
+        }
+        catch (\Throwable)
+        {
+            // OpenAI 方式计算失败，使用字符串长度计算
+            return mb_strlen($string);
+        }
     }
 }

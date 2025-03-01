@@ -88,7 +88,7 @@ const menuOptions = [
             },
             // style: 'color: rgb(51, 54, 57)',
           },
-          { default: () => '模型训练' },
+          { default: () => '模型训练 (RAG)' },
         ),
       }),
     key: 'Embedding',

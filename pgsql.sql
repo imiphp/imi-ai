@@ -66,7 +66,8 @@ CACHE 1
   "chat_config" json NOT NULL DEFAULT '{}'::json,
   "similarity" float4 NOT NULL DEFAULT 0,
   "top_sections" int2 NOT NULL DEFAULT 0,
-  "prompt" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text
+  "prompt" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text,
+  "embedding_model" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT 'text-embedding-ada-002'::character varying
 )
 ;
 COMMENT ON COLUMN "public"."tb_embedding_project"."member_id" IS '用户ID';
@@ -86,6 +87,7 @@ COMMENT ON COLUMN "public"."tb_embedding_project"."chat_config" IS '聊天对话
 COMMENT ON COLUMN "public"."tb_embedding_project"."similarity" IS '相似度';
 COMMENT ON COLUMN "public"."tb_embedding_project"."top_sections" IS '使用最匹配的段落数量';
 COMMENT ON COLUMN "public"."tb_embedding_project"."prompt" IS '提示语';
+COMMENT ON COLUMN "public"."tb_embedding_project"."embedding_model" IS '嵌入式模型名称';
 COMMENT ON TABLE "public"."tb_embedding_project" IS '文件训练项目';
 
 -- ----------------------------

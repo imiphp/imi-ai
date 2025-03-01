@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\FileHandler;
 
-use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use Imi\Bean\Annotation\Bean;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -18,21 +17,9 @@ use League\CommonMark\Parser\MarkdownParser;
 /**
  * @Bean("MdFileHandler")
  */
-class MdFileHandler extends BaseFileHandler
+class MdFileHandler extends TxtFileHandler
 {
     protected array $headingStack = [];
-
-    protected ?string $content = null;
-
-    public function getContent(): string
-    {
-        if (null === $this->content)
-        {
-            return $this->content = file_get_contents($this->getFileName());
-        }
-
-        return $this->content;
-    }
 
     public function parseSections(int $sectionSplitLength, string $sectionSeparator, bool $splitByTitle, string $model): \Generator
     {
@@ -43,7 +30,7 @@ class MdFileHandler extends BaseFileHandler
                 [$heading, $section] = $item;
                 $heading = trim($heading);
                 $section = trim($section);
-                $headingTokens = Gpt3Tokenizer::count($heading, $model);
+                $headingTokens = $this->calcTokens($heading, $model);
                 // 分隔符分割
                 if ('' === $sectionSeparator)
                 {
@@ -56,9 +43,9 @@ class MdFileHandler extends BaseFileHandler
                 foreach ($items as $splitItem)
                 {
                     // 长度
-                    foreach (Gpt3Tokenizer::chunk($splitItem, $sectionSplitLength - $headingTokens, $model) as $chunk)
+                    foreach ($this->chunk($splitItem, $sectionSplitLength - $headingTokens, $model) as $chunk)
                     {
-                        $tokens = $headingTokens + Gpt3Tokenizer::count($chunk, $model);
+                        $tokens = $headingTokens + $this->calcTokens($chunk, $model);
                         yield [$heading, $chunk, $tokens];
                     }
                 }
@@ -66,25 +53,7 @@ class MdFileHandler extends BaseFileHandler
         }
         else
         {
-            // 分隔符分割
-            if ('' === $sectionSeparator)
-            {
-                $items = (array) $this->content;
-            }
-            else
-            {
-                $items = explode($sectionSeparator, $this->content);
-            }
-            foreach ($items as $splitItem)
-            {
-                $splitItem = trim($splitItem);
-                // 长度
-                foreach (Gpt3Tokenizer::chunk($splitItem, $sectionSplitLength, $model) as $chunk)
-                {
-                    $tokens = Gpt3Tokenizer::count($chunk, $model);
-                    yield ['', $chunk, $tokens];
-                }
-            }
+            return parent::parseSections($sectionSplitLength, $sectionSeparator, $splitByTitle, $model);
         }
     }
 

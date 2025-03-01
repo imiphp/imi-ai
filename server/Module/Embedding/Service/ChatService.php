@@ -16,7 +16,6 @@ use app\Module\Embedding\Model\EmbeddingProject;
 use app\Module\Embedding\Model\EmbeddingQa;
 use app\Module\Embedding\Model\EmbeddingSectionSearched;
 use app\Module\Embedding\Model\Redis\EmbeddingConfig;
-use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use app\Module\OpenAI\Util\OpenAIUtil;
 use app\Util\TokensUtil;
 use Imi\Aop\Annotation\Inject;
@@ -83,7 +82,8 @@ class ChatService
 
     public function search(int $projectId, string $q = '', float $similarity = 0, int $page = 1, int $limit = 15, ?int &$tokens = null, ?int &$payTokens = null): IPaginateResult
     {
-        $model = 'text-embedding-ada-002';
+        $project = $this->embeddingService->getProject($projectId);
+        $model = $project->getEmbeddingModel();
         $client = OpenAIUtil::makeClient($model, true);
         $response = $client->embedding([
             'model' => $model,
@@ -94,8 +94,7 @@ class ChatService
             throw new \RuntimeException('获取向量失败');
         }
         $vector = new Vector($response['data'][0]['embedding']);
-
-        $tokens = Gpt3Tokenizer::count($q, $model);
+        $tokens = $client->calcTokens($q, $model);
         $config = EmbeddingConfig::__getConfig();
         [$payTokens] = TokensUtil::calcDeductToken($modelConfig = $config->getEmbeddingModelConfig($model), $tokens, 0);
         $payTokens += $modelConfig->tokensPerTime;
@@ -204,14 +203,14 @@ class ChatService
                 }
                 yield $yieldData;
             }
-            $chatInputTokens = Gpt3Tokenizer::count($record->prompt, $model) // 系统提示语
-            + Gpt3Tokenizer::count($question, $model) // 问题提示语
-            + Gpt3Tokenizer::count($content, $model) // 内容提示语
+            $chatInputTokens = $client->calcTokens($record->prompt, $model) // 系统提示语
+            + $client->calcTokens($question, $model) // 问题提示语
+            + $client->calcTokens($content, $model) // 内容提示语
             + (\count($messages) * $modelConfig->additionalTokensPerMessage) // 每条消息额外的Tokens
             + $modelConfig->additionalTokensAfterMessages // 每次消息之后额外的Tokens
             ;
 
-            $chatOutputTokens = Gpt3Tokenizer::count($content, $model);
+            $chatOutputTokens = $client->calcTokens($content, $model);
             $record->answer = $content;
         }
         else

@@ -34,8 +34,6 @@ class EmbeddingRetryParser
 
     private EmbeddingConfig $config;
 
-    private string $model = 'text-embedding-ada-002';
-
     private array $projectTokens = [];
 
     private array $fileTokens = [];
@@ -44,7 +42,7 @@ class EmbeddingRetryParser
 
     private array $failedFiles = [];
 
-    public function __construct(private int $memberId)
+    public function __construct(private int $memberId, private string $model)
     {
         $this->taskChannel = new Channel(\PHP_INT_MAX);
         $this->config = EmbeddingConfig::__getConfigAsync();

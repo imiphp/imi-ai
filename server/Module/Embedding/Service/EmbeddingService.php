@@ -35,9 +35,9 @@ class EmbeddingService
     #[Inject()]
     protected MemberService $memberService;
 
-    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = '', string $sectionSeparator = '', ?int $sectionSplitLength = null, bool $sectionSplitByTitle = true): EmbeddingProject
+    public function upload(int $memberId, string $fileName, string $clientFileName, string $ip, string $id = '', bool $override = true, string $directory = '', string $sectionSeparator = '', ?int $sectionSplitLength = null, bool $sectionSplitByTitle = true, string $embeddingModel = ''): EmbeddingProject
     {
-        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle);
+        $parser = App::newInstance(EmbeddingUploadParser::class, $memberId, $fileName, $clientFileName, $ip, $id, $override, $directory, $sectionSeparator, $sectionSplitLength, $sectionSplitByTitle, $embeddingModel);
 
         $parser->checkBalance();
 
@@ -458,7 +458,7 @@ class EmbeddingService
         $project = $this->getProject($id, $memberId);
         $project->status = EmbeddingStatus::TRAINING;
         $project->update();
-        $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+        $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId, $project->getEmbeddingModel());
         $retryParser->checkBalance();
         $retryParser->asyncRun();
         foreach ($this->fileList($id, $memberId, $force ? 0 : EmbeddingStatus::FAILED) as $file)
@@ -489,7 +489,7 @@ class EmbeddingService
             }
             $project->status = EmbeddingStatus::TRAINING;
             $project->update();
-            $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+            $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId, $project->getEmbeddingModel());
             $retryParser->checkBalance();
             $retryParser->asyncRun();
         }
@@ -537,7 +537,7 @@ class EmbeddingService
             $project->status = EmbeddingStatus::TRAINING;
             $project->update();
 
-            $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId);
+            $retryParser = App::newInstance(EmbeddingRetryParser::class, $memberId, $project->getEmbeddingModel());
             $retryParser->checkBalance();
             $retryParser->asyncRun();
         }

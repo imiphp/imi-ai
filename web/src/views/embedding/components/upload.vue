@@ -1,13 +1,14 @@
 <script setup lang='tsx'>
 import type { UploadFileInfo, UploadInst } from 'naive-ui'
-import { NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NP, NText, NUpload, NUploadDragger, useDialog } from 'naive-ui'
+import { NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NP, NSelect, NText, NUpload, NUploadDragger, useDialog } from 'naive-ui'
 
 import { ArchiveOutline as ArchiveIcon } from '@vicons/ionicons5'
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import service from '@/utils/request/axios'
 import { useAuthStore } from '@/store'
 import { config, embeddingFileTypes } from '@/api'
+import type { ModelConfig } from '@/store'
 
 const dialog = useDialog()
 const router = useRouter()
@@ -73,14 +74,27 @@ const uploadData = ref({
   sectionSeparator: '',
   sectionSplitLength: 512,
   sectionSplitByTitle: true,
+  embeddingModel: '',
 })
 
 const uploadRef = ref<UploadInst | null>(null)
+const models = ref<ModelConfig[]>([])
+const modelsSelectOptions = computed(() => {
+  return models.value.map((item) => {
+    return {
+      label: item.title.length === 0 ? item.model : item.title,
+      value: item.model,
+      disabled: !item.enable,
+    }
+  })
+})
 
 async function loadConfig() {
   const response = await config()
   publicConfig.value = response.data
   uploadData.value.sectionSplitLength = response.data['config:embedding'].config.maxSectionTokens
+  models.value = response.data['config:embedding'].config.embeddingModelConfigs ?? []
+  uploadData.value.embeddingModel = models.value[0]?.model ?? ''
 }
 
 function getUploadData(): any {
@@ -159,6 +173,9 @@ onMounted(async () => {
       label-width="auto"
       require-mark-placement="right-hanging"
     >
+      <NFormItem label="嵌入模型">
+        <NSelect v-model:value="uploadData.embeddingModel" :options="modelsSelectOptions" />
+      </NFormItem>
       <NFormItem label="分隔符">
         <NInput v-model:value="uploadData.sectionSeparator" placeholder="用于分割段落，支持转义符" />
       </NFormItem>

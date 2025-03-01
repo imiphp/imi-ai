@@ -320,7 +320,7 @@ onUnmounted(() => {
         </NBreadcrumbItem>
         <NBreadcrumbItem>
           <RouterLink to="/embedding">
-            模型训练
+            模型训练 (RAG)
           </RouterLink>
         </NBreadcrumbItem>
         <NBreadcrumbItem>

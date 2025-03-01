@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace app\Module\Embedding\FileHandler;
 
-use app\Module\OpenAI\Util\Gpt3Tokenizer;
 use Imi\Bean\Annotation\Bean;
 
 /**
@@ -38,11 +37,9 @@ class TxtFileHandler extends BaseFileHandler
         foreach ($items as $splitItem)
         {
             $splitItem = trim($splitItem);
-            // 长度
-            foreach (Gpt3Tokenizer::chunk($splitItem, $sectionSplitLength, $model) as $chunk)
+            foreach ($this->chunk($splitItem, $sectionSplitLength, $model) as $chunk)
             {
-                $tokens = Gpt3Tokenizer::count($chunk, $model);
-                yield ['', $chunk, $tokens];
+                yield ['', $chunk, $this->calcTokens($chunk, $model)];
             }
         }
     }

@@ -35,6 +35,7 @@ use Imi\Pgsql\Model\PgModel as Model;
  * @property float|null                           $similarity          相似度
  * @property int|null                             $topSections         使用最匹配的段落数量
  * @property string|null                          $prompt              提示语
+ * @property string|null                          $embeddingModel      嵌入式模型名称
  */
 abstract class EmbeddingProjectBase extends Model
 {
@@ -595,6 +596,40 @@ abstract class EmbeddingProjectBase extends Model
     public function setPrompt($prompt)
     {
         $this->prompt = null === $prompt ? null : $prompt;
+
+        return $this;
+    }
+
+    /**
+     * 嵌入式模型名称.
+     * embedding_model.
+     *
+     * @Column(name="embedding_model", type="varchar", length=255, accuracy=0, nullable=false, default="'text-embedding-ada-002'::character varying", isPrimaryKey=false, primaryKeyIndex=-1, isAutoIncrement=false, ndims=0, virtual=false)
+     */
+    protected ?string $embeddingModel = 'text-embedding-ada-002';
+
+    /**
+     * 获取 embeddingModel - 嵌入式模型名称.
+     */
+    public function getEmbeddingModel(): ?string
+    {
+        return $this->embeddingModel;
+    }
+
+    /**
+     * 赋值 embeddingModel - 嵌入式模型名称.
+     *
+     * @param string|null $embeddingModel embedding_model
+     *
+     * @return static
+     */
+    public function setEmbeddingModel($embeddingModel)
+    {
+        if (\is_string($embeddingModel) && mb_strlen($embeddingModel) > 255)
+        {
+            throw new \InvalidArgumentException('The maximum length of $embeddingModel is 255');
+        }
+        $this->embeddingModel = null === $embeddingModel ? null : $embeddingModel;
 
         return $this;
     }
