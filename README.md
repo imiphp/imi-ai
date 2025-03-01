@@ -14,17 +14,15 @@
 
 ## 介绍
 
-imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写文章、做作业等功能。
+imi-ai 是一个 AI 大模型开源项目，支持对话和 RAG 知识库功能。
 
 项目架构合理，代码编写优雅，简单快速部署。前后端代码完全开源，不管是学习自用还是商用二开都很适合。
-
-本项目现已支持 ChatGPT 聊天 AI 和 Embedding 模型训练对话。
 
 项目采用 MIT 协议开源，你可以方便地进行二次开发，并且可以用于商业用途。
 
 ## 演示
 
-公益演示地址：<https://ai.imiphp.com/> （注册送额度，付费可用 gpt-4、gpt-3.5-turbo-16k）
+演示地址：<https://ai.imiphp.com/>
 
 ![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/1.jpg)
 ![演示](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/2.jpg)
@@ -59,7 +57,7 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 * [x] 提示词模型商店
 * [x] 支持限流
 
-### 模型训练
+### 模型训练（RAG 知识库）
 
 * [x] OpenAI 多文件（压缩）模型训练
 * [x] OpenAI 单文件模型训练
@@ -89,11 +87,10 @@ imi-ai 是一个 ChatGPT 开源项目，支持聊天、问答、写代码、写�
 ### 支持的模型厂商
 
 * [x] [OpenAI](https://openai.com/)
-* [x] [Swoole AI](https://ai.swoole.com/)
-* [x] [ChatGLM3](https://github.com/THUDM/ChatGLM3)
-* [x] [Google Gemini](https://aistudio.google.com/)
-* [x] [Qwen2](https://github.com/QwenLM/Qwen2) (Gitee AI Serverless API)
 * [x] [Ollama](https://ollama.com/)
+* [x] [Swoole AI](https://ai.swoole.com/)
+* [x] [Google Gemini](https://aistudio.google.com/)
+* [x] [BigModel 智谱AI](https://www.bigmodel.cn/)
 
 > 使用 Ollama 提供的类 OpenAI API，可以支持几乎所有开源模型私有化部署
 
@@ -328,6 +325,8 @@ npm run build
 
 ![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
 
+> 先加好友再拉群，不注明来意不通过验证，谢谢理解！
+
 ## 赞助开发
 
 imi-ai 是基于 MIT 协议完全开源的项目，为了能够更好地可持续发展，特推出赞助权益。
@@ -351,25 +350,12 @@ imi-ai 是基于 MIT 协议完全开源的项目，为了能够更好地可持�
 | 设计文档 |  | ✔ | ✔ | ✔ | 在线浏览 |
 | 接口文档（后台+前台） |  | ✔ | ✔ | ✔ | 在线浏览/Swagger 格式导出/Markdown |
 | 一对一问题咨询 |  |  | ✔ | ✔ | 回复及时，隐私更好 |
-| 项目搭建部署（1次） |  |  |  | ✔ | 建议提供干净的服务器，可用内存至少1G。后续升级请自行操作，或另外付费。 |
-| 私有化部署模型 |  |  |  | ✔ | 基于 Ollama 私有化部署模型在自己的 GPU 服务器，提供部署说明 |
-
-> 2024-02-24 之前赞助的黄金级别，仍可享受 1 次免费项目搭建部署
-
-#### 私有化部署模型
-
-用户需自行准备好带 12G 及以上显存显卡的机器（支持多显卡），可以没有公网IP，可以是家里的电脑，但必须能联网（建议境外IP）。
-
-Windows 需提前准备好：远程连接工具（向日葵、RustDesk 等）、 WSL2、Docker。
-
-Linux 需提前准备好：SSH连接参数（请勿使用桌面系统远程）。
-
-部署完全前，请保证远程连接或 SSH 通道畅通！
+| 项目搭建部署（1次） |  |  |  | ✔ | imi-ai + Ollama 私有化部署模型。建议提供干净的服务器，可用内存至少1G。后续升级请自行操作，或另外付费。 |
 
 **支付：**
 
 ![赞助](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/pay.png)
 
-**微信：**
+## 定制开发
 
-![微信](https://cdn.jsdelivr.net/gh/imiphp/imi-ai@master/res/wechat.png)
+承接 imi-ai 相关的二次开发、AI 应用定制开发等业务，欢迎咨询。

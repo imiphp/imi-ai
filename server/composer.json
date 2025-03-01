@@ -1,7 +1,7 @@
 {
     "name": "imiphp/imi-ai",
     "type": "project",
-    "description": "基于 imi 框架开发的 AI 服务，支持 ChatGPT。",
+    "description": "基于 imi 框架开发的 AI 大模型开源项目，支持对话和 RAG 知识库功能。",
     "require": {
         "php": ">=8.1",
         "ext-gd": "*",
