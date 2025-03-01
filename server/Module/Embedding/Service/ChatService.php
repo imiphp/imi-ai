@@ -183,10 +183,6 @@ class ChatService
                     continue;
                 }
                 $delta = $data['delta'];
-                if (isset($delta['role']))
-                {
-                    continue;
-                }
                 $yieldData = [];
                 if ($finishReason = ($data['finish_reason'] ?? null))
                 {
