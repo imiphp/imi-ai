@@ -87,7 +87,7 @@ class EmbeddingUploadParser
         $this->taskChannel = new Channel(\PHP_INT_MAX);
         $this->config = goWait(fn () => EmbeddingConfig::__getConfig(), 30, true);
         $maxSectionTokens = $this->config->getMaxSectionTokens();
-        $this->sectionSplitLength = max($sectionSplitLength ?? $maxSectionTokens, $maxSectionTokens);
+        $this->sectionSplitLength = min($sectionSplitLength ?? $maxSectionTokens, $maxSectionTokens);
         $this->setSectionSeparator($sectionSeparator);
     }
 
