@@ -19,31 +19,60 @@ abstract class BaseFileHandler implements IFileHandler
 
     protected function chunk(string $content, int $sectionSplitLength, string $model): \Generator
     {
-        try
+        // 按换行符拆分文本为行
+        $lines = explode("\n", $content);
+
+        // 当前分段的内容
+        $currentSegment = '';
+
+        foreach ($lines as $line)
         {
-            // 优先尝试用 OpenAI 方式分割
-            foreach (Gpt3Tokenizer::chunk($content, $sectionSplitLength, $model) as $chunk)
+            // 如果当前行加上当前分段的长度不超过最大长度，则直接添加到当前分段
+            if (mb_strlen($currentSegment . $line) <= $sectionSplitLength)
             {
-                yield $chunk;
+                $currentSegment .= $line . "\n";
+            }
+            else
+            {
+                // 如果当前分段不为空，则将其添加到结果中
+                if (!empty(trim($currentSegment)))
+                {
+                    yield trim($currentSegment);
+                }
+                // 开始新的分段
+                $currentSegment = $line . "\n";
+
+                // 如果新的一行本身超过最大长度，则需要进一步拆分
+                while (mb_strlen($currentSegment) > $sectionSplitLength)
+                {
+                    // 从最大长度位置向前查找合适的拆分点
+                    $splitPos = $sectionSplitLength;
+                    for ($i = $sectionSplitLength; $i >= 0; --$i)
+                    {
+                        $char = mb_substr($currentSegment, $i, 1);
+                        // 检查是否为标点符号、空格或换行符
+                        if (preg_match('/[。！？.!?\s]/u', $char))
+                        {
+                            $splitPos = $i + 1; // 包括标点符号
+                            break;
+                        }
+                    }
+                    // 如果找不到合适的拆分点，则强制在最大长度处拆分
+                    if ($splitPos <= 0)
+                    {
+                        $splitPos = $sectionSplitLength;
+                    }
+                    // 拆分分段
+                    yield trim(mb_substr($currentSegment, 0, $splitPos));
+                    $currentSegment = mb_substr($currentSegment, $splitPos);
+                }
             }
         }
-        catch (\Throwable)
+
+        // 添加最后一个分段
+        if (!empty(trim($currentSegment)))
         {
-            // 使用字符串分割
-            $content = trim($content);
-            $contentLength = mb_strlen($content);
-            $start = 0;
-            while ($start < $contentLength)
-            {
-                $end = $start + $sectionSplitLength;
-                if ($end >= $contentLength)
-                {
-                    $end = $contentLength;
-                }
-                $chunk = mb_substr($content, $start, $end - $start);
-                yield $chunk;
-                $start = $end;
-            }
+            yield trim($currentSegment);
         }
     }
 
